@@ -1,25 +1,67 @@
 require('file?name=[name].[ext]!../node_modules/neo4j-driver/lib/browser/neo4j-web.min.js');
 var Movie = require('./models/Movie');
 var MovieCast = require('./models/MovieCast');
+var Path = require('./models/Path');
 var _ = require('lodash');
 
 var neo4j = window.neo4j.v1;
-var driver = neo4j.driver("bolt://localhost", neo4j.auth.basic("neo4j", "abcde"));
+var driver = neo4j.driver("bolt://localhost", neo4j.auth.basic("neo4j", "Milwan1"));
 
 function searchMovies(queryString) {
   var session = driver.session();
   return session
     .run(
-      'MATCH (movie:Movie) \
-      WHERE movie.title =~ {title} \
-      RETURN movie',
-      {title: '(?i).*' + queryString + '.*'}
+      'MATCH p=(:Organisation {title: "Organisation"})<-[:is_part_of*]-(x) \
+      RETURN p',
+      {}
     )
     .then(result => {
       session.close();
-      return result.records.map(record => {
-        return new Movie(record.get('movie'));
-      });
+
+      if (result.records.length > 0) {
+        let firstRecord = result.records[0].get('p');
+        let rootTitle = firstRecord.start.properties.title;
+        let rootCx = {name: rootTitle, children: []};
+        var cxStack = [rootCx];
+
+        //console.log(cxStack);
+        //console.log (result)
+        // let paths = result.records.map(record => {
+        //   return new Path(record.get('p'));
+        // });
+
+        let records = result.records;
+
+        for (var recordIndex = 0, recordsLen = records.length; recordIndex < recordsLen; recordIndex++) {
+          let pathInfo = records[recordIndex].get('p');
+          let pathSegments = pathInfo.segments;  //if we get this far, there will be at least one element in segments array
+
+
+          let pathLen = pathSegments.length;
+//console.log(cxStack);
+          cxStack = cxStack.slice(0, pathLen);
+          let currentCx = cxStack[pathLen - 1];
+          let node = pathSegments[pathLen - 1];
+
+          let newNode = {name: node.end.properties.title};
+
+          //console.log(cxStack);
+          if (typeof(currentCx.children) ==  "undefined") {
+            currentCx.children = [];
+          }
+          currentCx.children.push(newNode);
+          cxStack.push(newNode);
+
+        }
+
+var vv = JSON.stringify(cxStack[0])
+        console.log(vv);
+
+      return paths;
+    }
+    else {
+      return [];
+    }
     })
     .catch(error => {
       session.close();
@@ -85,4 +127,3 @@ function getGraph() {
 exports.searchMovies = searchMovies;
 exports.getMovie = getMovie;
 exports.getGraph = getGraph;
-
