@@ -60,13 +60,13 @@ console.log(query);
 }
 
 
-
+//should this be in the api?
 function setRelationships(lhs, rhs, rel_name, field, hierarchy) {
 //   var query = `MATCH (l:${lhs})-[rel:${rel_name}]->(r:${rhs}) \
 // WHERE exists(rel.${field}) \
 // RETURN id(l) as l_id, id(r) as r_id, l.title as l_title, r.title as r_title, rel.${field} as field `
 
-//for proof of concept at tany rate, not insisting on the existence of the value field (ie ftes)
+//for proof of concept at any rate, not insisting on the existence of the value field (ie ftes)
 //and defaulting to a value of 1 where a value does not exist in the database.
 //needless to say, this ought to change at some point.
 
@@ -117,7 +117,7 @@ console.log(query);
 
         console.log (sourceDictionary);
 
-        traverseTree (hierarchy, assignRelationships, {rel_dict: sourceDictionary})
+        traverseTree (hierarchy, assignRelationships, null, {rel_dict: sourceDictionary})
 
 
 
@@ -175,9 +175,9 @@ function assignRelationships(node, props) {
   }
 }
 
-function traverseTree(rootNode, withFunction, props) {
+function traverseTree(rootNode, handleChild, handleRollup, props) { //better to wrap props in closure?
 
-  //withFunction(node, null, props);
+  //handleChild(node, null, props);
 
   var nextChildren = rootNode.children || [];
   nextChildren = nextChildren.map(function(c, i){
@@ -199,7 +199,9 @@ function traverseTree(rootNode, withFunction, props) {
       let discard = toDoLists.pop();
       let child =  parents.pop();
       let parent = parents[parents.length - 1];
-      //withFunction(child, parent, props); //this was the rollup function - not a process child function
+      if (handleRollup != null) {
+        handleRollup(child, parent, props);
+      }
     }
     else {
       let nextToDo = nextToDoList.pop();
@@ -209,7 +211,7 @@ function traverseTree(rootNode, withFunction, props) {
         return c;
       });
       toDoLists.push(nextChildren.reverse());
-      withFunction(nextToDo, props);
+      handleChild(nextToDo, props);
     }
     lenToDoLists = toDoLists.length;
     sanity++;

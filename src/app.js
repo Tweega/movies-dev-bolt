@@ -11,7 +11,8 @@ $(function () {
 // jobs.addJob(testCB_B, {}, testCB_B_Done);
 // jobs.doJobs(testAllDone);
 
-//promises are not that flexible so treaating linearly here, but short of time to get a job scheduler working
+// not sure if promises below are meant to be so nested as below,  experimented with a job scheduler approach, but not enought time to go down that road
+// as we need to be able to have job schedulers as scheduled items.
 
   params["lhs"] = "Organisation";
   params["rhs"] = "Technology";
@@ -40,7 +41,30 @@ $(function () {
 
                           api.setRelationships(params.rhs, params.pivot, params.rhs_rel, params.rhs_rel_field, rhs_hierarchy)
                           .then(lhs_r => {
-                              console.log(lhs_r);
+                              //---------
+                              if (lhs_r) {
+                                  api.getHierarchy(params.pivot)
+                                  .then(pivot_hierarchy => {
+                                      if (pivot_hierarchy) {
+                                          //do follow-on stuff with hierarchy
+                                          console.log("ok got pivot hierarchy");
+
+
+                                          //here we want to get lists of pivot leaves for each pivot node
+                                          //jutzPath might have been useful here.
+
+
+                                          traverseTree(pivot_hierarchy, null, handlePivotListRollup, {});
+  console.log(pivot_hierarchy);
+                                          // console.log("can i still see the hierarchy object?");
+                                          //
+                                          // console.log(lhs_hierarchy);
+
+
+                                      } //if (rhs_hierarchy)
+                                  }) //then(rhs_hierarchy
+                              }   //if (lhs_hierarchy
+                              //---------
                           })
                       } //if (rhs_hierarchy)
                   }) //then(rhs_hierarchy
@@ -51,6 +75,7 @@ $(function () {
 }) //$function
 
 
+/*
 function testCB_A(x, cb) {
   console.log("Doing A");
   cb("A");
@@ -73,31 +98,73 @@ function testCB_B_Done(result) {
 function testAllDone() {
   console.log ("All done");
 }
-function callback(lhsTree, params){
+*/
 
- // var rhsTree = api.getHierarchy(rhs);
- // var pivotTree = api.getHierarchy(pivot);
- var lhsRelationships = api.setRelationships(params.lhs, params.pivot, params.lhs_rel, lhsTree, callback2);
- console.log(lhsRelationships);
 
- console.log("lhsRelationships");
-//  var rhs_relationships = api.getRelationships(lhs, pivot, rhs_rel);
+function traverseTree(rootNode, handleChild, handleRollup, props) {
+
+  //handleChild(node, null, props);
+
+  var nextChildren = rootNode.children || [];
+  nextChildren = nextChildren.map(function(c, i){
+    return c;
+  });
+
+  var sanity = 0;
+
+  var toDoLists = [nextChildren.reverse()];
+
+  var parents = [rootNode];
+
+  var lenToDoLists = toDoLists.length;
+
+  while ((lenToDoLists > 0) && (sanity < 50)) {
+    let nextToDoList = toDoLists[lenToDoLists - 1];
+
+    if (nextToDoList.length == 0) {
+      let discard = toDoLists.pop();
+      let child =  parents.pop();
+      let parent = parents[parents.length - 1];
+      if (handleRollup != null && typeof(parent) != "undefined") {
+
+        handleRollup(child, parent, props);
+      
+      }
+    }
+    else {
+      let nextToDo = nextToDoList.pop();
+      parents.push(nextToDo);
+      nextChildren = nextToDo.children || [];
+      nextChildren = nextChildren.map(function(c, i){
+        return c;
+      });
+      toDoLists.push(nextChildren.reverse());
+      if (handleChild != null) {
+        handleChild(nextToDo, props);
+      }
+    }
+    lenToDoLists = toDoLists.length;
+    sanity++;
+  }
+  //console.log (rootNode);
 }
 
-function callback(lhsTree, params){
 
- // var rhsTree = api.getHierarchy(rhs);
- // var pivotTree = api.getHierarchy(pivot);
- var lhsRelationships = api.setRelationships(params.lhs, params.pivot, params.lhs_rel, lhsTree, callback2);
- console.log(lhsRelationships);
+function handlePivotListRollup(child, parent, props){
+  //copy up each list of children
+  // if this child node has no children, then initialise List with just this node
 
- console.log("lhsRelationships");
-//  var rhs_relationships = api.getRelationships(lhs, pivot, rhs_rel);
-}
+  if (typeof(child.children) == "undefined") {
+      child["descendants"] = [[child.name]] //preferable to use ids?
+  }
 
+  if (typeof(parent.descendants) == "undefined") {
+      parent["descendants"] = [];
+  }
 
-function callback2(lhsTree){
+  let parentDescendants = parent["descendants"];
+  let childDescendants = child["descendants"];
 
+  parentDescendants.push.apply(parentDescendants, childDescendants)
 
-console.log(lhsTree)
 }
