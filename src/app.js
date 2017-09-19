@@ -53,13 +53,19 @@ $(function () {
                                           //here we want to get lists of pivot leaves for each pivot node
                                           //jutzPath might have been useful here.
 
-
+                                          pivot_hierarchy["isRoot"] = true;
                                           traverseTree(pivot_hierarchy, null, handlePivotListRollup, {});
+
+                                          //the pivot hierarchy now has lists of leaf nodes that can be passed to hierarchy rollups
+
   console.log(pivot_hierarchy);
                                           // console.log("can i still see the hierarchy object?");
                                           //
                                           // console.log(lhs_hierarchy);
 
+
+
+                                          traverseTree(lhs_hierarchy, setRels, linkLayers, pivot_hierarchy);
 
                                       } //if (rhs_hierarchy)
                                   }) //then(rhs_hierarchy
@@ -128,7 +134,7 @@ function traverseTree(rootNode, handleChild, handleRollup, props) {
       if (handleRollup != null && typeof(parent) != "undefined") {
 
         handleRollup(child, parent, props);
-      
+
       }
     }
     else {
@@ -167,4 +173,119 @@ function handlePivotListRollup(child, parent, props){
 
   parentDescendants.push.apply(parentDescendants, childDescendants)
 
+}
+
+function linkLayers(child, parent, pivotTree) {
+  //copy up relationships into parent
+
+  //traverse the process tree and for each node call another function
+
+  console.log(`link layers linking ${parent.name} to ${child.name}`)
+
+  traverseTree(pivotTree, _linkLayers, null, {parent: parent, child: child});
+
+
+}
+
+function _linkLayers(pivotNode, params) {
+
+  var parent = params.parent;
+  var child = params.child;
+  var processList = pivotNode.descendants;
+  var processKey = pivotNode.name;
+
+
+  let isRoot = typeof(pivotNode.isRoot) != "undefined" ? true : false;
+console.log("hola")
+console.log(child)
+  //if this is a leaf node then create relationships for it
+  if (typeof(child.relationships) != "undefined") {
+    console.log("about to init rels")
+    initialiseRels(child, processList, processKey, isRoot);
+  }
+
+  if (typeof(parent) != "undefined") {
+    //rollup child to parent
+    rollUp(parent, child, processKey);
+  } //else we should be done now.
+
+}
+
+function rollUp(parent, child, processKey) {
+  //copy up relationships into parent
+
+console.log(child);
+console.log(processKey);
+    //child.rels is a dictionary, whose keys are the processInfo.key
+    var childProcessMap = child.rels[processKey];
+    var childProcessKeys = Object.keys(childProcessMap);
+
+    //check if there is a rels context for this process on the parent
+
+    var cxRels;
+
+    if (typeof(parent.rels[processKey]) != "undefined") {
+        cxRels = parent.rels[processKey];
+    }
+    else {
+      cxRels = {};
+      parent.rels[processKey] = cxRels;
+    }
+
+    //console.log(filteredRelationships);
+    //copy child rels up to parent (cxRels).
+    childProcessKeys.forEach(function(key, i){
+      //console.log(key);
+      childRel = childProcessMap[key];
+      //r is a child relation to copy up to parent
+      let parentRel = cxRels[key];
+      if (typeof(parentRel) != "undefined") {
+
+        //let termpStarter = cxRels[key].value
+        cxRels[key].value = cxRels[key].value + childRel.value;
+      //console.log("" + termpStarter + " plus " + childRel.value + " = " + cxRels[key].value )
+      }
+      else {
+        let childRel = childProcessMap[key]
+        cxRels[key] = {target: childRel.target, value: childRel.value};
+      }
+    });
+
+}
+
+
+function initialiseRels(leafNode, processFilterList, processKey, isRoot) {
+console.log("Hello");
+
+    cx = leafNode["rels"];
+
+    //var filterRequired = typeof(child.relationships) != "undefined" ? !processInfo.isRoot : false;
+    var filterRequired = !isRoot;
+
+    //check if there is a rels context for this process on the parent
+    var isRoot = typepof(pivotNode.isRoot) == "undefined" ? false : true;
+
+    var cxRels = {};
+    cx[processKey] = cxRels;
+
+    var filteredRelationships = leafNode.relationships;
+
+    if (filterRequired){
+      filteredRelationships = leafNode.relationships.filter(function (r) {
+        return processFilterList.includes(r.target);
+      });
+    }
+
+    filteredRelationships.reduce(function(accum, r) {
+        accum[r.target] = {target: r.target, value: parseInt(r.value)};
+        return accum;
+    }, cxRels);
+
+    //we should now have on thr leaf nodes a rels dictionary keyed on process names
+    //each of these will point to another dictionary
+    //console.log(leafNode)
+}
+
+function setRels(node, props) {
+  node["rels"] = {};
 }

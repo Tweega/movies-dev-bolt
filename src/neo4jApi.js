@@ -9,7 +9,8 @@ var driver = neo4j.driver("bolt://localhost", neo4j.auth.basic("neo4j", "Milwan1
 
 function getHierarchy(rootClass) {
   var session = driver.session();
-  var query = `MATCH p=(:${rootClass} {title: "${rootClass}"})<-[:is_part_of*]-(x) RETURN p`
+  var query = `MATCH p=(:${rootClass} {title: "${rootClass}"})<-[:is_part_of*]-(x) WHERE x["level"]< 3 RETURN p`
+
 console.log(query);
   // 'MATCH p=(:Organisation {title: "Organisation"})<-[:is_part_of*]-(x) \
   // RETURN p',
