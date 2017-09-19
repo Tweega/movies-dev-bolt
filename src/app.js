@@ -22,6 +22,8 @@ $(function () {
   params["rhs_rel"] = "supports";
   params["rhs_rel_field"] = "supports";
 
+  var depth = {lhs: 0, rhs: 0};
+
   api.getHierarchy(params.lhs)
 
   .then(lhs_hierarchy => {
@@ -55,8 +57,13 @@ $(function () {
 
 
                                           traverseTree(lhs_hierarchy, null, linkLayers, pivot_hierarchy);
+                                          traverseTree(rhs_hierarchy, null, linkLayers, pivot_hierarchy);
 
-                                          console.log(lhs_hierarchy);
+                                          traverseTree(lhs_hierarchy, null, countDepth, {});
+                                          traverseTree(rhs_hierarchy, null, countDepth, {});
+
+                                          console.log(lhs_hierarchy.depth);
+                                          console.log(rhs_hierarchy.depth);
 
                                       } //if (rhs_hierarchy)
                                   }) //then(rhs_hierarchy
@@ -271,4 +278,24 @@ function initialiseRels(leafNode, processFilterList, processKey, isRoot) {
     //we should now have on thr leaf nodes a rels dictionary keyed on process names
     //each of these will point to another dictionary
 
+}
+
+function countDepth(child, parent, x) {
+
+  //if the parent does not yet have a depth, then
+  //set child depth to 0 if no child depth
+  //otherwise set to child depth
+  //ditto for parent depth
+
+  let childDepth = typeof(child.depth) != "undefined" ? child.depth : 0;
+  let parentDepth = typeof(parent.depth) != "undefined" ? parent.depth : 0;
+
+  if (childDepth >= parentDepth) {
+    parent["depth"] = childDepth + 1;
+  }
+  else {
+    if (typeof(parent.depth) != "undefined") {
+      parent["depth"] = 1;
+    }
+  }
 }
