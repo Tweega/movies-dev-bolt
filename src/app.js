@@ -65,7 +65,7 @@ $(function () {
 
 
 
-                                          traverseTree(lhs_hierarchy, setRels, linkLayers, pivot_hierarchy);
+                                          traverseTree(lhs_hierarchy, null, linkLayers, pivot_hierarchy);
 
                                       } //if (rhs_hierarchy)
                                   }) //then(rhs_hierarchy
@@ -180,7 +180,14 @@ function linkLayers(child, parent, pivotTree) {
 
   //traverse the process tree and for each node call another function
 
-  console.log(`link layers linking ${parent.name} to ${child.name}`)
+  console.log(`link layers linking ${parent.name} to ${child.name}`);
+
+  if (typeof(child.rels) == "undefined") {
+    child.rels = {};
+  }
+  if (typeof(parent.rels) == "undefined") {
+    parent.rels = {};
+  }
 
   traverseTree(pivotTree, _linkLayers, null, {parent: parent, child: child});
 
@@ -214,56 +221,58 @@ console.log(child)
 function rollUp(parent, child, processKey) {
   //copy up relationships into parent
 
+
 console.log(child);
 console.log(processKey);
     //child.rels is a dictionary, whose keys are the processInfo.key
     var childProcessMap = child.rels[processKey];
-    var childProcessKeys = Object.keys(childProcessMap);
 
-    //check if there is a rels context for this process on the parent
+    if (typeof(childProcessMap) != "undefined") {
+      var childProcessKeys = Object.keys(childProcessMap);
 
-    var cxRels;
+      //check if there is a rels context for this process on the parent
 
-    if (typeof(parent.rels[processKey]) != "undefined") {
-        cxRels = parent.rels[processKey];
-    }
-    else {
-      cxRels = {};
-      parent.rels[processKey] = cxRels;
-    }
+      var cxRels;
 
-    //console.log(filteredRelationships);
-    //copy child rels up to parent (cxRels).
-    childProcessKeys.forEach(function(key, i){
-      //console.log(key);
-      childRel = childProcessMap[key];
-      //r is a child relation to copy up to parent
-      let parentRel = cxRels[key];
-      if (typeof(parentRel) != "undefined") {
+      console.log(parent.rels);
 
-        //let termpStarter = cxRels[key].value
-        cxRels[key].value = cxRels[key].value + childRel.value;
-      //console.log("" + termpStarter + " plus " + childRel.value + " = " + cxRels[key].value )
+      if (typeof(parent.rels[processKey]) != "undefined") {
+          cxRels = parent.rels[processKey];
       }
       else {
-        let childRel = childProcessMap[key]
-        cxRels[key] = {target: childRel.target, value: childRel.value};
+        cxRels = {};
+        parent.rels[processKey] = cxRels;
       }
-    });
 
+      //console.log(filteredRelationships);
+      //copy child rels up to parent (cxRels).
+      childProcessKeys.forEach(function(key, i){
+        //console.log(key);
+        childRel = childProcessMap[key];
+        //r is a child relation to copy up to parent
+        let parentRel = cxRels[key];
+        if (typeof(parentRel) != "undefined") {
+
+          //let termpStarter = cxRels[key].value
+          cxRels[key].value = cxRels[key].value + childRel.value;
+        //console.log("" + termpStarter + " plus " + childRel.value + " = " + cxRels[key].value )
+        }
+        else {
+          let childRel = childProcessMap[key]
+          cxRels[key] = {target: childRel.target, value: childRel.value};
+        }
+      });
+    }
 }
 
 
 function initialiseRels(leafNode, processFilterList, processKey, isRoot) {
 console.log("Hello");
 
-    cx = leafNode["rels"];
+    var cx = leafNode["rels"];
 
     //var filterRequired = typeof(child.relationships) != "undefined" ? !processInfo.isRoot : false;
     var filterRequired = !isRoot;
-
-    //check if there is a rels context for this process on the parent
-    var isRoot = typepof(pivotNode.isRoot) == "undefined" ? false : true;
 
     var cxRels = {};
     cx[processKey] = cxRels;
@@ -284,8 +293,4 @@ console.log("Hello");
     //we should now have on thr leaf nodes a rels dictionary keyed on process names
     //each of these will point to another dictionary
     //console.log(leafNode)
-}
-
-function setRels(node, props) {
-  node["rels"] = {};
 }
