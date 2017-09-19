@@ -205,7 +205,48 @@ function traverseTree(rootNode, withFunction, props) {
   //console.log (rootNode);
 }
 
+function jobLot(){
+  this.jobDict = {};
+}
 
+jobLot.prototype.addJob = function(jobFunc, params, callback){
+  let id = Object.keys(this.jobDict).length;
+
+
+  var jobStruct = {job: jobFunc, callback: callback, params: params};
+  this.jobDict[id] = jobStruct;
+}
+
+jobLot.prototype.doJobs = function(callback) {
+  this.jobComplete = callback;
+  var that = this;
+  Object.keys(this.jobDict).forEach(function(key) {
+    let cb = jobLot.createCallback(key, that);
+    let job = that.jobDict[key];
+    job.job(job.params, cb);
+  });
+}
+
+jobLot.prototype.jobDone = function(id, result){
+  let jobInfo = this.jobDict[id];
+  delete this.jobDict[id];
+  jobInfo.callback(result);   //need more complex structure if the callback itself needs async processing before the overall job lot can be considered complete.
+  if (Object.keys(this.jobDict).length == 0) {
+    //all jobs done.
+    this.jobComplete();
+  }
+}
+
+jobLot.createCallback = function(id, jobController) {
+  return function (result) {
+    jobController.jobDone(id, result);
+  }
+}
+
+jobLot.createJobLot = function() {
+  return new jobLot();
+}
 
 exports.getHierarchy = getHierarchy;
 exports.setRelationships = setRelationships;
+exports.createJobLot = jobLot.createJobLot;

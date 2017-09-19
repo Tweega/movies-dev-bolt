@@ -5,17 +5,45 @@ $(function () {
  var params = {};
  var xx = 100;
 
-  params["lhs"] = "Organisation";
-  params["rhs"] = "Technology";
-  params["pivot"] = "Process";
-  params["lhs_rel"] = "ftes";
-  params["rhs_rel"] = "supports";
+var jobs = api.createJobLot();
 
-  api.getHierarchy(params.lhs, callback, params);
+jobs.addJob(testCB_A, {}, testCB_A_Done);
+jobs.addJob(testCB_B, {}, testCB_B_Done);
+jobs.doJobs(testAllDone);
+
+  // params["lhs"] = "Organisation";
+  // params["rhs"] = "Technology";
+  // params["pivot"] = "Process";
+  // params["lhs_rel"] = "ftes";
+  // params["rhs_rel"] = "supports";
+  //
+  // api.getHierarchy(params.lhs, callback, params);
 
 
 });
 
+function testCB_A(x, cb) {
+  console.log("Doing A");
+  cb("A");
+}
+
+function testCB_A_Done(result) {
+  console.log("A done" + result);
+}
+
+function testCB_B(x, cb) {
+  console.log("Doing B");
+  cb("B");
+}
+
+function testCB_B_Done(result) {
+  console.log("B done" + result);
+}
+
+
+function testAllDone() {
+  console.log ("All done");
+}
 function callback(lhsTree, params){
 
  // var rhsTree = api.getHierarchy(rhs);
