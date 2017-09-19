@@ -7,14 +7,14 @@ var _ = require('lodash');
 var neo4j = window.neo4j.v1;
 var driver = neo4j.driver("bolt://localhost", neo4j.auth.basic("neo4j", "Milwan1"));
 
-function searchMovies(queryString) {
+function getHierarchy(rootClass, callback, params) {
   var session = driver.session();
+  var query = `MATCH p=(:${rootClass} {title: "${rootClass}"})<-[:is_part_of*]-(x) RETURN p`
+
+  // 'MATCH p=(:Organisation {title: "Organisation"})<-[:is_part_of*]-(x) \
+  // RETURN p',
   return session
-    .run(
-      'MATCH p=(:Organisation {title: "Organisation"})<-[:is_part_of*]-(x) \
-      RETURN p',
-      {}
-    )
+    .run(query,{})
     .then(result => {
       session.close();
 
@@ -24,12 +24,6 @@ function searchMovies(queryString) {
         let rootCx = {name: rootTitle, children: []};
         var cxStack = [rootCx];
 
-        //console.log(cxStack);
-        //console.log (result)
-        // let paths = result.records.map(record => {
-        //   return new Path(record.get('p'));
-        // });
-
         let records = result.records;
 
         for (var recordIndex = 0, recordsLen = records.length; recordIndex < recordsLen; recordIndex++) {
@@ -38,14 +32,13 @@ function searchMovies(queryString) {
 
 
           let pathLen = pathSegments.length;
-//console.log(cxStack);
+
           cxStack = cxStack.slice(0, pathLen);
           let currentCx = cxStack[pathLen - 1];
           let node = pathSegments[pathLen - 1];
 
           let newNode = {name: node.end.properties.title};
 
-          //console.log(cxStack);
           if (typeof(currentCx.children) ==  "undefined") {
             currentCx.children = [];
           }
@@ -53,11 +46,8 @@ function searchMovies(queryString) {
           cxStack.push(newNode);
 
         }
-
-var vv = JSON.stringify(cxStack[0])
-        console.log(vv);
-
-      return paths;
+        callback(cxStack[0], params);
+        return cxStack[0];
     }
     else {
       return [];
@@ -69,24 +59,83 @@ var vv = JSON.stringify(cxStack[0])
     });
 }
 
-function getMovie(title) {
+
+
+function setRelationships(lhs, rhs, field, hierarchy, callback) {
+  var query = `MATCH (l:${lhs})-[rel]->(r:${rhs}) \
+WHERE exists(rel.${field}) \
+RETURN id(l) as l_id, id(r) as r_id, l.title as l_title, r.title as r_title, rel.ftes as field `
+
   var session = driver.session();
   return session
-    .run(
-      "MATCH (movie:Movie {title:{title}}) \
-      OPTIONAL MATCH (movie)<-[r]-(person:Person) \
-      RETURN movie.title AS title, \
-      collect([person.name, \
-           head(split(lower(type(r)), '_')), r.roles]) AS cast \
-      LIMIT 1", {title})
+  .run(query, {})
     .then(result => {
       session.close();
 
-      if (_.isEmpty(result.records))
-        return null;
+      if (result.records.length > 0) {
+        let records = result.records;
 
-      var record = result.records[0];
-      return new MovieCast(record.get('title'), record.get('cast'));
+
+        //var keys = records[0].keys;
+        var indices = records[0]._fieldLookup;
+        var sourceDictionary = {};
+
+
+        records.forEach(function (rec, i) {
+          //keys ["l_id", "r_id", "l_title", "r_title", "field"]
+          // l_id = rec._fields[rec._fieldLookup["l_id"]];
+          // r_id = rec._fields[rec._fieldLookup["r_id"]];
+
+          let l_id = rec._fields[indices["l_id"]];
+          let r_id = rec._fields[indices["r_id"]];
+
+          let l_title = rec._fields[indices["l_title"]];
+
+
+          let r_title = rec._fields[indices["r_title"]];
+          let field = rec._fields[indices["field"]];
+
+          let rel_info = {target: r_title, target_id: r_id, value: field};
+
+          if (typeof(sourceDictionary[l_title]) != "undefined") {
+            sourceDictionary[l_title].push(rel_info);
+          }
+          else {
+            sourceDictionary[l_title] = [rel_info];
+
+          }
+        });
+
+        console.log (sourceDictionary);
+
+        traverseTree (hierarchy, assignRelationships, {rel_dict: sourceDictionary})
+
+
+
+        //we now want to trawl the hierarchy and stitch in relationships
+
+        //now we have to do something with this in order to extract thr relationships
+
+
+        //now get the relationships data
+
+        //this query will be dynamically created base on choices by the user.
+
+
+        //then process that into a decent shape
+
+
+        //then sew it into the hierarchy data
+
+
+        // var vv = JSON.stringify(cxStack[0])
+        //         console.log(vv);
+callback(hierarchy)
+      return true;
+    }
+    else {
+      return [];
+    }
     })
     .catch(error => {
       session.close();
@@ -94,36 +143,69 @@ function getMovie(title) {
     });
 }
 
-function getGraph() {
-  var session = driver.session();
-  return session.run(
-    'MATCH (m:Movie)<-[:ACTED_IN]-(a:Person) \
-    RETURN m.title AS movie, collect(a.name) AS cast \
-    LIMIT {limit}', {limit: 100})
-    .then(results => {
-      session.close();
-      var nodes = [], rels = [], i = 0;
-      results.records.forEach(res => {
-        nodes.push({title: res.get('movie'), label: 'movie'});
-        var target = i;
-        i++;
 
-        res.get('cast').forEach(name => {
-          var actor = {title: name, label: 'actor'};
-          var source = _.findIndex(nodes, actor);
-          if (source == -1) {
-            nodes.push(actor);
-            source = i;
-            i++;
-          }
-          rels.push({source, target})
-        })
-      });
+function assignRelationships(node, props) {
+  //this function traverses a tree with name and children properties
+  //if the name property is in the list of node names that are known
+  //to have relationships, then//the relationships array is added, and the children array, if there is one is deleted
 
-      return {nodes, links: rels};
-    });
+  var dict = props.rel_dict;
+//console.log(node);
+//  console.log (`Looking for ${node.name}`)
+
+  if (typeof(dict[node.name]) != "undefined") {
+    //stitch these relationships into this Object
+    node["relationships"] = dict[node.name]; //this should be an array of target_node_id and values
+    //nodes with relationships are supposed to be children so delete the children collection of this node.
+    if (typeof(node.children) != "undefined") {
+      delete node.children;
+    }
+  }
 }
 
-exports.searchMovies = searchMovies;
-exports.getMovie = getMovie;
-exports.getGraph = getGraph;
+function traverseTree(rootNode, withFunction, props) {
+
+  //withFunction(node, null, props);
+
+  var nextChildren = rootNode.children || [];
+  nextChildren = nextChildren.map(function(c, i){
+    return c;
+  });
+
+  var sanity = 0;
+
+  var toDoLists = [nextChildren.reverse()];
+
+  var parents = [rootNode];
+
+  var lenToDoLists = toDoLists.length;
+
+  while ((lenToDoLists > 0) && (sanity < 50)) {
+    let nextToDoList = toDoLists[lenToDoLists - 1];
+
+    if (nextToDoList.length == 0) {
+      let discard = toDoLists.pop();
+      let child =  parents.pop();
+      let parent = parents[parents.length - 1];
+      //withFunction(child, parent, props); //this was the rollup function - not a process child function
+    }
+    else {
+      let nextToDo = nextToDoList.pop();
+      parents.push(nextToDo);
+      nextChildren = nextToDo.children || [];
+      nextChildren = nextChildren.map(function(c, i){
+        return c;
+      });
+      toDoLists.push(nextChildren.reverse());
+      withFunction(nextToDo, props);
+    }
+    lenToDoLists = toDoLists.length;
+    sanity++;
+  }
+  //console.log (rootNode);
+}
+
+
+
+exports.getHierarchy = getHierarchy;
+exports.setRelationships = setRelationships;
