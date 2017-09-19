@@ -28,8 +28,6 @@ $(function () {
 
       if (lhs_hierarchy) {
           //do follow-on stuff with hierarchy
-          console.log("ok got hierarchy");
-          console.log(params);
           api.setRelationships(params.lhs, params.pivot, params.lhs_rel, params.lhs_rel_field, lhs_hierarchy)
           .then(lhs_hierarchy2 => {
               if (lhs_hierarchy2) {
@@ -37,8 +35,6 @@ $(function () {
                   .then(rhs_hierarchy => {
                       if (rhs_hierarchy) {
                           //do follow-on stuff with hierarchy
-                          console.log("ok got RHS hierarchy");
-
                           api.setRelationships(params.rhs, params.pivot, params.rhs_rel, params.rhs_rel_field, rhs_hierarchy)
                           .then(lhs_r => {
                               //---------
@@ -47,8 +43,6 @@ $(function () {
                                   .then(pivot_hierarchy => {
                                       if (pivot_hierarchy) {
                                           //do follow-on stuff with hierarchy
-                                          console.log("ok got pivot hierarchy");
-
 
                                           //here we want to get lists of pivot leaves for each pivot node
                                           //jutzPath might have been useful here.
@@ -58,14 +52,11 @@ $(function () {
 
                                           //the pivot hierarchy now has lists of leaf nodes that can be passed to hierarchy rollups
 
-  console.log(pivot_hierarchy);
-                                          // console.log("can i still see the hierarchy object?");
-                                          //
-                                          // console.log(lhs_hierarchy);
-
 
 
                                           traverseTree(lhs_hierarchy, null, linkLayers, pivot_hierarchy);
+
+                                          console.log(lhs_hierarchy);
 
                                       } //if (rhs_hierarchy)
                                   }) //then(rhs_hierarchy
@@ -180,8 +171,6 @@ function linkLayers(child, parent, pivotTree) {
 
   //traverse the process tree and for each node call another function
 
-  console.log(`link layers linking ${parent.name} to ${child.name}`);
-
   if (typeof(child.rels) == "undefined") {
     child.rels = {};
   }
@@ -203,11 +192,8 @@ function _linkLayers(pivotNode, params) {
 
 
   let isRoot = typeof(pivotNode.isRoot) != "undefined" ? true : false;
-console.log("hola")
-console.log(child)
   //if this is a leaf node then create relationships for it
   if (typeof(child.relationships) != "undefined") {
-    console.log("about to init rels")
     initialiseRels(child, processList, processKey, isRoot);
   }
 
@@ -220,10 +206,6 @@ console.log(child)
 
 function rollUp(parent, child, processKey) {
   //copy up relationships into parent
-
-
-console.log(child);
-console.log(processKey);
     //child.rels is a dictionary, whose keys are the processInfo.key
     var childProcessMap = child.rels[processKey];
 
@@ -234,8 +216,6 @@ console.log(processKey);
 
       var cxRels;
 
-      console.log(parent.rels);
-
       if (typeof(parent.rels[processKey]) != "undefined") {
           cxRels = parent.rels[processKey];
       }
@@ -244,18 +224,15 @@ console.log(processKey);
         parent.rels[processKey] = cxRels;
       }
 
-      //console.log(filteredRelationships);
       //copy child rels up to parent (cxRels).
       childProcessKeys.forEach(function(key, i){
-        //console.log(key);
-        childRel = childProcessMap[key];
+        let childRel = childProcessMap[key];
         //r is a child relation to copy up to parent
         let parentRel = cxRels[key];
         if (typeof(parentRel) != "undefined") {
 
           //let termpStarter = cxRels[key].value
           cxRels[key].value = cxRels[key].value + childRel.value;
-        //console.log("" + termpStarter + " plus " + childRel.value + " = " + cxRels[key].value )
         }
         else {
           let childRel = childProcessMap[key]
@@ -267,12 +244,12 @@ console.log(processKey);
 
 
 function initialiseRels(leafNode, processFilterList, processKey, isRoot) {
-console.log("Hello");
-
     var cx = leafNode["rels"];
 
     //var filterRequired = typeof(child.relationships) != "undefined" ? !processInfo.isRoot : false;
     var filterRequired = !isRoot;
+
+
 
     var cxRels = {};
     cx[processKey] = cxRels;
@@ -281,7 +258,8 @@ console.log("Hello");
 
     if (filterRequired){
       filteredRelationships = leafNode.relationships.filter(function (r) {
-        return processFilterList.includes(r.target);
+        //return processFilterList.includes(r.target);
+        return true;
       });
     }
 
@@ -292,5 +270,5 @@ console.log("Hello");
 
     //we should now have on thr leaf nodes a rels dictionary keyed on process names
     //each of these will point to another dictionary
-    //console.log(leafNode)
+
 }
