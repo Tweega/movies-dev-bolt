@@ -7,10 +7,10 @@ var _ = require('lodash');
 var neo4j = window.neo4j.v1;
 var driver = neo4j.driver("bolt://localhost", neo4j.auth.basic("neo4j", "Milwan1"));
 
-function getHierarchy(rootClass, callback, params) {
+function getHierarchy(rootClass) {
   var session = driver.session();
   var query = `MATCH p=(:${rootClass} {title: "${rootClass}"})<-[:is_part_of*]-(x) RETURN p`
-
+console.log(query);
   // 'MATCH p=(:Organisation {title: "Organisation"})<-[:is_part_of*]-(x) \
   // RETURN p',
   return session
@@ -46,11 +46,11 @@ function getHierarchy(rootClass, callback, params) {
           cxStack.push(newNode);
 
         }
-        callback(cxStack[0], params);
-        return cxStack[0];
+        return(cxStack[0]);
+
     }
     else {
-      return [];
+      return {name: "No hierarchy data found"};
     }
     })
     .catch(error => {
@@ -61,11 +61,20 @@ function getHierarchy(rootClass, callback, params) {
 
 
 
-function setRelationships(lhs, rhs, field, hierarchy, callback) {
-  var query = `MATCH (l:${lhs})-[rel]->(r:${rhs}) \
-WHERE exists(rel.${field}) \
-RETURN id(l) as l_id, id(r) as r_id, l.title as l_title, r.title as r_title, rel.ftes as field `
+function setRelationships(lhs, rhs, rel_name, field, hierarchy) {
+//   var query = `MATCH (l:${lhs})-[rel:${rel_name}]->(r:${rhs}) \
+// WHERE exists(rel.${field}) \
+// RETURN id(l) as l_id, id(r) as r_id, l.title as l_title, r.title as r_title, rel.${field} as field `
 
+//for proof of concept at tany rate, not insisting on the existence of the value field (ie ftes)
+//and defaulting to a value of 1 where a value does not exist in the database.
+//needless to say, this ought to change at some point.
+
+var query = `MATCH (l:${lhs})-[rel:${rel_name}]->(r:${rhs}) \
+RETURN id(l) as l_id, id(r) as r_id, l.title as l_title, r.title as r_title, case when rel.${field} is null then 1 else rel.${field} end as field `
+
+console.log("Setting relationships");
+console.log(query);
   var session = driver.session();
   return session
   .run(query, {})
@@ -130,11 +139,14 @@ RETURN id(l) as l_id, id(r) as r_id, l.title as l_title, r.title as r_title, rel
 
         // var vv = JSON.stringify(cxStack[0])
         //         console.log(vv);
-callback(hierarchy)
-      return true;
+console.log("charlie");
+console.log(hierarchy);
+
+      return hierarchy;
     }
     else {
-      return [];
+      console.log("no relationships")
+      return hierarchy;
     }
     })
     .catch(error => {
