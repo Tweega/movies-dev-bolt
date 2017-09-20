@@ -1,7 +1,6 @@
 
 function render(hierarchy) {
-console.log("Am i looking at the right one?");
-console.log(hierarchy);
+
   if (typeof(hierarchy.children) != "undefined") {
 
   var margin = {top: 20, right: 120, bottom: 20, left: 120},
@@ -42,19 +41,16 @@ console.log(hierarchy);
   else {
     let b = document.getElementById("layerTree");
     b.innerHTML = `No data found for layer:`
-
+  
   }
-  d3.select(self.frameElement).style("height", "800px");
+  //d3.select(self.frameElement).style("height", "800px");
 
   function update(source) {
 
     // Compute the new tree layout.
     var nodes = tree.nodes(root).reverse(),
-
-
         links = tree.links(nodes);
-          console.log(nodes);
-console.log(links);
+
     // Normalize for fixed-depth.
     nodes.forEach(function(d) { d.y = d.depth * 180; });
 
@@ -109,9 +105,7 @@ console.log(links);
 
     // Enter any new links at the parent's previous position.
     link.enter().insert("path", "g")
-        .style("fill", "none")
-        .style("stroke", "#ccc")
-        .style("stroke-width", function(d) { return "1px";})
+        .attr("class", "link")
         .attr("d", function(d) {
           var o = {x: source.x0, y: source.y0};
           return diagonal({source: o, target: o});

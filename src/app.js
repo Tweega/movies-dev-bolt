@@ -59,7 +59,7 @@ $(function () {
                                           console.log(lhs_hierarchy.depth);
                                           console.log(rhs_hierarchy.depth);
 
-                                          tree.render(lhs_hierarchy)
+                                          tree.render(rhs_hierarchy)
 
                                       } //if (rhs_hierarchy)
                                   }) //then(rhs_hierarchy
