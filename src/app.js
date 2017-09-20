@@ -1,15 +1,8 @@
 var api = require('./neo4jApi');
+var tree = require('./layerTree');
 
 $(function () {
-  //this runs on document load
  var params = {};
- var xx = 100;
-
-// var jobs = api.createJobLot();
-
-// jobs.addJob(testCB_A, {}, testCB_A_Done);
-// jobs.addJob(testCB_B, {}, testCB_B_Done);
-// jobs.doJobs(testAllDone);
 
 // not sure if promises below are meant to be so nested as below,  experimented with a job scheduler approach, but not enought time to go down that road
 // as we need to be able to have job schedulers as scheduled items.
@@ -23,6 +16,7 @@ $(function () {
   params["rhs_rel_field"] = "supports";
 
   var depth = {lhs: 0, rhs: 0};
+  console.log("hey diddle diddle");
 
   api.getHierarchy(params.lhs)
 
@@ -59,11 +53,13 @@ $(function () {
                                           traverseTree(lhs_hierarchy, null, linkLayers, pivot_hierarchy);
                                           traverseTree(rhs_hierarchy, null, linkLayers, pivot_hierarchy);
 
-                                          traverseTree(lhs_hierarchy, null, countDepth, {});
-                                          traverseTree(rhs_hierarchy, null, countDepth, {});
+                                         traverseTree(lhs_hierarchy, null, countDepth, {});
+                                        traverseTree(rhs_hierarchy, null, countDepth, {});
 
                                           console.log(lhs_hierarchy.depth);
                                           console.log(rhs_hierarchy.depth);
+
+                                          tree.render(lhs_hierarchy)
 
                                       } //if (rhs_hierarchy)
                                   }) //then(rhs_hierarchy
