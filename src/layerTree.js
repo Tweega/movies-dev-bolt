@@ -1,5 +1,9 @@
-
-function render(hierarchy) {
+const LHS = 0;
+const RHS = 1;
+function render(hierarchy, side) {  //if side is LHS draws from left to right, right to left if RHS
+  if (typeof(side) == "undefined") {
+    side = LHS;
+  }
 
   if (typeof(hierarchy.children) != "undefined") {
 
@@ -26,7 +30,7 @@ function render(hierarchy) {
 
     root = hierarchy;
     root.x0 = height / 2;
-    root.y0 = 0;
+    root.y0 = (side === RHS ? width : 0);
 
     function collapse(d) {
       if (d.children) {
@@ -41,7 +45,7 @@ function render(hierarchy) {
   else {
     let b = document.getElementById("layerTree");
     b.innerHTML = `No data found for layer:`
-  
+
   }
   //d3.select(self.frameElement).style("height", "800px");
 
@@ -52,7 +56,12 @@ function render(hierarchy) {
         links = tree.links(nodes);
 
     // Normalize for fixed-depth.
-    nodes.forEach(function(d) { d.y = d.depth * 180; });
+    if (side === RHS) {
+      nodes.forEach(function(d) { d.y = width - (d.depth * 180); });
+    }
+    else {
+      nodes.forEach(function(d) { d.y = d.depth * 180; });
+    }
 
     // Update the nodes…
     var node = svg.selectAll("g.node")
@@ -68,10 +77,12 @@ function render(hierarchy) {
         .attr("r", 1e-6)
         .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
 
+    var pos_info = side === RHS ? {pos_a: "start", pos_b: "end", off_a: 10, off_b: -10} : {pos_a: "end", pos_b: "start", off_a: -10, off_b: 10}
+
     nodeEnter.append("text")
-        .attr("x", function(d) { return d.children || d._children ? -10 : 10; })
+        .attr("x", function(d) { return d.children || d._children ? pos_info.off_a : pos_info.off_b; })
         .attr("dy", ".35em")
-        .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
+        .attr("text-anchor", function(d) { return d.children || d._children ? pos_info.pos_a : pos_info.pos_b; })
         .text(function(d) { return d.name; })
         .style("fill-opacity", 1e-6);
 
@@ -148,3 +159,5 @@ function render(hierarchy) {
 
 
 exports.render = render;
+exports.LHS = LHS;
+exports.RHS = RHS;
