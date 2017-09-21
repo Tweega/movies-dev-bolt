@@ -53,11 +53,31 @@ $(function () {
                                           traverseTree(lhs_hierarchy, null, linkLayers, pivot_hierarchy);
                                           traverseTree(rhs_hierarchy, null, linkLayers, pivot_hierarchy);
 
-                                         traverseTree(lhs_hierarchy, null, countDepth, {});
-                                        traverseTree(rhs_hierarchy, null, countDepth, {});
+                                          let maxDepth = {depth: 0};
 
-                                          console.log(lhs_hierarchy.depth);
-                                          console.log(rhs_hierarchy.depth);
+                                          traverseTree(pivot_hierarchy, countDepth, null, maxDepth);
+                                          console.log (pivot_hierarchy);
+                                          console.log (maxDepth);
+
+
+                                          //create lists of pivot items for each level
+                                          var pivotLists = new Array(maxDepth.depth - 1);
+                                          for (var i = 0; i < pivotLists.length; i++){
+                                            pivotLists[i] = {total_items: 0, list: []};
+                                          }
+
+                                          //for each level in the pivot tree we have a list that will contain the groups (also lists) of pivot fields
+                                          // ie [  [["P0"]], [["P0_1", "P0_2"]], [["P0_1_1", "P0_1_2"], ["P1_1_1", "P0_1_2"]]]
+                                          //so here we have a list of three lists-of-lists
+                                          //the last list shown above is level 3 where we have two groups at this level, each with two processes - or whatever the pivot layer is.
+                                          // ignore the first group as this is simply the root node?  Otherwise the root will appear to have a parent group which it does not
+                                          //it may though be useful to know something about the parent which this provides.  Keep for now and ignore in the rendering.
+
+                                          //if I am at the root level then there are not groups - or there is only the parent group.
+                                          traverseTree(pivot_hierarchy, getPivotLists, null, pivotLists);
+
+
+                                          console.log(pivotLists);
 
                                           tree.render(lhs_hierarchy, tree.LHS)
                                           tree.render(rhs_hierarchy, tree.RHS)
@@ -103,8 +123,11 @@ function testAllDone() {
 
 
 function traverseTree(rootNode, handleChild, handleRollup, props) {
+  var depth = 0;
 
-  //handleChild(node, null, props);
+  if (handleChild != null) {
+    handleChild(rootNode, props, depth);
+  }
 
   var nextChildren = rootNode.children || [];
   nextChildren = nextChildren.map(function(c, i){
@@ -119,29 +142,32 @@ function traverseTree(rootNode, handleChild, handleRollup, props) {
 
   var lenToDoLists = toDoLists.length;
 
+
+
   while ((lenToDoLists > 0) && (sanity < 50)) {
     let nextToDoList = toDoLists[lenToDoLists - 1];
 
     if (nextToDoList.length == 0) {
       let discard = toDoLists.pop();
       let child =  parents.pop();
+      depth--;
       let parent = parents[parents.length - 1];
+
       if (handleRollup != null && typeof(parent) != "undefined") {
-
         handleRollup(child, parent, props);
-
       }
     }
     else {
       let nextToDo = nextToDoList.pop();
       parents.push(nextToDo);
+      depth++;
       nextChildren = nextToDo.children || [];
       nextChildren = nextChildren.map(function(c, i){
         return c;
-      });
+      }); // can't remember what the point of this was - perhaps  there meant to be some kind of filter applied?  We would have a predicate function passed in?
       toDoLists.push(nextChildren.reverse());
       if (handleChild != null) {
-        handleChild(nextToDo, props);
+        handleChild(nextToDo, props, depth);
       }
     }
     lenToDoLists = toDoLists.length;
@@ -277,22 +303,22 @@ function initialiseRels(leafNode, processFilterList, processKey, isRoot) {
 
 }
 
-function countDepth(child, parent, x) {
+function countDepth(node, max, parentDepth) {
 
-  //if the parent does not yet have a depth, then
-  //set child depth to 0 if no child depth
-  //otherwise set to child depth
-  //ditto for parent depth
+  node["depth"] = parentDepth + 1;
 
-  let childDepth = typeof(child.depth) != "undefined" ? child.depth : 0;
-  let parentDepth = typeof(parent.depth) != "undefined" ? parent.depth : 0;
-
-  if (childDepth >= parentDepth) {
-    parent["depth"] = childDepth + 1;
+  if (node.depth > max.depth) {
+    max.depth = node.depth;
   }
-  else {
-    if (typeof(parent.depth) != "undefined") {
-      parent["depth"] = 1;
-    }
+
+}
+
+
+function getPivotLists(pivotNode, pivotLists){
+  //if this node has children, then add those children as a group on the array for the level
+  if (typeof(pivotNode.children) != "undefined") {
+    var listInfo = pivotLists[pivotNode.depth - 1];
+    listInfo.total_items = listInfo.total_items + pivotNode.children.length;
+    listInfo.list.push(pivotNode.children);
   }
 }

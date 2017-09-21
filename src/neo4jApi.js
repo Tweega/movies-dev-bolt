@@ -178,7 +178,9 @@ function assignRelationships(node, props) {
 
 function traverseTree(rootNode, handleChild, handleRollup, props) { //better to wrap props in closure?
 
-  //handleChild(node, null, props);
+  if (handleChild != null) {
+    handleChild(rootNode, props);
+  }
 
   var nextChildren = rootNode.children || [];
   nextChildren = nextChildren.map(function(c, i){
