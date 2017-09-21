@@ -1,18 +1,24 @@
 const LHS = 0;
 const RHS = 1;
-function render(hierarchy, side) {  //if side is LHS draws from left to right, right to left if RHS
+function render(hierarchy, side, svg, margins) {
+  console.log("DO we get here?");
   if (typeof(side) == "undefined") {
     side = LHS;
   }
 
-  if (typeof(hierarchy.children) != "undefined") {
+  var margin = margins.margin;
+  var width = margins.width;
+  var height = margins.height;
+  var duration = margins.duration;
 
-  var margin = {top: 20, right: 120, bottom: 20, left: 120},
-      width = 700 - margin.right - margin.left,
-      height = 500 - margin.top - margin.bottom;
+
+  console.log(margin);
+  console.log(width);
+  console.log(height);
+  console.log(duration);
+  console.log(hierarchy);
 
   var i = 0,
-      duration = 750,
       root;
 
   var tree = d3.layout.tree()
@@ -20,13 +26,6 @@ function render(hierarchy, side) {  //if side is LHS draws from left to right, r
 
   var diagonal = d3.svg.diagonal()
       .projection(function(d) { return [d.y, d.x]; });
-
-  var svg = d3.select("#layerTree").append("svg")
-      .attr("width", width + margin.right + margin.left)
-      .attr("height", height + margin.top + margin.bottom)
-    .append("g")
-      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
 
     root = hierarchy;
     root.x0 = height / 2;
@@ -41,12 +40,7 @@ function render(hierarchy, side) {  //if side is LHS draws from left to right, r
     }
     root.children.forEach(collapse);
     update(root);
-  }
-  else {
-    let b = document.getElementById("layerTree");
-    b.innerHTML = `No data found for layer:`
 
-  }
   //d3.select(self.frameElement).style("height", "800px");
 
   function update(source) {
