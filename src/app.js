@@ -61,10 +61,13 @@ $(function () {
 
 
                                           //create lists of pivot items for each level
-                                          var pivotLists = new Array(maxDepth.depth - 1);
+                                          var pivotLists = new Array(maxDepth.depth);
                                           for (var i = 0; i < pivotLists.length; i++){
                                             pivotLists[i] = {total_items: 0, list: []};
                                           }
+
+                                          pivotLists[0].list.push(pivot_hierarchy);
+                                          pivotLists[0].total_items = 1;
 
                                           //for each level in the pivot tree we have a list that will contain the groups (also lists) of pivot fields
                                           // ie [  [["P0"]], [["P0_1", "P0_2"]], [["P0_1_1", "P0_1_2"], ["P1_1_1", "P0_1_2"]]]
@@ -316,9 +319,11 @@ function countDepth(node, max, parentDepth) {
 
 function getPivotLists(pivotNode, pivotLists){
   //if this node has children, then add those children as a group on the array for the level
+  console.log(pivotNode.name)
   if (typeof(pivotNode.children) != "undefined") {
-    var listInfo = pivotLists[pivotNode.depth - 1];
+    var listInfo = pivotLists[pivotNode.depth];
     listInfo.total_items = listInfo.total_items + pivotNode.children.length;
     listInfo.list.push(pivotNode.children);
+    console.log(`pushing children for ${pivotNode.name}`)
   }
 }
