@@ -96,7 +96,7 @@ console.log(margins.height);
 
     var group_top = top_and_bottom_margin + (items_so_far * box_height) + (i * group_margin);
 
-    items_so_far += group.total_items;
+    items_so_far += group.length;
     return [group_height, group_top];
   });
 
