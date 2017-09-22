@@ -1,8 +1,10 @@
 var tree = require('./layerTree');
 var pivot = require('./pivot');
+var utils = require('./Utils');
 
 function render(lhs_hierarchy, rhs_hierarchy, pivotLists) {
   //check that we have data for each of these
+
 
   var messages = [];
   if (typeof(lhs_hierarchy.children) == "undefined") {
@@ -20,6 +22,9 @@ function render(lhs_hierarchy, rhs_hierarchy, pivotLists) {
   }
   else {
     var dendodiv = document.getElementById("layerTree");
+    console.log("utils.getFontPixels(dendodiv");
+    let font_size = utils.getFontSize(dendodiv);
+
     var screenDimensions = {width: dendodiv.clientWidth - 13, height: document.documentElement.clientHeight};
 
   var margin = {top: 20, right: 100, bottom: 20, left: 100},
@@ -27,7 +32,7 @@ function render(lhs_hierarchy, rhs_hierarchy, pivotLists) {
       height = screenDimensions.height - margin.top - margin.bottom,
       duration = 750;
 
-    var margins = {margin: margin, width: width, height: height, duration: duration};
+    var margins = {margin: margin, width: width, height: height, duration: duration, font_size: font_size};
 
     var svg = d3.select("#layerTree").append("svg")
         .attr("width", width + margin.right + margin.left)
