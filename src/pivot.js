@@ -47,15 +47,14 @@ console.log(margins.height);
   var inner_group_margin = item_height / 2;
   var pivot_item_gap = 3;
   var group_margin = font_size * 3;
-
   var total_item_height = total_items * item_height + (inner_group_margin * 2 * num_groups) + ((num_groups - 1) * group_margin);
-
   var remaining_height = margins.height - total_item_height;
-
   var top_and_bottom_margin = remaining_height / 2;
+  var text_padding = Math.ceil(font_size / 8);
+  var text_box_height = font_size + 2 * text_padding;
+  var pivot_item_padding = Math.ceil(text_box_height / 8);
+  var box_height = text_box_height + (2 * pivot_item_padding);
 
-
-  console.log (item_height);
 
   /*
     total item height
@@ -79,25 +78,23 @@ console.log(margins.height);
     /*
       top of each group is given by
 
-
       = top_and_bottom_margin
-      + item_height * total_items_so_far
-      + inner_group_margin * 2 * num_groups_so_far
+      + box_height * total_items_so_far
       + (num_groups_so_far) * group_margin
 
 
       the height of current group is
-      = number of items * item height
-      + inner margins * 2
+      = number of items * box_height
+
 
     */
 
-    var group_height = (group.length * item_height) + ((group.length - 1) * pivot_item_gap) + (inner_group_margin * 2);
+    var group_height = (group.length * box_height) + (2 * inner_group_margin);
 
     console.log("group_height");
     console.log(group_height);
 
-    var group_top = top_and_bottom_margin + (items_so_far * item_height) + ((items_so_far - i) * pivot_item_gap) + (i * inner_group_margin * 2) + (i * group_margin);
+    var group_top = top_and_bottom_margin + (items_so_far * box_height) + (i * group_margin);
 
     items_so_far += group.total_items;
     return [group_height, group_top];
@@ -139,15 +136,27 @@ console.log(margins.height);
               + item height * (item_idx + 1)
         */
 
-        let item_y = groupOffsets[group_idx][1] + (item_height * item_idx) + inner_group_margin + (item_idx * 2);
+        let item_y = groupOffsets[group_idx][1] + (box_height * item_idx) + inner_group_margin + pivot_item_padding;
 
+        var xBase = (pivot_width / 2) - (item_width / 2) + text_padding;
+        var txt = pivotList[item_idx].name;
 
-        svg.append("rect")
-          .attr("x", (pivot_width / 2) - (item_width / 2) + 20)
+      svg.append("rect")
+          .attr("x", xBase)
           .attr("y", item_y)
-          .attr("width", item_width)
+          .attr("width", item_width - (2 * text_padding))
           .attr("height", item_height)
           .attr("class", "pivot_item");
+
+        var text_y = item_y  + item_height - (pivot_item_padding);
+
+        console.log(`item_y: ${item_y}`);
+          var myText =  svg.append("text")
+           .attr("y", text_y)//magic number here
+           .attr("x", 100)
+           .attr('text-anchor', 'middle')
+           .attr("class", "myLabel")//easy to style with CSS
+           .text(txt);
 
       }
 
