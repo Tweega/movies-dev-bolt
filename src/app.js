@@ -1,5 +1,6 @@
 var api = require('./neo4jApi');
 var dendo = require('./3layer');
+var utils = require('./Utils');
 
 $(function () {
  var params = {};
@@ -43,18 +44,18 @@ $(function () {
                                           //jutzPath might have been useful here.
 
                                           pivot_hierarchy["isRoot"] = true;
-                                          traverseTree(pivot_hierarchy, null, handlePivotListRollup, {});
+                                          utils.traverseTree(pivot_hierarchy, null, handlePivotListRollup, {});
 
                                           //the pivot hierarchy now has lists of leaf nodes that can be passed to hierarchy rollups
 
 
 
-                                          traverseTree(lhs_hierarchy, null, linkLayers, pivot_hierarchy);
-                                          traverseTree(rhs_hierarchy, null, linkLayers, pivot_hierarchy);
+                                          utils.traverseTree(lhs_hierarchy, null, linkLayers, pivot_hierarchy);
+                                          utils.traverseTree(rhs_hierarchy, null, linkLayers, pivot_hierarchy);
 
                                           let maxDepth = {depth: 0};
 
-                                          traverseTree(pivot_hierarchy, countDepth, null, maxDepth);
+                                          utils.traverseTree(pivot_hierarchy, countDepth, null, maxDepth);
 
 
                                           //create lists of pivot items for each level
@@ -74,7 +75,7 @@ $(function () {
                                           //it may though be useful to know something about the parent which this provides.  Keep for now and ignore in the rendering.
 
                                           //if I am at the root level then there are not groups - or there is only the parent group.
-                                          traverseTree(pivot_hierarchy, getPivotLists, null, pivotLists);
+                                          utils.traverseTree(pivot_hierarchy, getPivotLists, null, pivotLists);
 
                                           dendo.render(lhs_hierarchy, rhs_hierarchy, pivotLists);
 
@@ -120,59 +121,6 @@ function testAllDone() {
 */
 
 
-function traverseTree(rootNode, handleChild, handleRollup, props) {
-  var depth = 0;
-
-  if (handleChild != null) {
-    handleChild(rootNode, props, depth);
-  }
-
-  var nextChildren = rootNode.children || [];
-  nextChildren = nextChildren.map(function(c, i){
-    return c;
-  });
-
-  var sanity = 0;
-
-  var toDoLists = [nextChildren.reverse()];
-
-  var parents = [rootNode];
-
-  var lenToDoLists = toDoLists.length;
-
-
-
-  while ((lenToDoLists > 0) && (sanity < 50)) {
-    let nextToDoList = toDoLists[lenToDoLists - 1];
-
-    if (nextToDoList.length == 0) {
-      let discard = toDoLists.pop();
-      let child =  parents.pop();
-      depth--;
-      let parent = parents[parents.length - 1];
-
-      if (handleRollup != null && typeof(parent) != "undefined") {
-        handleRollup(child, parent, props);
-      }
-    }
-    else {
-      let nextToDo = nextToDoList.pop();
-      parents.push(nextToDo);
-      depth++;
-      nextChildren = nextToDo.children || [];
-      nextChildren = nextChildren.map(function(c, i){
-        return c;
-      }); // can't remember what the point of this was - perhaps  there meant to be some kind of filter applied?  We would have a predicate function passed in?
-      toDoLists.push(nextChildren.reverse());
-      if (handleChild != null) {
-        handleChild(nextToDo, props, depth);
-      }
-    }
-    lenToDoLists = toDoLists.length;
-    sanity++;
-  }
-  //console.log (rootNode);
-}
 
 
 function handlePivotListRollup(child, parent, props){
@@ -206,7 +154,7 @@ function linkLayers(child, parent, pivotTree) {
     parent.rels = {};
   }
 
-  traverseTree(pivotTree, _linkLayers, null, {parent: parent, child: child});
+  utils.traverseTree(pivotTree, _linkLayers, null, {parent: parent, child: child});
 
 
 }

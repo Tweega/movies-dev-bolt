@@ -1,9 +1,9 @@
-function render(pivotLists, level, parent_svg, margins) {
+function render(currentPivotLevel, parent_svg, margins) {
 
   //currentPivotLevel is a list of groups [{total_items: n, list: [[item1, item2 ...]], [another group]}]
   //where total_items is the number of pivot items across all groups
 
-  var currentPivotLevel = pivotLists[level - 1];
+  //var currentPivotLevel = pivotLists[level - 1];
 
   var pivotMargins = {};
   var margin = margins.margin;
@@ -45,7 +45,7 @@ function render(pivotLists, level, parent_svg, margins) {
   var remaining_height = margins.height - total_item_height;
   var top_and_bottom_margin = remaining_height / 2;
   var gg = (box_height - item_height) /2;
-  
+
 
   /*
     total item height
@@ -131,28 +131,16 @@ console.log(pivot_groups);
           .attr("class", "pivot_item");
 
 
+    //add labels to the items
     var text_items = pivot_items
       .append("text")
           .attr("x", item_width / 2)
           .attr("y", function(d, i) { console.log(`i is ${box_height * i}`); return (box_height * i) + inner_group_margin + gg + item_height - text_padding;})
           .attr('text-anchor', 'middle')
           .attr("class", "pivot_text")
-          .text(function(d, i) {return "hello";});
+          .text(function(d, i) {return d.name;});
 
           //var txt = pivotList[item_idx].name;
-    //add labels to the items
-
-    // var text_y = item_y  + item_height - (pivot_item_padding);
-
-  //   console.log(`item_y: ${item_y}`);
-  //     var myText =  pivot_svg.append("text")
-  //      .attr("y", text_y)//magic number here
-  //      .attr("x", 100)
-  //      .attr('text-anchor', 'middle')
-  //      .attr("class", "myLabel")//easy to style with CSS
-  //      .text(txt);
-  //
-//});
 
 
   }

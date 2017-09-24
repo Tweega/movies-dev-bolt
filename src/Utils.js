@@ -22,6 +22,62 @@ function getFontSize(elem) {
 // // now you have a proper float for the font size (yes, it can be a float, not just an integer)
 // el.style.fontSize = (fontSize + 1) + 'px';
 
+function traverseTree(rootNode, handleChild, handleRollup, props) {
+  var depth = 0;
+
+  if (handleChild != null) {
+    handleChild(rootNode, props, depth);
+  }
+
+  var nextChildren = rootNode.children || [];
+  nextChildren = nextChildren.map(function(c, i){
+    return c;
+  });
+
+  var sanity = 0;
+
+  var toDoLists = [nextChildren.reverse()];
+
+  var parents = [rootNode];
+
+  var lenToDoLists = toDoLists.length;
+
+
+
+  while ((lenToDoLists > 0) && (sanity < 50)) {
+    let nextToDoList = toDoLists[lenToDoLists - 1];
+
+    if (nextToDoList.length == 0) {
+      let discard = toDoLists.pop();
+      let child =  parents.pop();
+      depth--;
+      let parent = parents[parents.length - 1];
+
+      if (handleRollup != null && typeof(parent) != "undefined") {
+        handleRollup(child, parent, props);
+      }
+    }
+    else {
+      let nextToDo = nextToDoList.pop();
+      parents.push(nextToDo);
+      depth++;
+      nextChildren = nextToDo.children || [];
+      nextChildren = nextChildren.map(function(c, i){
+        return c;
+      }); // can't remember what the point of this was - perhaps  there meant to be some kind of filter applied?  We would have a predicate function passed in?
+      toDoLists.push(nextChildren.reverse());
+      if (handleChild != null) {
+        handleChild(nextToDo, props, depth);
+      }
+    }
+    lenToDoLists = toDoLists.length;
+    sanity++;
+  }
+  //console.log (rootNode);
+}
+
+
 
 exports.render = getPixelsPerEmFromElement;
 exports.getFontSize = getFontSize;
+exports.traverseTree = traverseTree;
