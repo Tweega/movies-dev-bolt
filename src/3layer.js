@@ -22,7 +22,6 @@ function render(lhs_hierarchy, rhs_hierarchy, pivotLists) {
   }
   else {
     var dendodiv = document.getElementById("layerTree");
-    console.log("utils.getFontPixels(dendodiv");
     let font_size = utils.getFontSize(dendodiv);
 
     var screenDimensions = {width: dendodiv.clientWidth - 13, height: document.documentElement.clientHeight};
@@ -43,11 +42,11 @@ function render(lhs_hierarchy, rhs_hierarchy, pivotLists) {
 
 let xx = svg.append("g");
 let yy = svg.append("g");
-let zz = svg.append("g");
+
       // tree.render(lhs_hierarchy, tree.LHS, xx, margins);
       // tree.render(rhs_hierarchy, tree.RHS, yy, margins);
 
-      pivot.render(pivotLists, 3, zz, margins);
+      pivot.render(pivotLists, 3, svg, margins);
   }
 }
 exports.render = render;

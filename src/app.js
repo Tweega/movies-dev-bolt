@@ -16,7 +16,6 @@ $(function () {
   params["rhs_rel_field"] = "supports";
 
   var depth = {lhs: 0, rhs: 0};
-  console.log("hey diddle diddle");
 
   api.getHierarchy(params.lhs)
 
@@ -56,8 +55,6 @@ $(function () {
                                           let maxDepth = {depth: 0};
 
                                           traverseTree(pivot_hierarchy, countDepth, null, maxDepth);
-                                          console.log (pivot_hierarchy);
-                                          console.log (maxDepth);
 
 
                                           //create lists of pivot items for each level
@@ -80,7 +77,6 @@ $(function () {
                                           traverseTree(pivot_hierarchy, getPivotLists, null, pivotLists);
 
                                           dendo.render(lhs_hierarchy, rhs_hierarchy, pivotLists);
-                                          console.log(pivotLists);
 
 
 
@@ -318,11 +314,10 @@ function countDepth(node, max, parentDepth) {
 
 function getPivotLists(pivotNode, pivotLists){
   //if this node has children, then add those children as a group on the array for the level
-  console.log(pivotNode.name)
   if (typeof(pivotNode.children) != "undefined") {
     var listInfo = pivotLists[pivotNode.depth];
     listInfo.total_items = listInfo.total_items + pivotNode.children.length;
     listInfo.list.push(pivotNode.children);
-    console.log(`pushing children for ${pivotNode.name}`)
+    //console.log(`pushing children for ${pivotNode.name}`)
   }
 }

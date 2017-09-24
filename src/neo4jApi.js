@@ -11,7 +11,7 @@ function getHierarchy(rootClass) {
   var session = driver.session();
   var query = `MATCH p=(:${rootClass} {title: "${rootClass}"})<-[:is_part_of*]-(x) WHERE x["level"]< 3 RETURN p`
 
-console.log(query);
+//console.log(query);
   // 'MATCH p=(:Organisation {title: "Organisation"})<-[:is_part_of*]-(x) \
   // RETURN p',
   return session
@@ -74,8 +74,6 @@ function setRelationships(lhs, rhs, rel_name, field, hierarchy) {
 var query = `MATCH (l:${lhs})-[rel:${rel_name}]->(r:${rhs}) \
 RETURN id(l) as l_id, id(r) as r_id, l.title as l_title, r.title as r_title, case when rel.${field} is null then 1 else rel.${field} end as field `
 
-console.log("Setting relationships");
-console.log(query);
   var session = driver.session();
   return session
   .run(query, {})
@@ -116,7 +114,6 @@ console.log(query);
           }
         });
 
-        console.log (sourceDictionary);
 
         traverseTree (hierarchy, assignRelationships, null, {rel_dict: sourceDictionary})
 
@@ -140,8 +137,7 @@ console.log(query);
 
         // var vv = JSON.stringify(cxStack[0])
         //         console.log(vv);
-console.log("charlie");
-console.log(hierarchy);
+//console.log(hierarchy);
 
       return hierarchy;
     }

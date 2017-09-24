@@ -1,5 +1,9 @@
+function render(pivotLists, level, parent_svg, margins) {
 
-function render(pivotLists, level, svg, margins) {
+  //currentPivotLevel is a list of groups [{total_items: n, list: [[item1, item2 ...]], [another group]}]
+  //where total_items is the number of pivot items across all groups
+
+  var currentPivotLevel = pivotLists[level - 1];
 
   var pivotMargins = {};
   var margin = margins.margin;
@@ -7,54 +11,41 @@ function render(pivotLists, level, svg, margins) {
   let pivot_width = 200;
   let pivot_left = (margins.width / 2) - (pivot_width / 2);
 
+  var pivot_svg = parent_svg.append("g")
+    .datum(currentPivotLevel);  //this is a single item
+
   //we may need another svg object with its own clip if we have a lot of pivot nodes
 
-  svg.attr("transform", "translate(" + pivot_left + "," + 0 + ")");
-
-  console.log("margins");
-    console.log(margins);
-    console.log(margin);
-
-  //let's just draw a rectangle to start showing the confines of the pivot area.
-
-  var pivot_zone = svg.append("rect")
+  pivot_svg.attr("transform", "translate(" + pivot_left + "," + 0 + ")");
+  console.log(currentPivotLevel);
+  //render pivot zone
+  var pivot_zone = pivot_svg.append("rect")
     .attr("x", 0)
     .attr("y", 0)
     .attr("width", pivot_width)
     .attr("height", margins.height)
     .attr("class", "pivot_zone");
 
-console.log(margins.height);
-
-  // var pivotWidth = 200; //say
-  // var pivotHeight =
-  // svg.append("use")
-  // .attr("xlink:href","#s1")
-  // .attr("x", 400)
-  // .attr("y", 0);
-  console.log("Do we get to pivot.render?");
-  console.log(level);
-  console.log(pivotLists);
-
   //for testing we will want to add some duplicate groups?
   // we have yet to sort out what happens if the pivot space is not big enough to handle all pivot items
   var font_size = margins.font_size;
-  var pivotInfo = pivotLists[level - 1];
-  var num_groups = pivotInfo.list.length;
-  var total_items = pivotInfo.total_items;
+  var num_groups = currentPivotLevel.list.length;
+  var total_items = currentPivotLevel.total_items;
   var item_height = Math.ceil(font_size * 1.2);
   var item_width = pivot_width * 8 / 10;
   var inner_group_margin = item_height / 2;
   var pivot_item_gap = 3;
   var group_margin = font_size * 3;
-  var total_item_height = total_items * item_height + (inner_group_margin * 2 * num_groups) + ((num_groups - 1) * group_margin);
-  var remaining_height = margins.height - total_item_height;
-  var top_and_bottom_margin = remaining_height / 2;
   var text_padding = Math.ceil(font_size / 8);
   var text_box_height = font_size + 2 * text_padding;
   var pivot_item_padding = Math.ceil(text_box_height / 8);
   var box_height = text_box_height + (2 * pivot_item_padding);
+  var total_item_height = total_items * box_height + ((num_groups - 1) * group_margin);
 
+  var remaining_height = margins.height - total_item_height;
+  var top_and_bottom_margin = remaining_height / 2;
+  var gg = (box_height - item_height) /2;
+  
 
   /*
     total item height
@@ -71,7 +62,7 @@ console.log(margins.height);
   */
   var items_so_far = 0;
 
-  var groupOffsets = pivotInfo.list.map(function(group, i) {
+  var groupOffsets = currentPivotLevel.list.map(function(group, i) {
     //we may not need to keep a reference to these offsets - just in case
     // we may want to store more than just y offset here
 
@@ -90,80 +81,80 @@ console.log(margins.height);
     */
 
     var group_height = (group.length * box_height) + (2 * inner_group_margin);
-
-    console.log("group_height");
-    console.log(group_height);
-
     var group_top = top_and_bottom_margin + (items_so_far * box_height) + (i * group_margin);
-
+    let isf = items_so_far;
     items_so_far += group.length;
-    return [group_height, group_top];
+    return {height: group_height, top: group_top, items_so_far: isf};
+
+    //we need to zip this in with   var currentPivotLevel = pivotLists[level - 1];
   });
 
+  //the problem is that we are putting group_offsets as data on the pivot group which is not what we want to pass down
+  // which is the array of pivot lists inside pivotLists[level - 1];
+console.log("jelly");
 
-  for (var group_idx = 0; group_idx < pivotInfo.list.length; group_idx++) {
-    // height of this is number of items * item_height
+  //add pivot groups to the pivot zone
+  var pivot_groups = pivot_svg
+    .selectAll(".pivot_group")
+    .data(function(d) { return d.list; })   //d.list is a list of groups
+    .enter()
+    .append("g")
+    .attr("transform", function(d, i) {
+      let x = Math.ceil((pivot_width - item_width) / 2);
+      let y = groupOffsets[i].top;
+      return `translate(${x}, ${y})`;
+    });
 
-    /*
-      the height of this group is
-        = number items in group * item_height -- assuming that item height has margin built in
-        + inner margin * 2
-    */
-
-    svg.append("rect")
-      .attr("x", (pivot_width / 2) - (item_width / 2) )
-      .attr("y", groupOffsets[group_idx][1])
+  pivot_groups
+    .append("rect")
+      .attr("x", 0)
+      .attr("y",  0)
       .attr("width", item_width)
-      .attr("height", groupOffsets[group_idx][0])
+      .attr("height",  function(d,i){console.log("qq"); console.log(groupOffsets[i].height); return groupOffsets[i].height;})
       .attr("class", "pivot_group");
 
+console.log(pivot_groups);
 
-      // svg.append("rect")
-      //   .attr("x", (pivot_width / 2) - (item_width / 2) + 20)
-      //   .attr("y", groupOffsets[group_idx])
-      //   .attr("width", item_width)
-      //   .attr("height", item_height)
-      //   .attr("class", "pivot_item");
+//only getting one green bar at the moment.
+    var pivot_items = pivot_groups
+      .selectAll(".pivot_item")
+      .data(function(d, i) { console.log(d); return d;})
+      .enter()
+      .append("g");
 
-      //now draw the individual items
-      var pivotList = pivotInfo.list[group_idx];
-      for (var item_idx = 0; item_idx < pivotList.length; item_idx++) {
-        // height of this is number of items * item_height
-        console.log("another item");
-        /* the y position will be the
-              = y position of the group,
-              + a top margin amount
-              + item height * (item_idx + 1)
-        */
-
-        let item_y = groupOffsets[group_idx][1] + (box_height * item_idx) + inner_group_margin + pivot_item_padding;
-
-        var xBase = (pivot_width / 2) - (item_width / 2) + text_padding;
-        var txt = pivotList[item_idx].name;
-
-      svg.append("rect")
-          .attr("x", xBase)
-          .attr("y", item_y)
+    pivot_items
+      .append("rect")
+          .attr("x", text_padding)
+          .attr("y", function(d, i) { return (box_height * i) + inner_group_margin + gg;})
           .attr("width", item_width - (2 * text_padding))
           .attr("height", item_height)
           .attr("class", "pivot_item");
 
-        var text_y = item_y  + item_height - (pivot_item_padding);
 
-        console.log(`item_y: ${item_y}`);
-          var myText =  svg.append("text")
-           .attr("y", text_y)//magic number here
-           .attr("x", 100)
-           .attr('text-anchor', 'middle')
-           .attr("class", "myLabel")//easy to style with CSS
-           .text(txt);
+    var text_items = pivot_items
+      .append("text")
+          .attr("x", item_width / 2)
+          .attr("y", function(d, i) { console.log(`i is ${box_height * i}`); return (box_height * i) + inner_group_margin + gg + item_height - text_padding;})
+          .attr('text-anchor', 'middle')
+          .attr("class", "pivot_text")
+          .text(function(d, i) {return "hello";});
 
-      }
+          //var txt = pivotList[item_idx].name;
+    //add labels to the items
+
+    // var text_y = item_y  + item_height - (pivot_item_padding);
+
+  //   console.log(`item_y: ${item_y}`);
+  //     var myText =  pivot_svg.append("text")
+  //      .attr("y", text_y)//magic number here
+  //      .attr("x", 100)
+  //      .attr('text-anchor', 'middle')
+  //      .attr("class", "myLabel")//easy to style with CSS
+  //      .text(txt);
+  //
+//});
+
 
   }
-
-
-
-}
 
 exports.render = render;

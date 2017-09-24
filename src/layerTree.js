@@ -1,7 +1,6 @@
 const LHS = 0;
 const RHS = 1;
 function render(hierarchy, side, svg, margins) {
-  console.log("DO we get here?");
   if (typeof(side) == "undefined") {
     side = LHS;
   }
@@ -10,13 +9,6 @@ function render(hierarchy, side, svg, margins) {
   var width = margins.width;
   var height = margins.height;
   var duration = margins.duration;
-
-
-  console.log(margin);
-  console.log(width);
-  console.log(height);
-  console.log(duration);
-  console.log(hierarchy);
 
   var i = 0,
       root;
