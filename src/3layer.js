@@ -41,19 +41,29 @@ function render(lhs_hierarchy, rhs_hierarchy, pivotLists) {
           .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 
+
+
+var temp_level = 2;
+var pivot_list = pivotLists[temp_level];
+
+pivot.render(pivot_list, svg, margins);
+
 let lhs_svg = svg.append("g");
-let yy = svg.append("g");
+let rhs_svg = svg.append("g");
 
        tree.render(lhs_hierarchy, tree.LHS, lhs_svg, margins);  //perhaps get a return value if there is a more suitable container to use for links
-      // tree.render(rhs_hierarchy, tree.RHS, yy, margins);
-      var temp_level = 2;
-      var pivot_list = pivotLists[temp_level];
+       tree.render(rhs_hierarchy, tree.RHS, rhs_svg, margins);
 
-      pivot.render(pivot_list, svg, margins);
+
+      console.log("pivot_list")
+      console.log(pivot_list)
 
       //get a list of the lhs links that we need to draw
       //first get a collection of nodes that have no _children.
-      links.render(lhs_hierarchy, rhs_hierarchy, pivot_list, lhs_svg);
+
+      links.render(lhs_hierarchy, pivot_list, lhs_svg);
+
+      links.render(rhs_hierarchy, pivot_list, rhs_svg, utils.east);
 
       //console.log(lhs_hierarchy);
   }

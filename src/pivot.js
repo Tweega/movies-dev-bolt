@@ -112,34 +112,48 @@ function render(currentPivotLevel, parent_svg, margins) {
       .attr("height",  function(d,i){return groupOffsets[i].height;})
       .attr("class", "pivot_group");
 
+  pivot_groups
+       .each(function(pivot_group, group_index) {
 
-//only getting one green bar at the moment.
-    var pivot_items = pivot_groups
-      .selectAll(".pivot_item")
-      .data(function(d, i) { return d;})
-      .enter()
-      .append("g");
+         var pivot_items = d3.select(this)
+           .selectAll('.pivot_item')
+           .data(function(d, i) { return d;})
+           .enter()
+           .append("g");
 
-    pivot_items
-      .append("rect")
-          .attr("x", text_padding)
-          .attr("y", function(d, i) { return (box_height * i) + inner_group_margin + gg;})
-          .attr("width", item_width - (2 * text_padding))
-          .attr("height", item_height)
-          .attr("class", "pivot_item");
+          pivot_items
+            .append("rect")
+                .attr("x", function(d, i) {
+                  let x = Math.ceil((pivot_width - item_width) / 2);
+                  let dock_x_west = pivot_left + x + text_padding;
+                  let dock_x_east = dock_x_west + pivot_width;
+                  d["dock_x_east"] = dock_x_east;
+                  d["dock_x_west"] = dock_x_west;
+                  return text_padding;
+                })
+                .attr("y", function(d, i) {
+                  let item_y =  (box_height * i) + inner_group_margin + gg;
+                  let dock_y = groupOffsets[group_index].top + item_y + (item_height / 2);  //we will need more sophisticated docking calc.
+
+                  d["dock_y"] = dock_y;
+                  return item_y;
+                })
+                .attr("width", item_width - (2 * text_padding))
+                .attr("height", item_height)
+                .attr("class", "pivot_item");
 
 
-    //add labels to the items
-    var text_items = pivot_items
-      .append("text")
-          .attr("x", item_width / 2)
-          .attr("y", function(d, i) { return (box_height * i) + inner_group_margin + gg + item_height - text_padding;})
-          .attr('text-anchor', 'middle')
-          .attr("class", "pivot_text")
-          .text(function(d, i) {return d.name;});
+          //add labels to the items
+          var text_items = pivot_items
+            .append("text")
+                .attr("x", item_width / 2)
+                .attr("y", function(d, i) { return (box_height * i) + inner_group_margin + gg + item_height - text_padding;})
+                .attr('text-anchor', 'middle')
+                .attr("class", "pivot_text")
+                .text(function(d, i) {return d.name;});
 
-          //var txt = pivotList[item_idx].name;
-
+                //var txt = pivotList[item_idx].name;
+        });
 
   }
 

@@ -1,5 +1,5 @@
 var api = require('./neo4jApi');
-var dendo = require('./3layer');
+var layer = require('./3layer');
 var utils = require('./Utils');
 
 $(function () {
@@ -77,7 +77,7 @@ $(function () {
                                           //if I am at the root level then there are not groups - or there is only the parent group.
                                           utils.traverseTree(pivot_hierarchy, getPivotLists, null, pivotLists);
 
-                                          dendo.render(lhs_hierarchy, rhs_hierarchy, pivotLists);
+                                          layer.render(lhs_hierarchy, rhs_hierarchy, pivotLists);
 
 
 
