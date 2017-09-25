@@ -47,10 +47,15 @@ $(function () {
                                           utils.traverseTree(pivot_hierarchy, null, handlePivotListRollup, {});
 
                                           //the pivot hierarchy now has lists of leaf nodes that can be passed to hierarchy rollups
-
+                                          // console.log(pivot_hierarchy);
+                                          // return;
 
 
                                           utils.traverseTree(lhs_hierarchy, null, linkLayers, pivot_hierarchy);
+
+                                          console.log(lhs_hierarchy);
+                                          return;
+
                                           utils.traverseTree(rhs_hierarchy, null, linkLayers, pivot_hierarchy);
 
                                           let maxDepth = {depth: 0};
@@ -128,17 +133,22 @@ function handlePivotListRollup(child, parent, props){
   // if this child node has no children, then initialise List with just this node
 
   if (typeof(child.children) == "undefined") {
-      child["descendants"] = [[child.name]] //preferable to use ids?
+    let descendants = {};
+    descendants[child.name] = 0;  //preferable to use ids?  using this as a set, but there may be some useful data we could store about the child, such as force value?
+    child["descendants"] = descendants;
   }
 
   if (typeof(parent.descendants) == "undefined") {
-      parent["descendants"] = [];
+      parent["descendants"] = {};
   }
 
   let parentDescendants = parent["descendants"];
   let childDescendants = child["descendants"];
 
-  parentDescendants.push.apply(parentDescendants, childDescendants)
+  Object.keys(childDescendants).forEach(function(z, i){
+    parentDescendants[z] = i;
+  });
+  //push.apply(parentDescendants, childDescendants)
 
 }
 
@@ -163,19 +173,19 @@ function _linkLayers(pivotNode, params) {
 
   var parent = params.parent;
   var child = params.child;
-  var processList = pivotNode.descendants;
+  var decendantsMap = pivotNode.descendants;
   var processKey = pivotNode.name;
 
 
   let isRoot = typeof(pivotNode.isRoot) != "undefined" ? true : false;
   //if this is a leaf node then create relationships for it
   if (typeof(child.relationships) != "undefined") {
-    initialiseRels(child, processList, processKey, isRoot);
+    initialiseRels(child, decendantsMap, processKey, isRoot);
   }
 
   if (typeof(parent) != "undefined") {
     //rollup child to parent
-    rollUp(parent, child, processKey);
+    //\\rollUp(parent, child, processKey);
   } //else we should be done now.
 
 }
@@ -219,34 +229,40 @@ function rollUp(parent, child, processKey) {
 }
 
 
-function initialiseRels(leafNode, processFilterList, processKey, isRoot) {
+function initialiseRels(leafNode, processDescendantsMap, processKey, isRoot) {
     var cx = leafNode["rels"];
+
+    console.log("processDescendantsMap");
+
+    //console.log(processDescendantsMap);
 
     //var filterRequired = typeof(child.relationships) != "undefined" ? !processInfo.isRoot : false;
     var filterRequired = !isRoot;
 
-
-
     var cxRels = {};
-    cx[processKey] = cxRels;
+
 
     var filteredRelationships = leafNode.relationships;
 
     if (filterRequired){
       filteredRelationships = leafNode.relationships.filter(function (r) {
-        //return processFilterList.includes(r.target);
-        return true;
+        return r.name in processDescendantsMap
+        //return processDescendantsMap.includes(r.target);
+        //return true; //right - this is the probalobalem
       });
     }
+    if (filteredRelationships.length > 0) {
+      filteredRelationships.reduce(function(accum, r) {
+          accum[r.target] = {target: r.target, value: parseInt(r.value)};
+          return accum;
+      }, cxRels);
 
-    filteredRelationships.reduce(function(accum, r) {
-        accum[r.target] = {target: r.target, value: parseInt(r.value)};
-        return accum;
-    }, cxRels);
+      cx[processKey] = cxRels;
+    }
 
     //we should now have on thr leaf nodes a rels dictionary keyed on process names
     //each of these will point to another dictionary
-
+//console.log(cxRels);
 }
 
 function countDepth(node, max, parentDepth) {

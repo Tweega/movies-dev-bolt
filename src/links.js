@@ -15,7 +15,7 @@ console.log(pivot_list);
           plist.forEach(function (p, x){ //use apply?
               pivots[p.name] = x; //might be able to store something more useful than the index as value here.
               //what would be more useful would be x,y coords if we can get them already.
-              WORKING HERE
+              
               console.log("p");
               console.log(p);
           });
