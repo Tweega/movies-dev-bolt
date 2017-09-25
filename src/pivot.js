@@ -17,7 +17,7 @@ function render(currentPivotLevel, parent_svg, margins) {
   //we may need another svg object with its own clip if we have a lot of pivot nodes
 
   pivot_svg.attr("transform", "translate(" + pivot_left + "," + 0 + ")");
-  console.log(currentPivotLevel);
+  //console.log(currentPivotLevel);
   //render pivot zone
   var pivot_zone = pivot_svg.append("rect")
     .attr("x", 0)
@@ -91,7 +91,6 @@ function render(currentPivotLevel, parent_svg, margins) {
 
   //the problem is that we are putting group_offsets as data on the pivot group which is not what we want to pass down
   // which is the array of pivot lists inside pivotLists[level - 1];
-console.log("jelly");
 
   //add pivot groups to the pivot zone
   var pivot_groups = pivot_svg
@@ -110,15 +109,14 @@ console.log("jelly");
       .attr("x", 0)
       .attr("y",  0)
       .attr("width", item_width)
-      .attr("height",  function(d,i){console.log("qq"); console.log(groupOffsets[i].height); return groupOffsets[i].height;})
+      .attr("height",  function(d,i){return groupOffsets[i].height;})
       .attr("class", "pivot_group");
 
-console.log(pivot_groups);
 
 //only getting one green bar at the moment.
     var pivot_items = pivot_groups
       .selectAll(".pivot_item")
-      .data(function(d, i) { console.log(d); return d;})
+      .data(function(d, i) { return d;})
       .enter()
       .append("g");
 
@@ -135,7 +133,7 @@ console.log(pivot_groups);
     var text_items = pivot_items
       .append("text")
           .attr("x", item_width / 2)
-          .attr("y", function(d, i) { console.log(`i is ${box_height * i}`); return (box_height * i) + inner_group_margin + gg + item_height - text_padding;})
+          .attr("y", function(d, i) { return (box_height * i) + inner_group_margin + gg + item_height - text_padding;})
           .attr('text-anchor', 'middle')
           .attr("class", "pivot_text")
           .text(function(d, i) {return d.name;});

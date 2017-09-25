@@ -47,16 +47,11 @@ $(function () {
                                           utils.traverseTree(pivot_hierarchy, null, handlePivotListRollup, {});
 
                                           //the pivot hierarchy now has lists of leaf nodes that can be passed to hierarchy rollups
-                                          // console.log(pivot_hierarchy);
-                                          // return;
-
 
                                           utils.traverseTree(lhs_hierarchy, null, linkLayers, pivot_hierarchy);
 
-                                          console.log(lhs_hierarchy);
-                                          return;
-
                                           utils.traverseTree(rhs_hierarchy, null, linkLayers, pivot_hierarchy);
+
 
                                           let maxDepth = {depth: 0};
 
@@ -170,12 +165,10 @@ function linkLayers(child, parent, pivotTree) {
 }
 
 function _linkLayers(pivotNode, params) {
-
   var parent = params.parent;
   var child = params.child;
   var decendantsMap = pivotNode.descendants;
   var processKey = pivotNode.name;
-
 
   let isRoot = typeof(pivotNode.isRoot) != "undefined" ? true : false;
   //if this is a leaf node then create relationships for it
@@ -185,7 +178,7 @@ function _linkLayers(pivotNode, params) {
 
   if (typeof(parent) != "undefined") {
     //rollup child to parent
-    //\\rollUp(parent, child, processKey);
+    rollUp(parent, child, processKey);
   } //else we should be done now.
 
 }
@@ -229,15 +222,11 @@ function rollUp(parent, child, processKey) {
 }
 
 
-function initialiseRels(leafNode, processDescendantsMap, processKey, isRoot) {
+function initialiseRels(leafNode, processDescendantsMap, processKey) {
     var cx = leafNode["rels"];
 
-    console.log("processDescendantsMap");
-
-    //console.log(processDescendantsMap);
-
     //var filterRequired = typeof(child.relationships) != "undefined" ? !processInfo.isRoot : false;
-    var filterRequired = !isRoot;
+    var filterRequired = true;
 
     var cxRels = {};
 
@@ -246,7 +235,8 @@ function initialiseRels(leafNode, processDescendantsMap, processKey, isRoot) {
 
     if (filterRequired){
       filteredRelationships = leafNode.relationships.filter(function (r) {
-        return r.name in processDescendantsMap
+        var found = r.target in processDescendantsMap;
+        return  found;
         //return processDescendantsMap.includes(r.target);
         //return true; //right - this is the probalobalem
       });
@@ -256,7 +246,6 @@ function initialiseRels(leafNode, processDescendantsMap, processKey, isRoot) {
           accum[r.target] = {target: r.target, value: parseInt(r.value)};
           return accum;
       }, cxRels);
-
       cx[processKey] = cxRels;
     }
 
