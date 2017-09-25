@@ -53,7 +53,7 @@ function render_links(hierarchy, pivot_list, svg, dock_side) {
     //  .target(function(d) { return {"x":d.target_y, "y":d.target_x}; })
 
      var diagonal = d3.svg.diagonal()
-    .source(function(d) { console.log("Am I trying?"); return {"x":d.source_x, "y":d.source_y}; })
+    .source(function(d) { console.log("Am I trying?"); return {"x":d.source_y, "y":d.source_x}; })
     .target(function(d) { return {"x":d.target_x, "y":d.target_y}; })
     .projection(function(d) { return [d.y, d.x]; });
 

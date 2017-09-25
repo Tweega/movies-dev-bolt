@@ -61,11 +61,64 @@ let rhs_svg = svg.append("g");
       //get a list of the lhs links that we need to draw
       //first get a collection of nodes that have no _children.
 
-      links.render(lhs_hierarchy, pivot_list, lhs_svg);
+      //links.render(lhs_hierarchy, pivot_list, lhs_svg);
 
-      links.render(rhs_hierarchy, pivot_list, rhs_svg, utils.east);
+      //links.render(rhs_hierarchy, pivot_list, rhs_svg, utils.east);
 
       //console.log(lhs_hierarchy);
+
+      var data = [ {name: "p1", children: [{name: "c1"}, {name: "c2"}, {name: "c3"}, {name: "c4"}]}];
+    var width = 400, height = 200, radius = 10, gap = 50;
+
+    // test layout
+    var nodes = [];
+    var links = [];
+    data.forEach(function(d, i) {
+        d.x = width/4;
+        d.y = height/2;
+        nodes.push(d);
+        d.children.forEach(function(c, i) {
+          if(i == 3) {
+            c.x =446;
+            c.y = 349;
+          }
+          else {
+            c.x = 3*width/4;
+            c.y = gap * (i +1) -2*radius;
+          }
+            nodes.push(c);
+            links.push({source: d, target: c});
+        })
+    })
+
+    var color = d3.scale.category20();
+
+
+    var diagonal = d3.svg.diagonal()
+        .source(function(d) { return {"x":d.source.y, "y":d.source.x}; })
+        .target(function(d) { return {"x":d.target.y, "y":d.target.x}; })
+        .projection(function(d) { return [d.y, d.x]; });
+
+    var link = lhs_svg.selectAll(".linkss")
+            .data(links)
+            .enter().append("path")
+            .attr("class", "link")
+            .attr("d", diagonal);
+
+    var circle = svg.selectAll(".circle")
+            .data(nodes)
+            .enter()
+            .append("g")
+            .attr("class", "circle");
+
+    var el = circle.append("circle")
+            .attr("cx", function(d) {return d.x})
+            .attr("cy", function(d) {return d.y})
+            .attr("r", radius)
+            .style("fill", function(d) {return color(d.name)})
+            .append("title").text(function(d) {return d.name});
+
+
   }
 }
 
