@@ -161,7 +161,6 @@ function linkLayers(child, parent, pivotTree) {
 
   utils.traverseTree(pivotTree, _linkLayers, null, {parent: parent, child: child});
 
-
 }
 
 function _linkLayers(pivotNode, params) {

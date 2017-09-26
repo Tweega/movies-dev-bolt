@@ -121,32 +121,9 @@ RETURN id(l) as l_id, id(r) as r_id, l.title as l_title, r.title as r_title, cas
           }
         });
 
+        traverseTree (hierarchy, assignRelationships, null, {rel_dict: sourceDictionary});
 
-        traverseTree (hierarchy, assignRelationships, null, {rel_dict: sourceDictionary})
-
-
-
-        //we now want to trawl the hierarchy and stitch in relationships
-
-        //now we have to do something with this in order to extract thr relationships
-
-
-        //now get the relationships data
-
-        //this query will be dynamically created base on choices by the user.
-
-
-        //then process that into a decent shape
-
-
-        //then sew it into the hierarchy data
-
-
-        // var vv = JSON.stringify(cxStack[0])
-        //         console.log(vv);
-//console.log(hierarchy);
-
-      return hierarchy;
+        return hierarchy;
     }
     else {
       console.log("no relationships")

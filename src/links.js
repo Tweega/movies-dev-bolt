@@ -16,8 +16,6 @@ function render_links(hierarchy, pivot_list, svg, dock_side) {
               //what would be more useful would be x,y coords if we can get them already.
           });
       });
-      console.log("pivots");
-      console.log(pivots);
 
       utils.traverseTree(hierarchy, get_leaf_nodes, null, leaf_nodes);
 
@@ -43,63 +41,20 @@ function render_links(hierarchy, pivot_list, svg, dock_side) {
       //we will have to compensate for the length of text and circle Object
 
       //so our data set is links
-      console.log("how do we get the source coords?");
-      console.log(leaf_nodes);
-
-      console.log(links);
-
-    //   var diagonal = d3.svg.diagonal()
-    //  .source(function(d) { console.log("Am I trying?"); return {"x":d.source_y, "y":d.source_x}; })
-    //  .target(function(d) { return {"x":d.target_y, "y":d.target_x}; })
 
      var diagonal = d3.svg.diagonal()
-    .source(function(d) { console.log("Am I trying?"); return {"x":d.source_x, "y":d.source_y}; })
+    .source(function(d) { return {"x":d.source_x, "y":d.source_y}; })
     .target(function(d) { return {"x":d.target_y, "y":d.target_x}; })
     .projection(function(d) { return [d.y, d.x]; });
-
-  //   .projection(function(d) { return [d.y, d.x]; });
-
- // var link = svg.selectAll(".link")
- //         .data(links)
- //         .enter().append("path")
- //         .attr("class", function(d, i) { console.log("any sign of life?");  return "link";})
- //         .attr("d", diagonal);
-
-
-
-
- // var pivot_groups = pivot_svg
- //   .selectAll(".pivot_group")
- //   .data(function(d) { return d.list; })   //d.list is a list of groups
- //   .enter()
- //   .append("g")
- //   .attr("transform", function(d, i) {
- //     let x = Math.ceil((pivot_width - item_width) / 2);
- //     let y = groupOffsets[i].top;
- //     return `translate(${x}, ${y})`;
- //   });
-console.log(links);
-
 
    var linkage = svg
           .selectAll(".linkdas")
            .data(links)
            .enter()
            .append("path")
-           .attr("class", function(d, i) { console.log("any sign of life?");  return "link";})
+           .attr("stroke-width", function(d, i) { return 3;})
+           .attr("class", function(d, i) { return "link"; })
            .attr("d", diagonal);
-
-
-
-
-
-// svg.append("rect")
-// .attr("x", 100)
-// .attr("y", 100)
-// .attr("height", 100)
-// .attr("width", 100);
-
-console.log("Hmmm")
   }
 
 function get_leaf_nodes(node, leaves, depth) {

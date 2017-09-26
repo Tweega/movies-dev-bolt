@@ -1,8 +1,6 @@
 var utils = require('./Utils');
 
 function render(hierarchy, side, svg, margins, callback) {
-  console.log("side");
-  console.log(side);
   if (typeof(side) == "undefined") {
     side = utils.consts.LHS;
   }
@@ -131,7 +129,6 @@ function render(hierarchy, side, svg, margins, callback) {
     });
   }
 
-  console.log(callback);
   // Toggle children on click.
   function click(d) {
     if (d.children) {

@@ -10,7 +10,6 @@ function create3Layer(lhs_hierarchy, rhs_hierarchy, pivotLists) {
 }
 
 function doodah(lhs_hierarchy, rhs_hierarchy, pivotLists) {
-  console.log("Do we not get here?")
   this.lhs = lhs_hierarchy;
   this.rhs = rhs_hierarchy;
   this.lhs_svg = null;
@@ -76,10 +75,6 @@ doodah.prototype.render = function() {
     tree.render(lhs_hierarchy, utils.consts.LHS, lhs_svg, margins, this.callback);  //perhaps get a return value if there is a more suitable container to use for links
     tree.render(rhs_hierarchy, utils.consts.RHS, rhs_svg, margins, this.callback);
 
-
-    console.log("pivot_list")
-    console.log(pivot_list)
-
     //get a list of the lhs links that we need to draw
     //first get a collection of nodes that have no _children.
 
@@ -92,7 +87,7 @@ doodah.prototype.render = function() {
 
 
 
-    //console.log(lhs_hierarchy);
+    console.log(lhs_hierarchy);
   }
 }
 
@@ -122,8 +117,7 @@ doodah.prototype.callbacko = function(dataNode, side) {
 doodah.createCallback = function(cxLayer) {
   return function(dataNode, side) {
     cxLayer.callbacko(dataNode, side);
-    console.log(cxLayer.callback);
-  }
+    }
 }
 
 exports.create3Layer = create3Layer;
