@@ -129,6 +129,7 @@ function render(currentPivotLevel, parent_svg, margins) {
                   let dock_x_east = dock_x_west + pivot_width;
                   d["dock_x_east"] = dock_x_east;
                   d["dock_x_west"] = dock_x_west;
+                  console.log(`dock x: ${dock_x_west}`)
                   return text_padding;
                 })
                 .attr("y", function(d, i) {
@@ -136,6 +137,7 @@ function render(currentPivotLevel, parent_svg, margins) {
                   let dock_y = groupOffsets[group_index].top + item_y + (item_height / 2);  //we will need more sophisticated docking calc.
 
                   d["dock_y"] = dock_y;
+                  console.log(`dock y: ${dock_y}`)
                   return item_y;
                 })
                 .attr("width", item_width - (2 * text_padding))
