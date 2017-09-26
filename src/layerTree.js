@@ -1,8 +1,10 @@
-const LHS = 0;
-const RHS = 1;
-function render(hierarchy, side, svg, margins) {
+var utils = require('./Utils');
+
+function render(hierarchy, side, svg, margins, callback) {
+  console.log("side");
+  console.log(side);
   if (typeof(side) == "undefined") {
-    side = LHS;
+    side = utils.consts.LHS;
   }
 
   var margin = margins.margin;
@@ -21,7 +23,7 @@ function render(hierarchy, side, svg, margins) {
 
     root = hierarchy;
     root.x0 = height / 2;
-    root.y0 = (side === RHS ? width : 0);
+    root.y0 = (side === utils.consts.RHS ? width : 0);
 
     function collapse(d) {
       if (d.children) {
@@ -42,7 +44,7 @@ function render(hierarchy, side, svg, margins) {
         links = tree.links(nodes);
 
     // Normalize for fixed-depth.
-    if (side === RHS) {
+    if (side === utils.consts.RHS) {
       nodes.forEach(function(d) { d.y = width - (d.depth * 180); });
     }
     else {
@@ -63,7 +65,7 @@ function render(hierarchy, side, svg, margins) {
         .attr("r", 1e-6)
         .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
 
-    var pos_info = side === RHS ? {pos_a: "start", pos_b: "end", off_a: 10, off_b: -10} : {pos_a: "end", pos_b: "start", off_a: -10, off_b: 10}
+    var pos_info = side === utils.consts.RHS ? {pos_a: "start", pos_b: "end", off_a: 10, off_b: -10} : {pos_a: "end", pos_b: "start", off_a: -10, off_b: 10}
 
     nodeEnter.append("text")
         .attr("x", function(d) { return d.children || d._children ? pos_info.off_a : pos_info.off_b; })
@@ -129,6 +131,7 @@ function render(hierarchy, side, svg, margins) {
     });
   }
 
+  console.log(callback);
   // Toggle children on click.
   function click(d) {
     if (d.children) {
@@ -139,11 +142,12 @@ function render(hierarchy, side, svg, margins) {
       d._children = null;
     }
     update(d);
-  }
 
+
+    callback(d, side);
+  }
 }
 
 
+
 exports.render = render;
-exports.LHS = LHS;
-exports.RHS = RHS;

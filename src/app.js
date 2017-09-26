@@ -76,8 +76,8 @@ $(function () {
 
                                           //if I am at the root level then there are not groups - or there is only the parent group.
                                           utils.traverseTree(pivot_hierarchy, getPivotLists, null, pivotLists);
-
-                                          layer.render(lhs_hierarchy, rhs_hierarchy, pivotLists);
+                                          var l = layer.create3Layer(lhs_hierarchy, rhs_hierarchy, pivotLists);
+                                          l.render();
 
 
 

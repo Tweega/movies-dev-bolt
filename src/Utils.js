@@ -1,5 +1,4 @@
-const WEST = 0;
-const EAST = 1;
+const consts = {WEST: 0, EAST: 1, LHS: 0, RHS: 1, PIVOT: 2};
 
 function getPixelsPerEmFromElement (element) {
     if (element.parentNode) {
@@ -82,5 +81,4 @@ function traverseTree(rootNode, handleChild, handleRollup, props) {
 exports.render = getPixelsPerEmFromElement;
 exports.getFontSize = getFontSize;
 exports.traverseTree = traverseTree;
-exports.west = WEST;
-exports.east = EAST;
+exports.consts = consts;

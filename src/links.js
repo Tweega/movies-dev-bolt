@@ -4,7 +4,7 @@ var utils = require('./Utils');
 function render_links(hierarchy, pivot_list, svg, dock_side) {
     //in the first instance we want to remove any existing links//we could do this with an exit join - we'll see
 
-    dock_side = typeof(dock_side) != "undefined" ? dock_side : utils.west;
+    dock_side = typeof(dock_side) != "undefined" ? dock_side : utils.consts.WEST;
 
       var leaf_nodes = [];
       var links = [];
@@ -31,7 +31,7 @@ function render_links(hierarchy, pivot_list, svg, dock_side) {
         Object.keys(leaf.rels).forEach(function(rel, idx) {
           if (rel in pivots) {
             let r = pivots[rel];
-            let dock_x = dock_side == utils.west ? r.dock_x_west : r.dock_x_east;
+            let dock_x = dock_side == utils.consts.WEST ? r.dock_x_west : r.dock_x_east;
             links.push({source: leaf.name, target: rel, source_x: leaf.x, source_y: leaf.y, target_x: dock_x, target_y: r.dock_y});
           }
         });

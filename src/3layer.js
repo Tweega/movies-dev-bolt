@@ -3,10 +3,33 @@ var pivot = require('./pivot');
 var utils = require('./Utils');
 var links = require('./links');
 
-function render(lhs_hierarchy, rhs_hierarchy, pivotLists) {
+
+function create3Layer(lhs_hierarchy, rhs_hierarchy, pivotLists) {
+  //if we already have data, we will propbably have to do something here to clear it out.
+  return new doodah(lhs_hierarchy, rhs_hierarchy, pivotLists);
+}
+
+function doodah(lhs_hierarchy, rhs_hierarchy, pivotLists) {
+  console.log("Do we not get here?")
+  this.lhs = lhs_hierarchy;
+  this.rhs = rhs_hierarchy;
+  this.lhs_svg = null;
+  this.rhs_svg = null;
+  this.pivot_lists = pivotLists;
+  this.pivot_list = null;
+  this.callback = doodah.createCallback(this);
+  this.margins = {};
+  this.pivot_level = -1;
+}
+
+doodah.prototype.render = function() {
   //check that we have data for each of these
 
+  var lhs_hierarchy = this.lhs;
+  var rhs_hierarchy = this.rhs;
+  var pivotLists = this.pivot_lists;
 
+  //put these checks in the constructor?
   var messages = [];
   if (typeof(lhs_hierarchy.children) == "undefined") {
     messages[messages.length] = "no data provided for left hand side - get this passed in";
@@ -33,6 +56,7 @@ function render(lhs_hierarchy, rhs_hierarchy, pivotLists) {
       duration = 750;
 
     var margins = {margin: margin, width: width, height: height, duration: duration, font_size: font_size};
+    this.margins = margins;
 
     var svg = d3.select("#layerTree").append("svg")
         .attr("width", width + margin.right + margin.left)
@@ -40,33 +64,66 @@ function render(lhs_hierarchy, rhs_hierarchy, pivotLists) {
         .append("g")
           .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+    var temp_level = 2;
+    var pivot_list = pivotLists[temp_level];
+    this.pivot_level = temp_level;
+
+    pivot.render(pivot_list, svg, margins);
+
+    let lhs_svg = svg.append("g");
+    let rhs_svg = svg.append("g");
+
+    tree.render(lhs_hierarchy, utils.consts.LHS, lhs_svg, margins, this.callback);  //perhaps get a return value if there is a more suitable container to use for links
+    tree.render(rhs_hierarchy, utils.consts.RHS, rhs_svg, margins, this.callback);
+
+
+    console.log("pivot_list")
+    console.log(pivot_list)
+
+    //get a list of the lhs links that we need to draw
+    //first get a collection of nodes that have no _children.
+
+    links.render(lhs_hierarchy, pivot_list, lhs_svg);
+
+    links.render(rhs_hierarchy, pivot_list, rhs_svg, utils.consts.EAST);
+
+    this.lhs_svg = lhs_svg;
+    this.rhs_svg = rhs_svg;
 
 
 
-var temp_level = 2;
-var pivot_list = pivotLists[temp_level];
-
-pivot.render(pivot_list, svg, margins);
-
-let lhs_svg = svg.append("g");
-let rhs_svg = svg.append("g");
-
-       tree.render(lhs_hierarchy, tree.LHS, lhs_svg, margins);  //perhaps get a return value if there is a more suitable container to use for links
-       tree.render(rhs_hierarchy, tree.RHS, rhs_svg, margins);
-
-
-      console.log("pivot_list")
-      console.log(pivot_list)
-
-      //get a list of the lhs links that we need to draw
-      //first get a collection of nodes that have no _children.
-
-      links.render(lhs_hierarchy, pivot_list, lhs_svg);
-
-      links.render(rhs_hierarchy, pivot_list, rhs_svg, utils.east);
-
-      //console.log(lhs_hierarchy);
+    //console.log(lhs_hierarchy);
   }
 }
 
-exports.render = render;
+doodah.prototype.callbacko = function(dataNode, side) {
+  switch(side)
+   {
+     case utils.consts.LHS :
+
+     links.render(this.lhs, this.pivot_lists[this.pivot_level], this.lhs_svg, side);
+     break;
+
+     case utils.consts.RHS :
+     links.render(this.rhs, this.pivot_lists[this.pivot_level], this.rhs_svg, side);
+     break;
+
+     case utils.consts.PIVOT :
+     console.log("message for pivot");
+     break;
+
+     default:
+      console.log("unexpected message source");
+
+   }
+}
+
+
+doodah.createCallback = function(cxLayer) {
+  return function(dataNode, side) {
+    cxLayer.callbacko(dataNode, side);
+    console.log(cxLayer.callback);
+  }
+}
+
+exports.create3Layer = create3Layer;
