@@ -52,6 +52,13 @@ $(function () {
 
                                           utils.traverseTree(rhs_hierarchy, null, linkLayers, pivot_hierarchy);
 
+                                          //this may not be the best place to get this, but we need a total of all the leaf relation values
+                                          var total = [0];  //needs to be an object of some kind
+                                          utils.traverseTree(lhs_hierarchy, totaliseOutput, null, total);
+                                          lhs_hierarchy.total_out = total[0];
+                                          total[0] = 0;
+                                          utils.traverseTree(rhs_hierarchy, totaliseOutput, null, total);
+                                          rhs_hierarchy.total_out = total[0];
 
                                           let maxDepth = {depth: 0};
 
@@ -259,6 +266,18 @@ function countDepth(node, max, parentDepth) {
 
   if (node.depth > max.depth) {
     max.depth = node.depth;
+  }
+
+}
+
+function totaliseOutput(node, total) {
+  var t = total[0];
+  if (typeof(node.relationships) != "undefined") {
+    //this is a leaf node
+    for (var i = 0; i < node.relationships.length; i++)  {
+        t += parseInt(node.relationships[i].value);
+    }
+    total[0] = t;
   }
 
 }

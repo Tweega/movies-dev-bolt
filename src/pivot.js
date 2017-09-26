@@ -26,6 +26,7 @@ function render(currentPivotLevel, parent_svg, margins) {
     .attr("height", margins.height)
     .attr("class", "pivot_zone");
 
+  //we need item_height when drawing links for thickness - so we should calculate this is app.js and hold onto it.
   //for testing we will want to add some duplicate groups?
   // we have yet to sort out what happens if the pivot space is not big enough to handle all pivot items
   var font_size = margins.font_size;
