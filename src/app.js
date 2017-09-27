@@ -69,7 +69,7 @@ $(function () {
                                             pivotLists[i] = {total_items: 0, list: []};
                                           }
 
-                                          pivotLists[0].list.push(pivot_hierarchy);
+                                          pivotLists[0].list.push([pivot_hierarchy]);
                                           pivotLists[0].total_items = 1;
 
                                           //for each level in the pivot tree we have a list that will contain the groups (also lists) of pivot fields

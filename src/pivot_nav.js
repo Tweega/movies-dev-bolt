@@ -7,9 +7,8 @@ function colores(n) {
 
 function render(nav_svg, margins, num_levels, callback) {
   //var a = new Array(num_levels - 1);
-  var a = [...Array(num_levels - 1).keys()];
-  console.log("do we get here kjhsdfkjhkj?");
-  console.log(a.length);
+  var a = [...Array(num_levels).keys()];
+
   var margin = margins.margin;
 
   let pivot_width = 200;
