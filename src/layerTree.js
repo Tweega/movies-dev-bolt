@@ -73,8 +73,7 @@ function render(hierarchy, side, svg, margins, pivots, callback) {
         .style("fill-opacity", 1e-6);
 
     // Transition nodes to their new position.
-    var nodeUpdate = node.transition()
-        .duration(duration)
+    var nodeUpdate = node
         .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
 
     nodeUpdate.select("circle")
@@ -85,9 +84,7 @@ function render(hierarchy, side, svg, margins, pivots, callback) {
         .style("fill-opacity", 1);
 
     // Transition exiting nodes to the parent's new position.
-    var nodeExit = node.exit().transition()
-        .duration(duration)
-        .attr("transform", function(d) { return "translate(" + source.y + "," + source.x + ")"; })
+    var nodeExit = node.exit()
         .remove();
 
     nodeExit.select("circle")
@@ -123,7 +120,7 @@ function render(hierarchy, side, svg, margins, pivots, callback) {
 
             var temp_item_height = 20;
             let stroke_width = Math.max(Math.round((sum / total_out) * 10 * temp_item_height) / 10, 0.1);
-            
+
             return stroke_width;
           })
         .attr("d", function(d) {
@@ -132,13 +129,11 @@ function render(hierarchy, side, svg, margins, pivots, callback) {
         });
 
     // Transition links to their new position.
-    link.transition()
-        .duration(duration)
+    link
         .attr("d", diagonal);
 
     // Transition exiting nodes to the parent's new position.
-    link.exit().transition()
-        .duration(duration)
+    link.exit()
         .attr("d", function(d) {
           var o = {x: source.x, y: source.y};
           return diagonal({source: o, target: o});
