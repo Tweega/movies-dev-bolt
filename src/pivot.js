@@ -17,8 +17,7 @@ function render(currentPivotLevel, parent_svg, margins) {
   //we may need another svg object with its own clip if we have a lot of pivot nodes
 
   pivot_svg.attr("transform", "translate(" + pivot_left + "," + 0 + ")");
-  //console.log(currentPivotLevel);
-  //render pivot zone
+  
   var pivot_zone = pivot_svg.append("rect")
     .attr("x", 0)
     .attr("y", 0)

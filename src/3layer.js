@@ -72,22 +72,33 @@ doodah.prototype.render = function() {
     let lhs_svg = svg.append("g");
     let rhs_svg = svg.append("g");
 
-    tree.render(lhs_hierarchy, utils.consts.LHS, lhs_svg, margins, this.callback);  //perhaps get a return value if there is a more suitable container to use for links
-    tree.render(rhs_hierarchy, utils.consts.RHS, rhs_svg, margins, this.callback);
+
+    var pivots = {};
+
+    pivot_list.list.forEach(function(plist, i){
+        plist.forEach(function (p, x){ //use apply?
+            pivots[p.name] = p;
+            //what would be more useful would be x,y coords if we can get them already.
+        });
+    });
+
+    this.pivots = pivots;
+
+    tree.render(lhs_hierarchy, utils.consts.LHS, lhs_svg, margins, pivots, this.callback);  //perhaps get a return value if there is a more suitable container to use for links
+    tree.render(rhs_hierarchy, utils.consts.RHS, rhs_svg, margins, pivots, this.callback);
 
     //get a list of the lhs links that we need to draw
     //first get a collection of nodes that have no _children.
 
-    links.render(lhs_hierarchy, pivot_list, lhs_svg);
-
-    links.render(rhs_hierarchy, pivot_list, rhs_svg, utils.consts.EAST);
+    links.render(lhs_hierarchy, pivots, lhs_svg);
+    links.render(rhs_hierarchy, pivots, rhs_svg, utils.consts.EAST);
 
     this.lhs_svg = lhs_svg;
     this.rhs_svg = rhs_svg;
 
 
 
-    console.log(lhs_hierarchy);
+    //console.log(rhs_hierarchy);
   }
 }
 
@@ -96,11 +107,11 @@ doodah.prototype.callbacko = function(dataNode, side) {
    {
      case utils.consts.LHS :
 
-     links.render(this.lhs, this.pivot_lists[this.pivot_level], this.lhs_svg, side);
+     links.render(this.lhs, this.pivots, this.lhs_svg, side);
      break;
 
      case utils.consts.RHS :
-     links.render(this.rhs, this.pivot_lists[this.pivot_level], this.rhs_svg, side);
+     links.render(this.rhs, this.pivots, this.rhs_svg, side);
      break;
 
      case utils.consts.PIVOT :

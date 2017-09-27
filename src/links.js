@@ -1,50 +1,37 @@
 var utils = require('./Utils');
 
 
-function render_links(hierarchy, pivot_list, svg, dock_side, item_height) {
+function render_links(hierarchy, pivots, svg, dock_side, item_height) {
     //in the first instance we want to remove any existing links//we could do this with an exit join - we'll see
 
     dock_side = typeof(dock_side) != "undefined" ? dock_side : utils.consts.WEST;
 
       var leaf_nodes = [];
       var links = [];
-      var pivots = {};
       var total_out = hierarchy.total_out;
-
-      pivot_list.list.forEach(function(plist, i){
-          plist.forEach(function (p, x){ //use apply?
-              pivots[p.name] = p;
-              //what would be more useful would be x,y coords if we can get them already.
-          });
-      });
 
       utils.traverseTree(hierarchy, get_leaf_nodes, null, leaf_nodes);
 
       // for each leaf node, we want the list of rels - these are the names of pivot fields that
       // link from this leaf node.
 
-      leaf_nodes.forEach(function(leaf, i){
-
+      leaf_nodes.forEach(function(leaf, i) {
         //if we were to store the pivot fields in rels by level, then we would not need to do this
-        //console.log(leaf.rels);
+
         Object.keys(leaf.rels).forEach(function(rel, idx) {
           if (rel in pivots) {
             let r = pivots[rel];
             let jj = leaf.rels[rel];
-            console.log("r");
             let dock_x = dock_side == utils.consts.WEST ? r.dock_x_west : r.dock_x_east;
 
             //this totalising should be done in app.js - but that requires a bit of refactoring - so for the moment calculate here.
             var sum = 0;
             Object.keys(jj).forEach(function(rel_key, ii) {
-                console.log(jj[rel_key]);
                 sum += jj[rel_key].value;
             });
-            console.log(sum);
-            console.log(total_out);
 
             var temp_item_height = 20;
-            let stroke_width = Math.max(Math.round((sum / total_out) * 10 * temp_item_height) / 10, 0.1); 
+            let stroke_width = Math.max(Math.round((sum / total_out) * 10 * temp_item_height) / 10, 0.1);
 
             links.push({source: leaf.name, target: rel, source_x: leaf.x, source_y: leaf.y, target_x: dock_x, target_y: r.dock_y, sw: stroke_width});
           }
@@ -68,7 +55,7 @@ function render_links(hierarchy, pivot_list, svg, dock_side, item_height) {
            .data(links)
            .enter()
            .append("path")
-           .attr("stroke-width", function(d, i) { console.log(d); return d.sw;})
+           .attr("stroke-width", function(d, i) { return d.sw;})
            .attr("class", function(d, i) { return "link"; })
            .attr("d", diagonal);
   }

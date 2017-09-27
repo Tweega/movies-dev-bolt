@@ -49,16 +49,14 @@ $(function () {
                                           //the pivot hierarchy now has lists of leaf nodes that can be passed to hierarchy rollups
 
                                           utils.traverseTree(lhs_hierarchy, null, linkLayers, pivot_hierarchy);
-
                                           utils.traverseTree(rhs_hierarchy, null, linkLayers, pivot_hierarchy);
 
+
+
                                           //this may not be the best place to get this, but we need a total of all the leaf relation values
-                                          var total = [0];  //needs to be an object of some kind
-                                          utils.traverseTree(lhs_hierarchy, totaliseOutput, null, total);
-                                          lhs_hierarchy.total_out = total[0];
-                                          total[0] = 0;
-                                          utils.traverseTree(rhs_hierarchy, totaliseOutput, null, total);
-                                          rhs_hierarchy.total_out = total[0];
+
+                                          totaliseHierarchy(lhs_hierarchy, pivot_hierarchy.name);
+                                          totaliseHierarchy(rhs_hierarchy, pivot_hierarchy.name);
 
                                           let maxDepth = {depth: 0};
 
@@ -100,34 +98,6 @@ $(function () {
       } //if (lhs_hierarchy)
     }); //.then(lhs_hierarchy
 }) //$function
-
-
-/*
-function testCB_A(x, cb) {
-  console.log("Doing A");
-  cb("A");
-}
-
-function testCB_A_Done(result) {
-  console.log("A done" + result);
-}
-
-function testCB_B(x, cb) {
-  console.log("Doing B");
-  cb("B");
-}
-
-function testCB_B_Done(result) {
-  console.log("B done" + result);
-}
-
-
-function testAllDone() {
-  console.log ("All done");
-}
-*/
-
-
 
 
 function handlePivotListRollup(child, parent, props){
@@ -257,7 +227,7 @@ function initialiseRels(leafNode, processDescendantsMap, processKey) {
 
     //we should now have on thr leaf nodes a rels dictionary keyed on process names
     //each of these will point to another dictionary
-//console.log(cxRels);
+
 }
 
 function countDepth(node, max, parentDepth) {
@@ -270,18 +240,18 @@ function countDepth(node, max, parentDepth) {
 
 }
 
-function totaliseOutput(node, total) {
-  var t = total[0];
-  if (typeof(node.relationships) != "undefined") {
-    //this is a leaf node
-    for (var i = 0; i < node.relationships.length; i++)  {
-        t += parseInt(node.relationships[i].value);
-    }
-    total[0] = t;
-  }
+
+function totaliseHierarchy(hierarchy, rootPivotName) {
+  var rootRels = hierarchy.rels[rootPivotName];
+  var sum = 0;
+
+  Object.keys(rootRels).forEach(function(rel_key) {
+      sum += rootRels[rel_key].value;
+  });
+
+  hierarchy["total_out"] = sum;
 
 }
-
 
 function getPivotLists(pivotNode, pivotLists){
   //if this node has children, then add those children as a group on the array for the level
@@ -289,6 +259,5 @@ function getPivotLists(pivotNode, pivotLists){
     var listInfo = pivotLists[pivotNode.depth];
     listInfo.total_items = listInfo.total_items + pivotNode.children.length;
     listInfo.list.push(pivotNode.children);
-    //console.log(`pushing children for ${pivotNode.name}`)
   }
 }

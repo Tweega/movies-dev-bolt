@@ -1,6 +1,6 @@
 var utils = require('./Utils');
 
-function render(hierarchy, side, svg, margins, callback) {
+function render(hierarchy, side, svg, margins, pivots, callback) {
   if (typeof(side) == "undefined") {
     side = utils.consts.LHS;
   }
@@ -9,7 +9,7 @@ function render(hierarchy, side, svg, margins, callback) {
   var width = margins.width;
   var height = margins.height;
   var duration = margins.duration;
-
+  var total_out = hierarchy.total_out;
   var i = 0,
       root;
 
@@ -103,6 +103,29 @@ function render(hierarchy, side, svg, margins, callback) {
     // Enter any new links at the parent's previous position.
     link.enter().insert("path", "g")
         .attr("class", "link")
+          .attr("stroke-width", function(d) {
+            //this totalising should be done in app.js - but that requires a bit of refactoring - so for the moment calculate here.
+            //get hold of the target rels
+            var target_rels = d.target.rels;
+            var sum = 0;
+
+            //for each key on target_rels
+            Object.keys(target_rels).forEach(function (pivot_key) {
+              if (pivot_key in pivots) {
+                var rel = target_rels[pivot_key];
+
+                Object.keys(rel).forEach(function (rel_key) {
+                  //totalise each value property
+                  sum += rel[rel_key].value;
+                });
+              }
+            });
+
+            var temp_item_height = 20;
+            let stroke_width = Math.max(Math.round((sum / total_out) * 10 * temp_item_height) / 10, 0.1);
+            
+            return stroke_width;
+          })
         .attr("d", function(d) {
           var o = {x: source.x0, y: source.y0};
           return diagonal({source: o, target: o});
