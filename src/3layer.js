@@ -2,107 +2,97 @@ var tree = require('./layerTree');
 var pivot = require('./pivot');
 var utils = require('./Utils');
 var links = require('./links');
+var nav = require('./pivot_nav');
 
 
 function create3Layer(lhs_hierarchy, rhs_hierarchy, pivotLists) {
   //if we already have data, we will propbably have to do something here to clear it out.
-  return new doodah(lhs_hierarchy, rhs_hierarchy, pivotLists);
+  return new lay3r(lhs_hierarchy, rhs_hierarchy, pivotLists);
 }
 
-function doodah(lhs_hierarchy, rhs_hierarchy, pivotLists) {
+function lay3r(lhs_hierarchy, rhs_hierarchy, pivotLists) {
   this.lhs = lhs_hierarchy;
   this.rhs = rhs_hierarchy;
   this.lhs_svg = null;
   this.rhs_svg = null;
+  this.pivot_svg = null;
   this.pivot_lists = pivotLists;
   this.pivot_list = null;
-  this.callback = doodah.createCallback(this);
+  this.callback = lay3r.createCallback(this);
   this.margins = {};
-  this.pivot_level = -1;
-}
+  this.pivot_level = 1;
 
-doodah.prototype.render = function() {
-  //check that we have data for each of these
+  var dendodiv = document.getElementById("layerTree");
+  let font_size = utils.getFontSize(dendodiv);
 
-  var lhs_hierarchy = this.lhs;
-  var rhs_hierarchy = this.rhs;
-  var pivotLists = this.pivot_lists;
+  var screenDimensions = {width: dendodiv.clientWidth - 13, height: document.documentElement.clientHeight};
 
-  //put these checks in the constructor?
-  var messages = [];
-  if (typeof(lhs_hierarchy.children) == "undefined") {
-    messages[messages.length] = "no data provided for left hand side - get this passed in";
-  }
-  if (typeof(rhs_hierarchy.children) == "undefined") {
-    messages[messages.length] = "no data provided for right hand side - get this passed in";
-  }
-  if (pivotLists.length < 1) {
-    messages[messages.length] = "no data provided for pivot data - get this passed in";
-  }
+var margin = {top: 20, right: 100, bottom: 20, left: 100},
+    width = screenDimensions.width - margin.right - margin.left,
+    height = screenDimensions.height - margin.top - margin.bottom,
+    duration = 750;
 
-  if (messages.length > 0) {
-      console.log(messages);
-  }
-  else {
-    var dendodiv = document.getElementById("layerTree");
-    let font_size = utils.getFontSize(dendodiv);
+  var margins = {margin: margin, width: width, height: height, duration: duration, font_size: font_size};
+  this.margins = margins;
 
-    var screenDimensions = {width: dendodiv.clientWidth - 13, height: document.documentElement.clientHeight};
+  var svg = d3.select("#layerTree").append("svg")
+      .attr("width", width + margin.right + margin.left)
+      .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    this.svg = svg;
 
-  var margin = {top: 20, right: 100, bottom: 20, left: 100},
-      width = screenDimensions.width - margin.right - margin.left,
-      height = screenDimensions.height - margin.top - margin.bottom,
-      duration = 750;
-
-    var margins = {margin: margin, width: width, height: height, duration: duration, font_size: font_size};
-    this.margins = margins;
-
-    var svg = d3.select("#layerTree").append("svg")
-        .attr("width", width + margin.right + margin.left)
-        .attr("height", height + margin.top + margin.bottom)
-        .append("g")
-          .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-    var temp_level = 2;
-    var pivot_list = pivotLists[temp_level];
-    this.pivot_level = temp_level;
-
-    pivot.render(pivot_list, svg, margins);
-
+    let pivot_svg = svg.append("g");
     let lhs_svg = svg.append("g");
     let rhs_svg = svg.append("g");
 
-
-    var pivots = {};
-
-    pivot_list.list.forEach(function(plist, i){
-        plist.forEach(function (p, x){ //use apply?
-            pivots[p.name] = p;
-            //what would be more useful would be x,y coords if we can get them already.
-        });
-    });
-
-    this.pivots = pivots;
-
-    tree.render(lhs_hierarchy, utils.consts.LHS, lhs_svg, margins, pivots, this.callback);  //perhaps get a return value if there is a more suitable container to use for links
-    tree.render(rhs_hierarchy, utils.consts.RHS, rhs_svg, margins, pivots, this.callback);
-
-    //get a list of the lhs links that we need to draw
-    //first get a collection of nodes that have no _children.
-
-    links.render(lhs_hierarchy, pivots, lhs_svg);
-    links.render(rhs_hierarchy, pivots, rhs_svg, utils.consts.EAST);
-
     this.lhs_svg = lhs_svg;
     this.rhs_svg = rhs_svg;
-
-
-
-    //console.log(rhs_hierarchy);
-  }
+    this.pivot_svg = pivot_svg;
 }
 
-doodah.prototype.callbacko = function(dataNode, side) {
+lay3r.prototype.render = function() {
+  //check that we have data for each of these
+  console.log("I assume that we don't get here the second time around")
+  var svg = this.svg;
+  var margins = this.margins;
+  var lhs_hierarchy = this.lhs;
+  var rhs_hierarchy = this.rhs;
+  var pivotLists = this.pivot_lists;
+  var pivot_list = pivotLists[this.pivot_level];
+  var lhs_svg = this.lhs_svg;
+  var rhs_svg = this.rhs_svg;
+  var pivot_svg = this.pivot_svg;
+
+  pivot.render(pivot_list, pivot_svg, margins);
+  var pivots = {};
+
+  pivot_list.list.forEach(function(plist, i){
+      plist.forEach(function (p, x){ //use apply?
+          pivots[p.name] = p;
+          //what would be more useful would be x,y coords if we can get them already.
+      });
+  });
+
+  this.pivots = pivots;
+
+  tree.render(lhs_hierarchy, utils.consts.LHS, lhs_svg, margins, pivots, this.callback);  //perhaps get a return value if there is a more suitable container to use for links
+  tree.render(rhs_hierarchy, utils.consts.RHS, rhs_svg, margins, pivots, this.callback);
+
+  //get a list of the lhs links that we need to draw
+  //first get a collection of nodes that have no _children.
+
+  links.render(lhs_hierarchy, pivots, lhs_svg);
+  links.render(rhs_hierarchy, pivots, rhs_svg, utils.consts.EAST);
+
+  let nav_svg = svg.append("g");
+  nav.render(nav_svg, margins, pivotLists.length, this.callback);
+
+  console.log(lhs_hierarchy);
+
+}
+
+lay3r.prototype.handle_message = function(data, side) {
   switch(side)
    {
      case utils.consts.LHS :
@@ -116,6 +106,23 @@ doodah.prototype.callbacko = function(dataNode, side) {
 
      case utils.consts.PIVOT :
      console.log("message for pivot");
+     console.log(data);
+     //ok s0 what do we need to do?
+     this.pivot_svg.selectAll("*").remove();
+    // this.rhs_svg.selectAll("*").remove();
+    // this.lhs_svg.selectAll("*").remove();
+     this.pivot_level = data;
+
+     //we need to go through the lhs and rhs hierarchies and renaming _children to children.
+
+     //utils.traverseTree(this.lhs, resetChildren, null, {});
+
+     //clearNodes(this.lhs);
+
+     console.log(this.lhs);
+
+     this.render();
+     console.log(this.render);
      break;
 
      default:
@@ -124,11 +131,47 @@ doodah.prototype.callbacko = function(dataNode, side) {
    }
 }
 
-
-doodah.createCallback = function(cxLayer) {
-  return function(dataNode, side) {
-    cxLayer.callbacko(dataNode, side);
+function clearNodes(d) {
+        d.selected = 0;
+        if (d.children) {
+            d.children.forEach(clearNodes);
+            resetNode (d);
+          }
+        else if (d._children) {
+            d._children.forEach(clearNodes);
+            resetNode(d);
+          }
     }
+
+
+lay3r.createCallback = function(cxLayer) {
+  return function(dataNode, side) {
+    cxLayer.handle_message(dataNode, side);
+    }
+}
+
+function resetNode(node) {
+  console.log(`resetChildren for ${node.name}`)
+  if(typeof(node["_children"]) != "undefined") {
+    console.log(`resetChildren - has _childere for ${node.name}`)
+    console.log("does this ever happen?")
+    Object.defineProperty(node, "children",
+        Object.getOwnPropertyDescriptor(node, "_children"));
+    delete node["_children"];
+
+    console.log(node.name)
+    console.log(node.children)
+  }
+
+  if(typeof(node["x"]) != "undefined") { delete node["x"];}
+  if(typeof(node["y"]) != "undefined") { delete node["y"];}
+  if(typeof(node["x0"]) != "undefined") { delete node["x0"];}
+  if(typeof(node["y0"]) != "undefined") { delete node["y0"];}
+  if(typeof(node["selected"]) != "undefined") { delete node["selected"];}
+  if(typeof(node["parent"]) != "undefined") { delete node["parent"];}
+
+
+
 }
 
 exports.create3Layer = create3Layer;

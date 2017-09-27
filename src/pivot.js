@@ -1,4 +1,4 @@
-function render(currentPivotLevel, parent_svg, margins) {
+function render(currentPivotLevel, pivot_svg, margins) {
 
   //currentPivotLevel is a list of groups [{total_items: n, list: [[item1, item2 ...]], [another group]}]
   //where total_items is the number of pivot items across all groups
@@ -11,13 +11,12 @@ function render(currentPivotLevel, parent_svg, margins) {
   let pivot_width = 200;
   let pivot_left = (margins.width / 2) - (pivot_width / 2);
 
-  var pivot_svg = parent_svg.append("g")
-    .datum(currentPivotLevel);  //this is a single item
+  pivot_svg.datum(currentPivotLevel);  //this is a single item
 
   //we may need another svg object with its own clip if we have a lot of pivot nodes
 
   pivot_svg.attr("transform", "translate(" + pivot_left + "," + 0 + ")");
-  
+
   var pivot_zone = pivot_svg.append("rect")
     .attr("x", 0)
     .attr("y", 0)
