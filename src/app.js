@@ -95,7 +95,7 @@ $(function () {
                                           var l = layer.create3Layer(lhs_hierarchy, rhs_hierarchy, pivotLists);
                                           l.render();
 
-
+console.log (pivot_hierarchy)
 
                                       } //if (rhs_hierarchy)
                                   }) //then(rhs_hierarchy
@@ -115,14 +115,30 @@ function handlePivotListRollup(child, parent, props){
   //copy up each list of children
   // if this child node has no children, then initialise List with just this node
 
+  //the point of this is so that root node contain a list of all descendants
+  //if you are a leaf node, you are a descendant of yourself.
+
+  //in the case of health assessments we have a case where the node has children
+  //but those children
+  //so it does not get given
+
+  if (parent.name == "Health Assessments"){
+    console.log("jhgdsjhfgjshg")
+    console.log(child.name)
+  }
+
   if (typeof(child.children) == "undefined") {
+    //set this child to be the sole descendant of itself
     let descendants = {};
     descendants[child.name] = 0;  //preferable to use ids?  using this as a set, but there may be some useful data we could store about the child, such as force value?
     child["descendants"] = descendants;
   }
 
   if (typeof(parent.descendants) == "undefined") {
-      parent["descendants"] = {};
+
+    let pd = {};
+      pd[parent.name] = 0;  //preferable to use ids?  using this as a set, but there may be some useful data we could store about the child, such as force value?
+      parent["descendants"] = pd;
   }
 
   let parentDescendants = parent["descendants"];
@@ -131,6 +147,11 @@ function handlePivotListRollup(child, parent, props){
   Object.keys(childDescendants).forEach(function(z, i){
     parentDescendants[z] = i;
   });
+
+  if (parent.name == "Health Assessments"){
+console.log("jj")
+    console.log(parentDescendants)
+  }
   //push.apply(parentDescendants, childDescendants)
 
 }
