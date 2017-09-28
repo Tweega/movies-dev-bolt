@@ -149,7 +149,6 @@ function assignRelationships(node, props) {
   //to have relationships, then//the relationships array is added, and the children array, if there is one is deleted
 
   var dict = props.rel_dict;
-console.log(node.name)
   if (typeof(dict[node.name]) != "undefined") {
 
 
