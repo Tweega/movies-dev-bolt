@@ -44,7 +44,7 @@ function traverseTree(rootNode, handleChild, handleRollup, props) {
 
 
 
-  while ((lenToDoLists > 0) && (sanity < 50)) {
+  while ((lenToDoLists > 0) && (sanity < 100000)) {
     let nextToDoList = toDoLists[lenToDoLists - 1];
 
     if (nextToDoList.length == 0) {
@@ -54,8 +54,10 @@ function traverseTree(rootNode, handleChild, handleRollup, props) {
       let parent = parents[parents.length - 1];
 
       if (handleRollup != null && typeof(parent) != "undefined") {
+
         handleRollup(child, parent, props);
       }
+
     }
     else {
       let nextToDo = nextToDoList.pop();
@@ -73,7 +75,6 @@ function traverseTree(rootNode, handleChild, handleRollup, props) {
     lenToDoLists = toDoLists.length;
     sanity++;
   }
-  //console.log (rootNode);
 }
 
 

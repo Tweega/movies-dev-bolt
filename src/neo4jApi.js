@@ -5,16 +5,18 @@ var Path = require('./models/Path');
 var _ = require('lodash');
 
 var neo4j = window.neo4j.v1;
-var driver = neo4j.driver("bolt://localhost", neo4j.auth.basic("neo4j", "Milwan1"));
+//var driver = neo4j.driver("bolt://localhost", neo4j.auth.basic("neo4j", "Milwan1"));
+
+var driver = neo4j.driver("bolt://wmw.uk.deloitte.com", neo4j.auth.basic("neo4j", "graph"));
 
 function getHierarchy(rootClass) {
   var session = driver.session();
   var query = `MATCH p=(:${rootClass} {title: "${rootClass}"})<-[:is_part_of*]-(x)`
-  switch (rootClass) {
-    case "Organisation" :
-      query += ` WHERE x["level"]< 3 `
-    //case "Process" :
-  }
+  // switch (rootClass) {
+  //   case "Organisation" :
+  //     query += ` WHERE x["level"]< 3 `
+  //   //case "Process" :
+  // }
 
   query +=" RETURN p"
 
@@ -78,7 +80,7 @@ function setRelationships(lhs, rhs, rel_name, field, hierarchy) {
 //and defaulting to a value of 1 where a value does not exist in the database.
 //needless to say, this ought to change at some point.
 
-var query = `MATCH (l:${lhs})-[rel:${rel_name}]->(r:${rhs}) \
+var query = `MATCH (l:${lhs})-[rel:${rel_name}]-(r:${rhs}) \
 RETURN id(l) as l_id, id(r) as r_id, l.title as l_title, r.title as r_title, case when rel.${field} is null then 1 else rel.${field} end as field `
 
   var session = driver.session();
@@ -89,7 +91,6 @@ RETURN id(l) as l_id, id(r) as r_id, l.title as l_title, r.title as r_title, cas
 
       if (result.records.length > 0) {
         let records = result.records;
-
 
         //var keys = records[0].keys;
         var indices = records[0]._fieldLookup;
@@ -145,11 +146,15 @@ function assignRelationships(node, props) {
   var dict = props.rel_dict;
 
   if (typeof(dict[node.name]) != "undefined") {
+
+
     //stitch these relationships into this Object
     node["relationships"] = dict[node.name]; //this should be an array of target_node_id and values
     //nodes with relationships are supposed to be children so delete the children collection of this node.
     if (typeof(node.children) != "undefined") {
-      delete node.children;
+
+
+      //delete node.children;
     }
   }
 }

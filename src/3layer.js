@@ -53,7 +53,7 @@ var margin = {top: 20, right: 100, bottom: 20, left: 100},
 
 lay3r.prototype.render = function() {
   //check that we have data for each of these
-  console.log("I assume that we don't get here the second time around")
+
   var svg = this.svg;
   var margins = this.margins;
   var lhs_hierarchy = this.lhs;
@@ -88,7 +88,6 @@ lay3r.prototype.render = function() {
   let nav_svg = svg.append("g");
   nav.render(nav_svg, margins, pivotLists.length, this.callback);
 
-  console.log(lhs_hierarchy);
 
 }
 
@@ -105,8 +104,7 @@ lay3r.prototype.handle_message = function(data, side) {
      break;
 
      case utils.consts.PIVOT :
-     console.log("message for pivot");
-     console.log(data);
+
      //ok s0 what do we need to do?
      this.pivot_svg.selectAll("*").remove();
     // this.rhs_svg.selectAll("*").remove();
@@ -119,10 +117,9 @@ lay3r.prototype.handle_message = function(data, side) {
 
      //clearNodes(this.lhs);
 
-     console.log(this.lhs);
 
      this.render();
-     console.log(this.render);
+
      break;
 
      default:
@@ -151,16 +148,14 @@ lay3r.createCallback = function(cxLayer) {
 }
 
 function resetNode(node) {
-  console.log(`resetChildren for ${node.name}`)
+
   if(typeof(node["_children"]) != "undefined") {
-    console.log(`resetChildren - has _childere for ${node.name}`)
-    console.log("does this ever happen?")
+
     Object.defineProperty(node, "children",
         Object.getOwnPropertyDescriptor(node, "_children"));
     delete node["_children"];
 
-    console.log(node.name)
-    console.log(node.children)
+
   }
 
   if(typeof(node["x"]) != "undefined") { delete node["x"];}

@@ -21,9 +21,7 @@ function render(nav_svg, margins, num_levels, callback) {
     .enter()
     .append("rect")
       .attr("x", function(d, i) {
-        console.log("do we get here?");
         return i * 40;
-
       })
       .attr("y", 0)
       .attr("width", 10)
@@ -33,7 +31,6 @@ function render(nav_svg, margins, num_levels, callback) {
       .on("click", click);
 
       function click(d) {
-        console.log(d);
         callback(d, utils.consts.PIVOT);
       }
   }
