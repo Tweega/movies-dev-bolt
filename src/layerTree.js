@@ -78,7 +78,18 @@ function render(hierarchy, side, svg, margins, pivots, callback) {
 
     nodeUpdate.select("circle")
         .attr("r", 4.5)
-        .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
+        .style("fill", function(d) {
+          var c = "#fff";
+          if (typeof(d.relationships) != "undefined") {
+            c = "yellow";
+          }
+          else {
+              c = d._children ? "lightsteelblue" : "#fff";
+          }
+          //console.log(d);
+          return c;
+
+        });
 
     nodeUpdate.select("text")
         .style("fill-opacity", 1);
@@ -156,6 +167,10 @@ function render(hierarchy, side, svg, margins, pivots, callback) {
       d.children = d._children;
       d._children = null;
     }
+
+    // console.log("begin d");
+    // console.log(d);
+    // console.log("end d");
     update(d);
 
 

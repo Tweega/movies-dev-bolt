@@ -69,6 +69,7 @@ function traverseTree(rootNode, handleChild, handleRollup, props) {
       }); // can't remember what the point of this was - perhaps  there meant to be some kind of filter applied?  We would have a predicate function passed in?
       toDoLists.push(nextChildren.reverse());
       if (handleChild != null) {
+        // console.log(nextToDo.name)
         handleChild(nextToDo, props, depth);
       }
     }

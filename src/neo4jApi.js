@@ -2,6 +2,7 @@ require('file?name=[name].[ext]!../node_modules/neo4j-driver/lib/browser/neo4j-w
 var Movie = require('./models/Movie');
 var MovieCast = require('./models/MovieCast');
 var Path = require('./models/Path');
+var utils = require('./Utils');
 var _ = require('lodash');
 
 var neo4j = window.neo4j.v1;
@@ -82,7 +83,7 @@ function setRelationships(lhs, rhs, rel_name, field, hierarchy) {
 
 var query = `MATCH (l:${lhs})-[rel:${rel_name}]-(r:${rhs}) \
 RETURN id(l) as l_id, id(r) as r_id, l.title as l_title, r.title as r_title, case when rel.${field} is null then 1 else rel.${field} end as field `
-
+//console.log(query)
   var session = driver.session();
   return session
   .run(query, {})
@@ -121,8 +122,12 @@ RETURN id(l) as l_id, id(r) as r_id, l.title as l_title, r.title as r_title, cas
 
           }
         });
+// console.log("sourceDictionary")
+// console.log(sourceDictionary)
 
-        traverseTree (hierarchy, assignRelationships, null, {rel_dict: sourceDictionary});
+        utils.traverseTree (hierarchy, assignRelationships, null, {rel_dict: sourceDictionary});
+// console.log("hierarchy");
+// console.log(hierarchy);
 
         return hierarchy;
     }
@@ -144,7 +149,7 @@ function assignRelationships(node, props) {
   //to have relationships, then//the relationships array is added, and the children array, if there is one is deleted
 
   var dict = props.rel_dict;
-
+console.log(node.name)
   if (typeof(dict[node.name]) != "undefined") {
 
 
@@ -159,51 +164,6 @@ function assignRelationships(node, props) {
   }
 }
 
-function traverseTree(rootNode, handleChild, handleRollup, props) { //better to wrap props in closure?
-
-  if (handleChild != null) {
-    handleChild(rootNode, props);
-  }
-
-  var nextChildren = rootNode.children || [];
-  nextChildren = nextChildren.map(function(c, i){
-    return c;
-  });
-
-  var sanity = 0;
-
-  var toDoLists = [nextChildren.reverse()];
-
-  var parents = [rootNode];
-
-  var lenToDoLists = toDoLists.length;
-
-  while ((lenToDoLists > 0) && (sanity < 50)) {
-    let nextToDoList = toDoLists[lenToDoLists - 1];
-
-    if (nextToDoList.length == 0) {
-      let discard = toDoLists.pop();
-      let child =  parents.pop();
-      let parent = parents[parents.length - 1];
-      if (handleRollup != null) {
-        handleRollup(child, parent, props);
-      }
-    }
-    else {
-      let nextToDo = nextToDoList.pop();
-      parents.push(nextToDo);
-      nextChildren = nextToDo.children || [];
-      nextChildren = nextChildren.map(function(c, i){
-        return c;
-      });
-      toDoLists.push(nextChildren.reverse());
-      handleChild(nextToDo, props);
-    }
-    lenToDoLists = toDoLists.length;
-    sanity++;
-  }
-  //console.log (rootNode);
-}
 
 function jobLot(){
   this.jobDict = {};
