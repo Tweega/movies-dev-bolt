@@ -6,9 +6,7 @@ var utils = require('./Utils');
 var _ = require('lodash');
 
 var neo4j = window.neo4j.v1;
-//var driver = neo4j.driver("bolt://localhost", neo4j.auth.basic("neo4j", "Milwan1"));
-
-var driver = neo4j.driver("bolt://wmw.uk.deloitte.com", neo4j.auth.basic("neo4j", "graph"));
+var driver = neo4j.driver("bolt://localhost", neo4j.auth.basic("neo4j", "Milwan1"));
 
 function getHierarchy(rootClass) {
   var session = driver.session();
