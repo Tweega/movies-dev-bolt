@@ -8,6 +8,8 @@ var _ = require('lodash');
 var neo4j = window.neo4j.v1;
 var driver = neo4j.driver("bolt://localhost", neo4j.auth.basic("neo4j", "Milwan1"));
 
+//var driver = neo4j.driver("bolt://wmw.uk.deloitte.com", neo4j.auth.basic("neo4j", "graph"));
+
 function getHierarchy(rootClass) {
   var session = driver.session();
   var query = `MATCH p=(:${rootClass} {title: "${rootClass}"})<-[:is_part_of*]-(x)`
@@ -30,7 +32,7 @@ function getHierarchy(rootClass) {
       if (result.records.length > 0) {
         let firstRecord = result.records[0].get('p');
         let rootTitle = firstRecord.start.properties.title;
-        let rootCx = {name: rootTitle, children: []};
+        let rootCx = {neo_id: firstRecord.start.identity, name: rootTitle, children: []};
         var cxStack = [rootCx];
 
         let records = result.records;
@@ -46,7 +48,9 @@ function getHierarchy(rootClass) {
           let currentCx = cxStack[pathLen - 1];
           let node = pathSegments[pathLen - 1];
 
-          let newNode = {name: node.end.properties.title};
+//console.log(node);
+//check here that we should not change to uid
+          let newNode = {neo_id: node.end.identity, name: node.end.properties.title};
 
           if (typeof(currentCx.children) ==  "undefined") {
             currentCx.children = [];
@@ -81,6 +85,7 @@ function setRelationships(lhs, rhs, rel_name, field, hierarchy) {
 
 var query = `MATCH (l:${lhs})-[rel:${rel_name}]-(r:${rhs}) \
 RETURN id(l) as l_id, id(r) as r_id, l.title as l_title, r.title as r_title, case when rel.${field} is null then 1 else rel.${field} end as field `
+
 //console.log(query)
   var session = driver.session();
   return session
@@ -144,7 +149,7 @@ RETURN id(l) as l_id, id(r) as r_id, l.title as l_title, r.title as r_title, cas
 function assignRelationships(node, props) {
   //this function traverses a tree with name and children properties
   //if the name property is in the list of node names that are known
-  //to have relationships, then//the relationships array is added, and the children array, if there is one is deleted
+  //to have relationships, then//the relationships array is added
 
   var dict = props.rel_dict;
   if (typeof(dict[node.name]) != "undefined") {

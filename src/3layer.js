@@ -91,8 +91,8 @@ lay3r.prototype.render = function() {
 
 }
 
-lay3r.prototype.handle_message = function(data, side) {
-  switch(side)
+lay3r.prototype.handle_message = function(data, msg_id, side) {
+  switch(msg_id)
    {
      case utils.consts.LHS :
 
@@ -122,10 +122,38 @@ lay3r.prototype.handle_message = function(data, side) {
 
      break;
 
+     case 111:
+       //traverse this data node, marking all descendants and links as being for highlighting
+       console.log("side");
+       console.log(side);
+       let sideStr = utils.getSideStr(side);
+       console.log (sideStr);
+       utils.traverseTree(data, highlight, null, sideStr)
+     break;
+
      default:
       console.log("unexpected message source");
 
    }
+}
+
+function highlight(node, side) {
+  //node contains a neo id
+  let elemID = side + node.neo_id;
+  d3.select("#" + elemID).classed("veiled", true);
+
+  //flag any links stemming from this node
+
+  //if this node has children, then there will be a link to eah of the children
+  if (typeof(node.children) != "undefined") {
+    var parent_id = node.neo_id;
+    node.children.forEach(function(child, i) {
+      // the name of the link will be "link_sourceID_targetID"
+      let linkID = "link_" + parent_id + "_" + child.neo_id;
+      d3.select("#" + linkID).classed("veiled", true);
+    });
+
+  }
 }
 
 function clearNodes(d) {
@@ -142,8 +170,8 @@ function clearNodes(d) {
 
 
 lay3r.createCallback = function(cxLayer) {
-  return function(dataNode, side) {
-    cxLayer.handle_message(dataNode, side);
+  return function(dataNode, msg_id, side) {
+    cxLayer.handle_message(dataNode, msg_id, side);
     }
 }
 

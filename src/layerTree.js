@@ -13,6 +13,8 @@ function render(hierarchy, side, svg, margins, pivots, callback) {
   var i = 0,
       root;
 
+  var sideStr = utils.getSideStr(side);
+
   var tree = d3.layout.tree()
       .size([height, width]);
 
@@ -56,12 +58,14 @@ function render(hierarchy, side, svg, margins, pivots, callback) {
     // Enter any new nodes at the parent's previous position.
     var nodeEnter = node.enter().append("g")
         .attr("class", "node")
-        .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
-        .on("click", click);
+        .attr("id", function(d, i) { return sideStr + d.neo_id})
+        .attr("transform", function(d) {  return "translate(" + source.y0 + "," + source.x0 + ")"; });
+
 
     nodeEnter.append("circle")
         .attr("r", 1e-6)
-        .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
+        .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; })
+        .on("click", click_circle);
 
     var pos_info = side === utils.consts.RHS ? {pos_a: "start", pos_b: "end", off_a: 10, off_b: -10} : {pos_a: "end", pos_b: "start", off_a: -10, off_b: 10}
 
@@ -70,7 +74,8 @@ function render(hierarchy, side, svg, margins, pivots, callback) {
         .attr("dy", ".35em")
         .attr("text-anchor", function(d) { return d.children || d._children ? pos_info.pos_a : pos_info.pos_b; })
         .text(function(d) { return d.name; })
-        .style("fill-opacity", 1e-6);
+        .style("fill-opacity", 1e-6)
+        .on("click", click_text);
 
     // Transition nodes to their new position.
     var nodeUpdate = node
@@ -116,7 +121,7 @@ function render(hierarchy, side, svg, margins, pivots, callback) {
             //get hold of the target rels
             var target_rels = d.target.rels;
             var sum = 0;
-
+console.log(d);
             //for each key on target_rels
             Object.keys(target_rels).forEach(function (pivot_key) {
               if (pivot_key in pivots) {
@@ -133,6 +138,9 @@ function render(hierarchy, side, svg, margins, pivots, callback) {
             let stroke_width = Math.max(Math.round((sum / total_out) * 10 * temp_item_height) / 10, 0.1);
 
             return stroke_width;
+          })
+          .attr("id", function(d) {
+            return "link_" + d.source.neo_id + "_" + d.target.neo_id;
           })
         .attr("d", function(d) {
           var o = {x: source.x0, y: source.y0};
@@ -159,7 +167,7 @@ function render(hierarchy, side, svg, margins, pivots, callback) {
   }
 
   // Toggle children on click.
-  function click(d) {
+  function click_text(d) {
     if (d.children) {
       d._children = d.children;
       d.children = null;
@@ -173,8 +181,11 @@ function render(hierarchy, side, svg, margins, pivots, callback) {
     // console.log("end d");
     update(d);
 
-
     callback(d, side);
+  }
+
+  function click_circle(d) {
+    callback(d, 111, side);
   }
 }
 

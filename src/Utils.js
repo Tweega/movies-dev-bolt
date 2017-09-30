@@ -78,9 +78,12 @@ function traverseTree(rootNode, handleChild, handleRollup, props) {
   }
 }
 
-
+function getSideStr(side) {
+    return side == consts.LHS ? "lhs_" : "rhs_";
+}
 
 exports.render = getPixelsPerEmFromElement;
 exports.getFontSize = getFontSize;
 exports.traverseTree = traverseTree;
 exports.consts = consts;
+exports.getSideStr = getSideStr;
