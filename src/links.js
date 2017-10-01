@@ -9,8 +9,10 @@ function render_links(hierarchy, pivots, svg, dock_side, item_height) {
       var leaf_nodes = [];
       var links = [];
       var total_out = hierarchy.total_out;
+      let sideStr = utils.getSideStr(dock_side);
+      console.log(`SideStr: ${sideStr }`)
 
-      utils.traverseTree(hierarchy, get_leaf_nodes, null, leaf_nodes);
+      utils.traverseTree(hierarchy, get_leaf_nodes, null, {side: sideStr, leaves: leaf_nodes});
 
       // for each leaf node, we want the list of rels - these are the names of pivot fields that
       // link from this leaf node.
@@ -58,17 +60,22 @@ function render_links(hierarchy, pivots, svg, dock_side, item_height) {
            .append("path")
            .attr("stroke-width", function(d, i) { return d.sw;})
            .attr("class", function(d, i) { return "link"; })
-           .attr("neo_id", function(d, i) { return "link_" + d.source_id + "_" + d.target_id; })
+           .attr("id", function(d, i) { return "link_" + d.source_id + "_" + d.target_id; })
            .attr("d", diagonal);
   }
 
-function get_leaf_nodes(node, leaves, depth) {
-
-
+function get_leaf_nodes(node, params, depth) {
+  var leaves = params.leaves;
+  var side = params.side;
 
   if (typeof(node.children) == "undefined") {
-
-    leaves.push(node);
+    let nodeID = side + node.neo_id;
+    //if (!(d3.select("#" + nodeID).classed("veiled"))) {
+    // console.log(d3.select("#" + nodeID).classed("veiled"));
+    console.log(`node id is: ${nodeID}`)
+    if (!(d3.select("#" + nodeID).classed("veiled"))) {
+      leaves.push(node);
+    }
     //once we have identifies a leaf node, there is no need to traverse children.
     //consider returning a boolean indicating whether to abort or not.
 

@@ -21,6 +21,7 @@ function lay3r(lhs_hierarchy, rhs_hierarchy, pivotLists) {
   this.callback = lay3r.createCallback(this);
   this.margins = {};
   this.pivot_level = 1;
+  this.schutz_id = -1;  //i.e an id that neo4j presumab,y would not come up with.
 
   var dendodiv = document.getElementById("layerTree");
   let font_size = utils.getFontSize(dendodiv);
@@ -67,7 +68,7 @@ lay3r.prototype.render = function() {
   pivot.render(pivot_list, pivot_svg, margins);
   var pivots = {};
 
-  pivot_list.list.forEach(function(plist, i){
+  pivot_list.list.forEach(function(plist, i){ //this looks like it could be done in the constructor.
       plist.forEach(function (p, x){ //use apply?
           pivots[p.name] = p;
           //what would be more useful would be x,y coords if we can get them already.
@@ -87,7 +88,6 @@ lay3r.prototype.render = function() {
 
   let nav_svg = svg.append("g");
   nav.render(nav_svg, margins, pivotLists.length, this.callback);
-
 
 }
 
@@ -124,11 +124,32 @@ lay3r.prototype.handle_message = function(data, msg_id, side) {
 
      case 111:
        //traverse this data node, marking all descendants and links as being for highlighting
-       console.log("side");
-       console.log(side);
+
+
+
+       console.log(`side should be 0 but it is: ${side}`);
+
        let sideStr = utils.getSideStr(side);
        console.log (sideStr);
-       utils.traverseTree(data, highlight, null, sideStr)
+
+       let selected_id = sideStr + data.neo_id;
+
+       if (data.neo_id != this.lhs.neo_id) {
+         console.log(selected_id)
+         if (selected_id == this.schutz_id) {
+           this.lhs_svg.selectAll(".schutz").classed("schutz", false);
+           this.lhs_svg.selectAll(".veiled").classed("veiled", false);
+           this.schutz_id = -1;
+         }
+         else {
+           console.log("not schutz")
+           this.schutz_id = selected_id;
+           utils.traverseTree(data, highlight, null, {pivots: this.pivots, side: sideStr});
+           //child elements of 'protected' elements should also be protoected
+           this.lhs_svg.selectAll(".schutz>*").classed("schutz", true);
+           this.lhs_svg.selectAll(":not(.schutz)").classed("veiled", true);
+         }
+       }
      break;
 
      default:
@@ -137,21 +158,45 @@ lay3r.prototype.handle_message = function(data, msg_id, side) {
    }
 }
 
-function highlight(node, side) {
+function highlight(node, params) {
+  var side = params.side;
+  var pivots = params.pivots;
+console.log(`side should be lhs_ but it is: ${side}`);
   //node contains a neo id
-  let elemID = side + node.neo_id;
-  d3.select("#" + elemID).classed("veiled", true);
-
+  var parent_id = node.neo_id;
+  let elemID = side + parent_id;
+  d3.select("#" + elemID).classed("schutz", true);
+console.log(`highlight ${elemID}`)
   //flag any links stemming from this node
 
-  //if this node has children, then there will be a link to eah of the children
+  //if this node has children, then there will be a link to each of the children
   if (typeof(node.children) != "undefined") {
-    var parent_id = node.neo_id;
+
     node.children.forEach(function(child, i) {
       // the name of the link will be "link_sourceID_targetID"
       let linkID = "link_" + parent_id + "_" + child.neo_id;
-      d3.select("#" + linkID).classed("veiled", true);
+
+      d3.select("#" + linkID).classed("schutz", true);
     });
+  }
+  else {
+    //no children - we ought to have a rels collection then - which may or may not have links to visible pivots
+    //it would be odd if we did not have a rels in this case, but check anyway
+    if (typeof(node.rels) != "undefined"){
+      Object.keys(node.rels).forEach(function(rel, idx) {
+        if (rel in pivots) {  //pivots is a list of pivots currently visible
+          let r = pivots[rel];
+          let linkID = "link_" + parent_id + "_" + r.neo_id;
+          console.log("linkID:::::");
+          console.log(linkID);
+          d3.select("#" + linkID).classed("schutz", true);
+          //console.log(d3.select("#" + linkID).attr("stroke-width"));
+        }
+      });
+    }
+    else {
+      console.log("Odd that we don't have a rels in function highlight")
+    }
 
   }
 }

@@ -79,6 +79,7 @@ function traverseTree(rootNode, handleChild, handleRollup, props) {
 }
 
 function getSideStr(side) {
+  console.log(`const lhs: ${consts.LHS} while side = ${side}`)
     return side == consts.LHS ? "lhs_" : "rhs_";
 }
 
