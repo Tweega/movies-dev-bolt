@@ -48,7 +48,6 @@ function getHierarchy(rootClass) {
           let currentCx = cxStack[pathLen - 1];
           let node = pathSegments[pathLen - 1];
 
-//console.log(node);
 //check here that we should not change to uid
           let newNode = {neo_id: node.end.identity, name: node.end.properties.title};
 
@@ -125,12 +124,8 @@ RETURN id(l) as l_id, id(r) as r_id, l.title as l_title, r.title as r_title, cas
 
           }
         });
-// console.log("sourceDictionary")
-// console.log(sourceDictionary)
 
         utils.traverseTree (hierarchy, assignRelationships, null, {rel_dict: sourceDictionary});
-// console.log("hierarchy");
-// console.log(hierarchy);
 
         return hierarchy;
     }

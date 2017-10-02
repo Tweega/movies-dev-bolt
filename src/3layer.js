@@ -125,24 +125,16 @@ lay3r.prototype.handle_message = function(data, msg_id, side) {
      case 111:
        //traverse this data node, marking all descendants and links as being for highlighting
 
-
-
-       console.log(`side should be 0 but it is: ${side}`);
-
        let sideStr = utils.getSideStr(side);
-       console.log (sideStr);
-
        let selected_id = sideStr + data.neo_id;
 
        if (data.neo_id != this.lhs.neo_id) {
-         console.log(selected_id)
          if (selected_id == this.schutz_id) {
            this.lhs_svg.selectAll(".schutz").classed("schutz", false);
            this.lhs_svg.selectAll(".veiled").classed("veiled", false);
            this.schutz_id = -1;
          }
          else {
-           console.log("not schutz")
            this.schutz_id = selected_id;
            utils.traverseTree(data, highlight, null, {pivots: this.pivots, side: sideStr});
            //child elements of 'protected' elements should also be protoected
@@ -161,12 +153,10 @@ lay3r.prototype.handle_message = function(data, msg_id, side) {
 function highlight(node, params) {
   var side = params.side;
   var pivots = params.pivots;
-console.log(`side should be lhs_ but it is: ${side}`);
-  //node contains a neo id
   var parent_id = node.neo_id;
   let elemID = side + parent_id;
+
   d3.select("#" + elemID).classed("schutz", true);
-console.log(`highlight ${elemID}`)
   //flag any links stemming from this node
 
   //if this node has children, then there will be a link to each of the children
@@ -187,10 +177,7 @@ console.log(`highlight ${elemID}`)
         if (rel in pivots) {  //pivots is a list of pivots currently visible
           let r = pivots[rel];
           let linkID = "link_" + parent_id + "_" + r.neo_id;
-          console.log("linkID:::::");
-          console.log(linkID);
           d3.select("#" + linkID).classed("schutz", true);
-          //console.log(d3.select("#" + linkID).attr("stroke-width"));
         }
       });
     }

@@ -91,7 +91,6 @@ function render(hierarchy, side, svg, margins, pivots, callback) {
           else {
               c = d._children ? "lightsteelblue" : "#fff";
           }
-          //console.log(d);
           return c;
 
         });
@@ -121,7 +120,6 @@ function render(hierarchy, side, svg, margins, pivots, callback) {
             //get hold of the target rels
             var target_rels = d.target.rels;
             var sum = 0;
-console.log(d);
             //for each key on target_rels
             Object.keys(target_rels).forEach(function (pivot_key) {
               if (pivot_key in pivots) {
@@ -176,9 +174,6 @@ console.log(d);
       d._children = null;
     }
 
-    // console.log("begin d");
-    // console.log(d);
-    // console.log("end d");
     update(d);
 
     callback(d, side);

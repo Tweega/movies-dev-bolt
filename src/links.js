@@ -10,7 +10,6 @@ function render_links(hierarchy, pivots, svg, dock_side, item_height) {
       var links = [];
       var total_out = hierarchy.total_out;
       let sideStr = utils.getSideStr(dock_side);
-      console.log(`SideStr: ${sideStr }`)
 
       utils.traverseTree(hierarchy, get_leaf_nodes, null, {side: sideStr, leaves: leaf_nodes});
 
@@ -19,12 +18,12 @@ function render_links(hierarchy, pivots, svg, dock_side, item_height) {
 
       leaf_nodes.forEach(function(leaf, i) {
         //if we were to store the pivot fields in rels by level, then we would not need to do this
-//console.log(leaf.neo_id);
+
         Object.keys(leaf.rels).forEach(function(rel, idx) {
           if (rel in pivots) {
             let r = pivots[rel];
             let jj = leaf.rels[rel];
-            console.log(r);
+
             let dock_x = dock_side == utils.consts.WEST ? r.dock_x_west : r.dock_x_east;
 
             //this totalising should be done in app.js - but that requires a bit of refactoring - so for the moment calculate here.
@@ -70,9 +69,6 @@ function get_leaf_nodes(node, params, depth) {
 
   if (typeof(node.children) == "undefined") {
     let nodeID = side + node.neo_id;
-    //if (!(d3.select("#" + nodeID).classed("veiled"))) {
-    // console.log(d3.select("#" + nodeID).classed("veiled"));
-    console.log(`node id is: ${nodeID}`)
     if (!(d3.select("#" + nodeID).classed("veiled"))) {
       leaves.push(node);
     }

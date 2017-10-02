@@ -122,11 +122,6 @@ function handlePivotListRollup(child, parent, props){
   //but those children
   //so it does not get given
 
-  if (parent.name == "Health Assessments"){
-    console.log("jhgdsjhfgjshg")
-    console.log(child.name)
-  }
-
   if (typeof(child.children) == "undefined") {
     //set this child to be the sole descendant of itself
     let descendants = {};
@@ -147,12 +142,6 @@ function handlePivotListRollup(child, parent, props){
   Object.keys(childDescendants).forEach(function(z, i){
     parentDescendants[z] = i;
   });
-
-  if (parent.name == "Health Assessments"){
-console.log("jj")
-    console.log(parentDescendants)
-  }
-  //push.apply(parentDescendants, childDescendants)
 
 }
 
