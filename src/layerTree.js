@@ -176,7 +176,7 @@ function render(hierarchy, side, svg, margins, pivots, callback) {
 
     update(d);
 
-    callback(d, side);
+    callback(d, side, side);
   }
 
   function click_circle(d) {

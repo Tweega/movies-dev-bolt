@@ -95,7 +95,7 @@ $(function () {
                                           var l = layer.create3Layer(lhs_hierarchy, rhs_hierarchy, pivotLists);
                                           l.render();
 
-console.log (pivot_hierarchy)
+console.log (rhs_hierarchy)
 
                                       } //if (rhs_hierarchy)
                                   }) //then(rhs_hierarchy

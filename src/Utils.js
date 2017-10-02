@@ -22,8 +22,12 @@ function getFontSize(elem) {
 // // now you have a proper float for the font size (yes, it can be a float, not just an integer)
 // el.style.fontSize = (fontSize + 1) + 'px';
 
-function traverseTree(rootNode, handleChild, handleRollup, props) {
+function traverseTree(rootNode, handleChild, handleRollup, props, getChildren) {
   var depth = 0;
+
+  if (typeof(getChildren) == "undefined") {
+    getChildren = function(node) {return node.children;};
+  }
 
   if (handleChild != null) {
     handleChild(rootNode, props, depth);
@@ -63,7 +67,7 @@ function traverseTree(rootNode, handleChild, handleRollup, props) {
       let nextToDo = nextToDoList.pop();
       parents.push(nextToDo);
       depth++;
-      nextChildren = nextToDo.children || [];
+      nextChildren = getChildren(nextToDo) || [];
       nextChildren = nextChildren.map(function(c, i){
         return c;
       }); // can't remember what the point of this was - perhaps  there meant to be some kind of filter applied?  We would have a predicate function passed in?
