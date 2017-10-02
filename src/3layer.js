@@ -259,7 +259,6 @@ function highlight(node, params) {
 }
 
 function highlightOtherLinks(path_list, pivots, side) {
-
   path_list.forEach(function(path, i){
   if (path.length > 1) {
     var target = pop_and_check_rels(path, pivots);
@@ -271,10 +270,10 @@ function highlightOtherLinks(path_list, pivots, side) {
         var sourceID = source.neo_id;
         //link_sourceID_targetID
         let linkID = "link_" + sourceID + "_" + targetID;
-        console.log(linkID);
+
         d3.select("#" + linkID).classed("schutz", true);
         targetID = sourceID;
-        source = pop_and_check_rels(path);
+        source = pop_and_check_rels(path, pivots);
       }
     }
   });
@@ -289,8 +288,6 @@ function pop_and_check_rels(path, pivots) {
         if (rel in pivots) {  //pivots is a list of pivots currently visible
           let r = pivots[rel];
           let linkID = "link_" + x.neo_id + "_" + r.neo_id;
-          console.log("linkID");
-          console.log(r);
           d3.select("#" + linkID).classed("schutz", true);
         }
       });
