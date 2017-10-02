@@ -86,7 +86,9 @@ lay3r.prototype.render = function() {
   links.render(rhs_hierarchy, pivots, rhs_svg, utils.consts.RHS);
 
   let nav_svg = svg.append("g");
+  this.nav_svg = nav_svg;
   nav.render(nav_svg, margins, pivotLists.length, this.callback);
+  this.select_level();
 
 }
 
@@ -110,6 +112,7 @@ lay3r.prototype.handle_message = function(data, msg_id, side) {
   // this.lhs_svg.selectAll("*").remove();
   this.pivot_level = data;
 
+
   //we need to go through the lhs and rhs hierarchies and renaming _children to children.
 
   //utils.traverseTree(this.lhs, resetChildren, null, {});
@@ -118,6 +121,7 @@ lay3r.prototype.handle_message = function(data, msg_id, side) {
 
 
   this.render();
+  //this.select_level();
 
   break;
 
@@ -216,6 +220,13 @@ highlightOtherLinks(found_paths, filtered_pivots, otherSideStr);
 
   }
 }
+
+
+lay3r.prototype.select_level = function() {
+  console.log(this.nav_svg)
+  nav.select_level(this.nav_svg, this.pivot_level);
+}
+
 
 function highlight(node, params) {
   var side = params.side;
@@ -375,8 +386,6 @@ function resetNode(node) {
   if(typeof(node["y0"]) != "undefined") { delete node["y0"];}
   if(typeof(node["selected"]) != "undefined") { delete node["selected"];}
   if(typeof(node["parent"]) != "undefined") { delete node["parent"];}
-
-
 
 }
 

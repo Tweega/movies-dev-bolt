@@ -32,7 +32,10 @@ function render(hierarchy, side, svg, margins, pivots, callback) {
         d.children = null;
       }
     }
-    root.children.forEach(collapse);
+    if (typeof(root.xx) == "undefined") {
+      root["xx"] = 1;
+      root.children.forEach(collapse);
+    }
     update(root);
 
   //d3.select(self.frameElement).style("height", "800px");

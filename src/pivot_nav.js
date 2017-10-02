@@ -35,5 +35,23 @@ function render(nav_svg, margins, num_levels, callback) {
       }
   }
 
+  function select_level(nav_svg, level) {
+    nav_svg
+    .selectAll(".selector")
+    .data([{id: 1}])
+    .enter()
+      .append("rect")
+      .attr("x", function(d, i) {
+        return 40 * level;
+      })
+      .attr("y", 12)
+      .attr("width", 10)
+      .attr("height", 2)
+      .attr("class", "pivot_nav")
+      .attr("fill", function(d,i) { return colores(1); } )
+
+
+  }
 
 exports.render = render;
+exports.select_level = select_level;
