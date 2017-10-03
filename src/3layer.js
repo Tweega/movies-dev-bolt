@@ -5,12 +5,12 @@ var links = require('./links');
 var nav = require('./pivot_nav');
 
 
-function create3Layer(lhs_hierarchy, rhs_hierarchy, pivotLists) {
+function create3Layer(lhs_hierarchy, rhs_hierarchy, pivotLists, pivotName) {
   //if we already have data, we will propbably have to do something here to clear it out.
-  return new lay3r(lhs_hierarchy, rhs_hierarchy, pivotLists);
+  return new lay3r(lhs_hierarchy, rhs_hierarchy, pivotLists, pivotName);
 }
 
-function lay3r(lhs_hierarchy, rhs_hierarchy, pivotLists) {
+function lay3r(lhs_hierarchy, rhs_hierarchy, pivotLists, pivotName) {
   this.lhs = lhs_hierarchy;
   this.rhs = rhs_hierarchy;
   this.lhs_svg = null;
@@ -21,7 +21,7 @@ function lay3r(lhs_hierarchy, rhs_hierarchy, pivotLists) {
   this.callback = lay3r.createCallback(this);
   this.margins = {};
   this.pivot_level = 1;
-  this.schutz_id = -1;  //i.e an id that neo4j presumab,y would not come up with.
+  this.schutz_id = -1;  //i.e an id that neo4j presumably would not come up with.
 
   var dendodiv = document.getElementById("layerTree");
   let font_size = utils.getFontSize(dendodiv);
@@ -43,13 +43,70 @@ var margin = {top: 20, right: 100, bottom: 20, left: 100},
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
     this.svg = svg;
 
-    let pivot_svg = svg.append("g");
-    let lhs_svg = svg.append("g");
-    let rhs_svg = svg.append("g");
+let info_svg = svg.append("g");
 
-    this.lhs_svg = lhs_svg;
-    this.rhs_svg = rhs_svg;
-    this.pivot_svg = pivot_svg;
+let xx = `${lhs_hierarchy.name} - ${pivotName} - ${rhs_hierarchy.name}`
+    info_svg.append("text")
+    .attr("x", 0 - margin.left) //don't understand why 0 is not the right number here.  May be to do with the LHS tree pushing the containing g t the left
+    .attr("y", 0)
+    .attr("dy", ".35em")
+    .attr("text-anchor", "start")
+    .attr("class", "header")
+    .text(xx);
+
+
+        let yy_text = info_svg.append("text")
+        .attr("x", 0 - margin.left) //don't understand why 0 is not the right number here.  May be to do with the LHS tree pushing the containing g t the left
+        .attr("y", 25)
+        .attr("dy", ".35em")
+        .attr("text-anchor", "start")
+        .attr("class", "pivot_level")
+        .text(`${pivotName} level: `);
+
+
+        var bbox = yy_text.node().getBBox();
+
+
+
+  let inc = info_svg.append("use")
+  .attr("xlink:href", "#increment")
+  .attr("x", bbox.width - margin.left +  10) //don't understand why 0 is not the right number here.  May be to do with the LHS tree pushing the containing g t the left
+  .attr("y", 25 - 5)
+  .attr("class", "inc_dec")
+  .on("mousedown", jerrydown)
+  .on("mouseleave", jerryleave)
+  .on("click", jerryclick)
+
+  var inc_box = inc.node().getBBox();
+
+  console.log(inc_box.width);
+  console.log(info_svg.style.clientWidth);
+
+  let jj_text = info_svg.append("text")
+  .attr("x", bbox.width - margin.left + inc_box.width + 20) //don't understand why 0 is not the right number here.  May be to do with the LHS tree pushing the containing g t the left
+  .attr("y", 25)
+  .attr("dy", ".35em")
+  .attr("text-anchor", "start")
+  .attr("class", "pivot_level")
+  .text(`${this.pivot_level}`);
+
+
+  info_svg.append("use")
+  .attr("xlink:href", "#decrement")
+  .attr("x", bbox.width - margin.left + (inc_box.width * 2) + 20) //don't understand why 0 is not the right number here.  May be to do with the LHS tree pushing the containing g t the left
+  .attr("y", 25 - 5)
+  .attr("class", "inc_dec")
+  .on("mousedown", jerrydown)
+  .on("mouseleave", jerryleave)
+  .on("click", jerryclick)
+
+  let pivot_svg = svg.append("g");
+  let lhs_svg = svg.append("g");
+  let rhs_svg = svg.append("g");
+
+  this.lhs_svg = lhs_svg;
+  this.rhs_svg = rhs_svg;
+  this.pivot_svg = pivot_svg;
 }
 
 lay3r.prototype.render = function() {
@@ -65,7 +122,7 @@ lay3r.prototype.render = function() {
   var rhs_svg = this.rhs_svg;
   var pivot_svg = this.pivot_svg;
 
-  pivot.render(pivot_list, pivot_svg, margins);
+  pivot.render(pivot_list, this.pivot_level, pivot_svg, margins);
   var pivots = {};
 
   pivot_list.list.forEach(function(plist, i){ //this looks like it could be done in the constructor.
@@ -388,5 +445,22 @@ function resetNode(node) {
   if(typeof(node["parent"]) != "undefined") { delete node["parent"];}
 
 }
+
+
+function jerrydown(d){
+  d3.select(this).classed("inc_dec", false)
+  d3.select(this).classed("inc_dec_press", true)
+}
+
+function jerryclick(d){
+  d3.select(this).classed("inc_dec_press", false);
+  d3.select(this).classed("inc_dec", true);
+}
+
+function jerryleave(d){
+    d3.select(this).classed("inc_dec_press", false);
+    d3.select(this).classed("inc_dec", true);
+}
+
 
 exports.create3Layer = create3Layer;

@@ -16,11 +16,37 @@
          d="M32 18.451l-16-12.42-16 12.42v-5.064l16-12.42 16 12.42zM28 18v12h-8v-8h-8v8h-8v-12l12-9z"/>
 
       <path id="diamond" d="M10,0 l25,30 l-25,30 l-25,-30 l25,-30"
-         style="stroke: #000000;
-         fill: #6666ff;
-      " />
+         style="stroke: #000000; fill: #6666ff;" />
+
+
+      <g id="surface1ss">
+        <path style=" fill:#F44336;" d="M 45 24 C 45 35.597656 35.597656 45 24 45 C 12.402344 45 3 35.597656 3 24 C 3 12.402344 12.402344 3 24 3 C 35.597656 3 45 12.402344 45 24 "/>
+        <path style=" fill:#FFFFFF;" d="M 14 21 L 34 21 L 34 27 L 14 27 Z "/>
+      </g>
+
+      <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 48 48" version="1.1" width="48" height="48">
+        <g id="surface1">
+          <path style=" fill:#F44336;" d="M 45 24 C 45 35.597656 35.597656 45 24 45 C 12.402344 45 3 35.597656 3 24 C 3 12.402344 12.402344 3 24 3 C 35.597656 3 45 12.402344 45 24 "/>
+          <path style=" fill:#FFFFFF;" d="M 14 21 L 34 21 L 34 27 L 14 27 Z "/>
+        </g>
+      </svg>
+
   </defs>
 
+</svg>
+
+
+<svg  style="display: none">
+  <defs>
+    <g id="decrement">
+      <rect x="0", y="-5", width="20",  height="20"/>
+      <path d="M 5 0 L 10 10 L 15 0"/>
+    </g>
+    <g id="increment">
+      <rect x="0", y="-5", width="20",  height="20"/>
+      <path d="M 5 10 L 10 0 L 15 10"/>
+    </g>
+  </defs>
 </svg>
 
 <style>
@@ -32,6 +58,22 @@ body {
 .veiled {
   opacity: 0.1;
 
+}
+
+.inc_dec{
+  stroke: steelblue;
+  stroke-width: 1.5px;
+  fill: white;
+}
+
+.inc_dec_press{
+  stroke: white;
+  stroke-width: 1.5px;
+  fill: steelblue;
+}
+
+.inc_dec {
+  cursor: pointer;
 }
 
 .node {
@@ -48,21 +90,31 @@ body {
   font: 10px sans-serif;
 }
 
+.header {
+  font:   23px sans-serif;
+  fill: #1B3277;
+}
+
+.pivot_level {
+  font:   15px sans-serif;
+  fill: #3A9238;
+}
+
 .pivot_text {
   font: 10px sans-serif;
 }
 
 
 .pivot_zone {
-  fill: #FBF8FD;
+  fill: #FFFFFF ;
 }
 
 .pivot_group {
-  fill: #fff;
+  fill: #FFFFFF;
 }
 
 .pivot_item {
-  fill: #CBF8CD;
+  /*fill: #CBF8CD;*/
 }
 
 .pivot_nav {
@@ -74,8 +126,20 @@ body {
   stroke: #ccc;
 }
 
+#container {
+  margin-top: 0px;
+  width: 100%;
+}
+
 #layerTree {
   font-size: 1em;
+  position:absolute;
+  width: 100%;
+}
+
+#info {
+  font-size: 1em;
+  position:absolute;
 }
 </style>
 
@@ -83,7 +147,10 @@ body {
 <script type="text/javascript" src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
 <script src="http://d3js.org/d3.v3.min.js" type="text/javascript"></script>
 <script type="text/javascript" src="neo4j-web.min.js"></script></body>
-<div id="layerTree"></div>
+<div id="container">
+  <div id="layerTree"></div>
+  <div id="info"></div>
+</div>
 </body
 
 

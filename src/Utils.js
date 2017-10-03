@@ -85,8 +85,28 @@ function getSideStr(side) {
     return side == consts.LHS ? "lhs_" : "rhs_";
 }
 
+const DELOITTE_GREEN = "#3A9238";
+const AZUL_EL_HIERRO = "#00A1DE";
+const DELOITTE_GREEN_DOT = "#9ACD66";
+const WHITE = "#FFFFFF";
+const BLACK = "#000000";
+const DELOITTE_BLUE = "#1B3277";
+const SOME_KIND_OF_GREY = "#75787B";
+const DELOITTE_COLOURS = [WHITE, BLACK, DELOITTE_GREEN_DOT, AZUL_EL_HIERRO, DELOITTE_GREEN, SOME_KIND_OF_GREY, DELOITTE_BLUE ];
+
+
+function pivot_bg_colour(n) {
+  return DELOITTE_COLOURS[n % DELOITTE_COLOURS.length];
+}
+
+function pivot_text_colour(n) {
+  return DELOITTE_COLOURS[(n + 1) % DELOITTE_COLOURS.length];
+}
+
 exports.render = getPixelsPerEmFromElement;
 exports.getFontSize = getFontSize;
 exports.traverseTree = traverseTree;
 exports.consts = consts;
 exports.getSideStr = getSideStr;
+exports.pivot_bg_colour = pivot_bg_colour;
+exports.pivot_text_colour = pivot_text_colour;

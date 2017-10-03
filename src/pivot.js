@@ -1,9 +1,11 @@
-function render(currentPivotLevel, pivot_svg, margins) {
+var utils = require('./Utils');
 
-  //currentPivotLevel is a list of groups [{total_items: n, list: [[item1, item2 ...]], [another group]}]
+function render(currentPivotData, pivot_level, pivot_svg, margins) {
+
+  //currentPivotData is a list of groups [{total_items: n, list: [[item1, item2 ...]], [another group]}]
   //where total_items is the number of pivot items across all groups
 
-  //var currentPivotLevel = pivotLists[level - 1];
+  //var currentPivotData = pivotLists[level - 1];
 
   var pivotMargins = {};
   var margin = margins.margin;
@@ -11,7 +13,7 @@ function render(currentPivotLevel, pivot_svg, margins) {
   let pivot_width = 200;
   let pivot_left = (margins.width / 2) - (pivot_width / 2);
 
-  pivot_svg.datum(currentPivotLevel);  //this is a single item
+  pivot_svg.datum(currentPivotData);  //this is a single item
 
   //we may need another svg object with its own clip if we have a lot of pivot nodes
 
@@ -28,8 +30,8 @@ function render(currentPivotLevel, pivot_svg, margins) {
   //for testing we will want to add some duplicate groups?
   // we have yet to sort out what happens if the pivot space is not big enough to handle all pivot items
   var font_size = margins.font_size;
-  var num_groups = currentPivotLevel.list.length;
-  var total_items = currentPivotLevel.total_items;
+  var num_groups = currentPivotData.list.length;
+  var total_items = currentPivotData.total_items;
   var item_height = Math.ceil(font_size * 1.2);
   var item_width = pivot_width * 8 / 10;
   var inner_group_margin = item_height / 2;
@@ -61,7 +63,7 @@ function render(currentPivotLevel, pivot_svg, margins) {
   */
   var items_so_far = 0;
 
-  var groupOffsets = currentPivotLevel.list.map(function(group, i) {
+  var groupOffsets = currentPivotData.list.map(function(group, i) {
     //we may not need to keep a reference to these offsets - just in case
     // we may want to store more than just y offset here
 
@@ -85,7 +87,7 @@ function render(currentPivotLevel, pivot_svg, margins) {
     items_so_far += group.length;
     return {height: group_height, top: group_top, items_so_far: isf};
 
-    //we need to zip this in with   var currentPivotLevel = pivotLists[level - 1];
+    //we need to zip this in with   var currentPivotData = pivotLists[level - 1];
   });
 
   //the problem is that we are putting group_offsets as data on the pivot group which is not what we want to pass down
@@ -137,8 +139,11 @@ function render(currentPivotLevel, pivot_svg, margins) {
                   d["dock_y"] = dock_y;
                   return item_y;
                 })
+                .attr("rx", 5)
+                .attr("ry", 5)
                 .attr("width", item_width - (2 * text_padding))
                 .attr("height", item_height)
+                .attr("fill", utils.pivot_bg_colour(1))
                 .attr("class", "pivot_item");
 
 
@@ -146,9 +151,10 @@ function render(currentPivotLevel, pivot_svg, margins) {
           var text_items = pivot_items
             .append("text")
                 .attr("x", item_width / 2)
-                .attr("y", function(d, i) { return (box_height * i) + inner_group_margin + gg + item_height - text_padding;})
+                .attr("y", function(d, i) { return (box_height * i) + inner_group_margin  + item_height - text_padding;})
                 .attr('text-anchor', 'middle')
                 .attr("class", "pivot_text")
+                .attr("fill", utils.pivot_text_colour(1))
                 .text(function(d, i) {return d.name;});
 
                 //var txt = pivotList[item_idx].name;
