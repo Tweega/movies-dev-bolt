@@ -57,7 +57,7 @@ let xx_text = `${lhs_hierarchy.name} - ${pivotName} - ${rhs_hierarchy.name}`
 
         let yy_text = info_svg.append("text")
         .attr("x", 0 - margin.left) //don't understand why 0 is not the right number here.  May be to do with the LHS tree pushing the containing g t the left
-        .attr("y", 25)
+        .attr("y", 30)
         .attr("dy", ".35em")
         .attr("text-anchor", "start")
         .attr("class", "pivot_level")
@@ -75,7 +75,7 @@ console.log(yybox.width - margin.left + 10);
   let nav_svg = info_svg.append("g")
     //  .attr("transform", "translate(22, 11)")  ;
 
-    .attr("transform", "translate(" + parseInt(yybox.width - margin.left + 10).toString() + "," + parseInt(18) + ")");
+    .attr("transform", "translate(" + parseInt(yybox.width - margin.left + 10).toString() + "," + parseInt(23) + ")");
 
 
 console.log(yybox.width - margin.left);
