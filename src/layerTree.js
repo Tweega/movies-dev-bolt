@@ -67,7 +67,7 @@ function render(hierarchy, side, svg, margins, pivots, callback) {
 
     nodeEnter.append("circle")
         .attr("r", 1e-6)
-        .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; })
+        .style("fill", function(d) { return utils.deloitte_colour(d.depth)})
         .on("click", click_circle);
 
     var pos_info = side === utils.consts.RHS ? {pos_a: "start", pos_b: "end", off_a: 10, off_b: -10} : {pos_a: "end", pos_b: "start", off_a: -10, off_b: 10}
@@ -87,15 +87,7 @@ function render(hierarchy, side, svg, margins, pivots, callback) {
     nodeUpdate.select("circle")
         .attr("r", 4.5)
         .style("fill", function(d) {
-          var c = "#fff";
-          if (typeof(d.relationships) != "undefined") {
-            c = "yellow";
-          }
-          else {
-              c = d._children ? "lightsteelblue" : "#fff";
-          }
-          return c;
-
+          return utils.deloitte_colour(d.depth)
         });
 
     nodeUpdate.select("text")

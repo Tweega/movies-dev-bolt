@@ -1,16 +1,10 @@
 var utils = require('./Utils');
 
-function render(nav_svg, margins, num_levels, callback) {
+function render(nav_svg, num_levels, callback, level) {
   //var a = new Array(num_levels - 1);
+
   var a = [...Array(num_levels).keys()];
 
-  var margin = margins.margin;
-
-  let pivot_width = 200;
-  let pivot_left = (margins.width / 2) - (pivot_width / 2);
-
-
-  nav_svg.attr("transform", "translate(" + pivot_left + "," + -10 + ")");
   nav_svg.selectAll(".nav_button")
     .data(a)
     .enter()
@@ -19,11 +13,17 @@ function render(nav_svg, margins, num_levels, callback) {
         return i * 40;
       })
       .attr("y", 0)
-      .attr("width", 10)
-      .attr("height", 10)
+      .attr("width", 15)
+      .attr("height", 15)
       .attr("class", "pivot_nav")
-      .attr("fill", function(d,i) { return utils.pivot_text_colour(i); } )
+      .attr("fill", function(d,i) { return utils.deloitte_colour(i); } )
       .on("click", click);
+
+  nav_svg.append("text")
+  .attr("x", (level * 40) + 3)
+  .attr("y", 13)
+  .attr("fill", "white")
+  .text(level.toString())
 
       function click(d) {
         callback(d, utils.consts.PIVOT);

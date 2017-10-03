@@ -20,7 +20,7 @@ function lay3r(lhs_hierarchy, rhs_hierarchy, pivotLists, pivotName) {
   this.pivot_list = null;
   this.callback = lay3r.createCallback(this);
   this.margins = {};
-  this.pivot_level = 1;
+  this.pivot_level = 0;
   this.schutz_id = -1;  //i.e an id that neo4j presumably would not come up with.
 
   var dendodiv = document.getElementById("layerTree");
@@ -45,14 +45,14 @@ var margin = {top: 20, right: 100, bottom: 20, left: 100},
 
 let info_svg = svg.append("g");
 
-let xx = `${lhs_hierarchy.name} - ${pivotName} - ${rhs_hierarchy.name}`
+let xx_text = `${lhs_hierarchy.name} - ${pivotName} - ${rhs_hierarchy.name}`
     info_svg.append("text")
     .attr("x", 0 - margin.left) //don't understand why 0 is not the right number here.  May be to do with the LHS tree pushing the containing g t the left
     .attr("y", 0)
     .attr("dy", ".35em")
     .attr("text-anchor", "start")
     .attr("class", "header")
-    .text(xx);
+    .text(xx_text);
 
 
         let yy_text = info_svg.append("text")
@@ -64,41 +64,26 @@ let xx = `${lhs_hierarchy.name} - ${pivotName} - ${rhs_hierarchy.name}`
         .text(`${pivotName} level: `);
 
 
-        var bbox = yy_text.node().getBBox();
+        var yybox = yy_text.node().getBBox();
 
 
 
-  let inc = info_svg.append("use")
-  .attr("xlink:href", "#increment")
-  .attr("x", bbox.width - margin.left +  10) //don't understand why 0 is not the right number here.  May be to do with the LHS tree pushing the containing g t the left
-  .attr("y", 25 - 5)
-  .attr("class", "inc_dec")
-  .on("mousedown", jerrydown)
-  .on("mouseleave", jerryleave)
-  .on("click", jerryclick)
+  // .append("g")
+  //   .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-  var inc_box = inc.node().getBBox();
+console.log(yybox.width - margin.left + 10);
+  let nav_svg = info_svg.append("g")
+    //  .attr("transform", "translate(22, 11)")  ;
 
-  console.log(inc_box.width);
-  console.log(info_svg.style.clientWidth);
-
-  let jj_text = info_svg.append("text")
-  .attr("x", bbox.width - margin.left + inc_box.width + 20) //don't understand why 0 is not the right number here.  May be to do with the LHS tree pushing the containing g t the left
-  .attr("y", 25)
-  .attr("dy", ".35em")
-  .attr("text-anchor", "start")
-  .attr("class", "pivot_level")
-  .text(`${this.pivot_level}`);
+    .attr("transform", "translate(" + parseInt(yybox.width - margin.left + 10).toString() + "," + parseInt(18) + ")");
 
 
-  info_svg.append("use")
-  .attr("xlink:href", "#decrement")
-  .attr("x", bbox.width - margin.left + (inc_box.width * 2) + 20) //don't understand why 0 is not the right number here.  May be to do with the LHS tree pushing the containing g t the left
-  .attr("y", 25 - 5)
-  .attr("class", "inc_dec")
-  .on("mousedown", jerrydown)
-  .on("mouseleave", jerryleave)
-  .on("click", jerryclick)
+console.log(yybox.width - margin.left);
+  this.nav_svg = nav_svg;
+   nav.render(nav_svg, pivotLists.length, this.callback, this.pivot_level);
+  // this.select_level();
+
+
 
   let pivot_svg = svg.append("g");
   let lhs_svg = svg.append("g");
@@ -142,11 +127,6 @@ lay3r.prototype.render = function() {
   links.render(lhs_hierarchy, pivots, lhs_svg, utils.consts.LHS);
   links.render(rhs_hierarchy, pivots, rhs_svg, utils.consts.RHS);
 
-  let nav_svg = svg.append("g");
-  this.nav_svg = nav_svg;
-  nav.render(nav_svg, margins, pivotLists.length, this.callback);
-  this.select_level();
-
 }
 
 lay3r.prototype.handle_message = function(data, msg_id, side) {
@@ -169,7 +149,6 @@ lay3r.prototype.handle_message = function(data, msg_id, side) {
   // this.lhs_svg.selectAll("*").remove();
   this.pivot_level = data;
 
-
   //we need to go through the lhs and rhs hierarchies and renaming _children to children.
 
   //utils.traverseTree(this.lhs, resetChildren, null, {});
@@ -178,7 +157,7 @@ lay3r.prototype.handle_message = function(data, msg_id, side) {
 
 
   this.render();
-  //this.select_level();
+  nav.render(this.nav_svg, this.pivot_lists .length, this.callback, this.pivot_level);
 
   break;
 
@@ -446,21 +425,6 @@ function resetNode(node) {
 
 }
 
-
-function jerrydown(d){
-  d3.select(this).classed("inc_dec", false)
-  d3.select(this).classed("inc_dec_press", true)
-}
-
-function jerryclick(d){
-  d3.select(this).classed("inc_dec_press", false);
-  d3.select(this).classed("inc_dec", true);
-}
-
-function jerryleave(d){
-    d3.select(this).classed("inc_dec_press", false);
-    d3.select(this).classed("inc_dec", true);
-}
 
 
 exports.create3Layer = create3Layer;

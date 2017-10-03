@@ -6,6 +6,9 @@ function render_links(hierarchy, pivots, svg, dock_side, item_height) {
 
     dock_side = typeof(dock_side) != "undefined" ? dock_side : utils.consts.WEST;
 
+    // var lt = document.getElementById("layerTree");
+    // console.log(utils.getPixelsPerEmFromElement(lt));
+
       var leaf_nodes = [];
       var links = [];
       var total_out = hierarchy.total_out;
@@ -34,8 +37,9 @@ function render_links(hierarchy, pivots, svg, dock_side, item_height) {
 
             var temp_item_height = 20;
             let stroke_width = Math.max(Math.round((sum / total_out) * 10 * temp_item_height) / 10, 0.1);
+            let xFudge = 4 * (dock_side == utils.consts.LHS ? 1 : -1);
 
-            links.push({source_id: leaf.neo_id, target_id: r.neo_id, source: leaf.name, target: rel, source_x: leaf.x, source_y: leaf.y, target_x: dock_x, target_y: r.dock_y, sw: stroke_width});
+            links.push({source_id: leaf.neo_id, target_id: r.neo_id, source: leaf.name, target: rel, source_x: leaf.x, source_y: leaf.y + xFudge, target_x: dock_x, target_y: r.dock_y, sw: stroke_width});
           }
         });
       });
