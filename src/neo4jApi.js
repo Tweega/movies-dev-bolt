@@ -1,10 +1,5 @@
 require('file?name=[name].[ext]!../node_modules/neo4j-driver/lib/browser/neo4j-web.min.js');
-var Movie = require('./models/Movie');
-var MovieCast = require('./models/MovieCast');
-var Path = require('./models/Path');
 var utils = require('./Utils');
-var _ = require('lodash');
-
 var neo4j = window.neo4j.v1;
 //var driver = neo4j.driver("bolt://localhost", neo4j.auth.basic("neo4j", "Milwan1"));
 
