@@ -135,7 +135,7 @@ lay3r.prototype.handle_message = function(data, msg_id, side) {
           links.render(this.lhs_hierarchies[this.lhs_hierarchies.length - 1], this.pivots, this.lhs_svg, side);
         break;
 
-      case utils.consts.LHS :
+      case utils.consts.RHS :
         links.render(this.rhs_hierarchies[this.rhs_hierarchies.length - 1], this.pivots, this.rhs_svg, side);
       break;
       }
@@ -190,7 +190,7 @@ lay3r.prototype.handle_message = function(data, msg_id, side) {
 
     let selected_id = sideStr + data.neo_id;
 
-    if (data.neo_id != click_side_hierarchy.neo_id) {
+    if (data.neo_id != click_side_hierarchy.neo_id || typeof(data.parent) != "undefined") {
       if (selected_id == this.schutz_id) {
         this.lhs_svg.selectAll(".schutz").classed("schutz", false);
         this.lhs_svg.selectAll(".veiled").classed("veiled", false);
@@ -248,35 +248,45 @@ lay3r.prototype.handle_message = function(data, msg_id, side) {
     }
   break;
   case tree.MSG_MAKE_NEW_ROOT:
-console.log("MAKE NEW ROOT");
+    console.log("MAKE NEW ROOT");
+    let sideString = utils.getSideStr(side);
+    let selected_iden = sideString + data.neo_id;
+
+    if (selected_iden == this.schutz_id) {
+      //remove filtering
+      this.handle_message(data, tree.MSG_HIGHLIGHT_PATH, side);
+    }
+
+
+
+
     var isRoot = typeof(data.isRoot) == "undefined" ? false : data.isRoot;
+    var hierarchies = null;
+    var svg = null;
+    if (side == utils.consts.LHS) {
+      hierarchies = this.lhs_hierarchies;
+      svg = this.lhs_svg;
+    }
+    else {
+      hierarchies = this.rhs_hierarchies;
+      svg = this.rhs_svg;
+    }
+
     if (typeof(data.parent) != "undefined") {
       if (isRoot) {
         delete data["isRoot"];
-        this.lhs_hierarchies.pop();
-        var x = this.lhs_hierarchies[this.lhs_hierarchies.length - 1];
-
-        if (side == utils.consts.LHS) {
-          tree.render(x, utils.consts.LHS, this.lhs_svg, this.margins, this.pivots, this.callback);  //perhaps get a return value if there is a more suitable container to use for links
-          links.render(x, this.pivots, this.lhs_svg, utils.consts.LHS);
-        }
-        else {
-          tree.render(x, utils.consts.RHS, this.rhs_svg, this.margins, this.pivots, this.callback);  //perhaps get a return value if there is a more suitable container to use for links
-          links.render(x, this.pivots, this.rhs_svg, utils.consts.RHS);
-        }
+        hierarchies.pop();
+        var x = hierarchies[hierarchies.length - 1];
+        tree.render(x, side, svg, this.margins, this.pivots, this.callback);  //perhaps get a return value if there is a more suitable container to use for links
+        links.render(x, this.pivots, svg, side);
       }
       else {
         data["isRoot"] = true;
-        this.lhs_hierarchies.push(data);
+        hierarchies.push(data);
 
-        if (side == utils.consts.LHS) {
-          tree.render(data, utils.consts.LHS, this.lhs_svg, this.margins, this.pivots, this.callback);  //perhaps get a return value if there is a more suitable container to use for links
-          links.render(data, this.pivots, this.lhs_svg, utils.consts.LHS);
-        }
-        else {
-          tree.render(data, utils.consts.RHS, this.rhs_svg, this.margins, this.pivots, this.callback);  //perhaps get a return value if there is a more suitable container to use for links
-          links.render(data, this.pivots, this.rhs_svg, utils.consts.RHS);
-        }
+        tree.render(data, side, svg, this.margins, this.pivots, this.callback);  //perhaps get a return value if there is a more suitable container to use for links
+        links.render(data, this.pivots, svg, side);
+
       }
     }
   break;
