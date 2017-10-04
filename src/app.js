@@ -167,10 +167,9 @@ function _linkLayers(pivotNode, params) {
   var decendantsMap = pivotNode.descendants;
   var processKey = pivotNode.name;
 
-  let isRoot = typeof(pivotNode.isRoot) != "undefined" ? true : false;
   //if this is a leaf node then create relationships for it
   if (typeof(child.relationships) != "undefined") {
-    initialiseRels(child, decendantsMap, processKey, isRoot);
+    initialiseRels(child, decendantsMap, processKey);
   }
 
   if (typeof(parent) != "undefined") {

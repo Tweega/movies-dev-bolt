@@ -73,6 +73,7 @@ function get_leaf_nodes(node, params, depth) {
 
   if (typeof(node.children) == "undefined") {
     let nodeID = side + node.neo_id;
+
     if (!(d3.select("#" + nodeID).classed("veiled"))) {
       leaves.push(node);
     }

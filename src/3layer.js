@@ -5,14 +5,15 @@ var links = require('./links');
 var nav = require('./pivot_nav');
 
 
+
 function create3Layer(lhs_hierarchy, rhs_hierarchy, pivotLists, pivotName) {
   //if we already have data, we will propbably have to do something here to clear it out.
   return new lay3r(lhs_hierarchy, rhs_hierarchy, pivotLists, pivotName);
 }
 
 function lay3r(lhs_hierarchy, rhs_hierarchy, pivotLists, pivotName) {
-  this.lhs = lhs_hierarchy;
-  this.rhs = rhs_hierarchy;
+  this.lhs_hierarchies = [lhs_hierarchy];
+  this.rhs_hierarchies = [rhs_hierarchy];
   this.lhs_svg = null;
   this.rhs_svg = null;
   this.pivot_svg = null;
@@ -66,19 +67,12 @@ let xx_text = `${lhs_hierarchy.name} - ${pivotName} - ${rhs_hierarchy.name}`
 
         var yybox = yy_text.node().getBBox();
 
-
-
-  // .append("g")
-  //   .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-console.log(yybox.width - margin.left + 10);
   let nav_svg = info_svg.append("g")
     //  .attr("transform", "translate(22, 11)")  ;
 
     .attr("transform", "translate(" + parseInt(yybox.width - margin.left + 10).toString() + "," + parseInt(23) + ")");
 
 
-console.log(yybox.width - margin.left);
   this.nav_svg = nav_svg;
    nav.render(nav_svg, pivotLists.length, this.callback, this.pivot_level);
   // this.select_level();
@@ -99,8 +93,6 @@ lay3r.prototype.render = function() {
 
   var svg = this.svg;
   var margins = this.margins;
-  var lhs_hierarchy = this.lhs;
-  var rhs_hierarchy = this.rhs;
   var pivotLists = this.pivot_lists;
   var pivot_list = pivotLists[this.pivot_level];
   var lhs_svg = this.lhs_svg;
@@ -118,7 +110,8 @@ lay3r.prototype.render = function() {
   });
 
   this.pivots = pivots;
-
+  let lhs_hierarchy = this.lhs_hierarchies[this.lhs_hierarchies.length - 1];
+  let rhs_hierarchy = this.rhs_hierarchies[this.rhs_hierarchies.length - 1];
   tree.render(lhs_hierarchy, utils.consts.LHS, lhs_svg, margins, pivots, this.callback);  //perhaps get a return value if there is a more suitable container to use for links
   tree.render(rhs_hierarchy, utils.consts.RHS, rhs_svg, margins, pivots, this.callback);
 
@@ -130,38 +123,45 @@ lay3r.prototype.render = function() {
 }
 
 lay3r.prototype.handle_message = function(data, msg_id, side) {
+
   switch(msg_id)
   {
-  case utils.consts.LHS :
+    case tree.MSG_REDRAW_LINKS :
+    console.log("click");
+    console.log(data);
+    console.log(this.lhs_hierarchies[this.lhs_hierarchies.length - 1]);
+      switch (side) {
+        case utils.consts.LHS :
+          links.render(this.lhs_hierarchies[this.lhs_hierarchies.length - 1], this.pivots, this.lhs_svg, side);
+        break;
 
-  links.render(this.lhs, this.pivots, this.lhs_svg, side);
-  break;
+      case utils.consts.LHS :
+        links.render(this.rhs_hierarchies[this.rhs_hierarchies.length - 1], this.pivots, this.rhs_svg, side);
+      break;
+      }
+    break;
 
-  case utils.consts.RHS :
-  links.render(this.rhs, this.pivots, this.rhs_svg, side);
-  break;
+    case utils.consts.PIVOT : //get each component to manage their own messages
 
-  case utils.consts.PIVOT :
+      //ok s0 what do we need to do?
+      this.pivot_svg.selectAll("*").remove();
+      // this.rhs_svg.selectAll("*").remove();
+      // this.lhs_svg.selectAll("*").remove();
+      this.pivot_level = data;
 
-  //ok s0 what do we need to do?
-  this.pivot_svg.selectAll("*").remove();
-  // this.rhs_svg.selectAll("*").remove();
-  // this.lhs_svg.selectAll("*").remove();
-  this.pivot_level = data;
+      //we need to go through the lhs and rhs hierarchies and renaming _children to children.
 
-  //we need to go through the lhs and rhs hierarchies and renaming _children to children.
+      //utils.traverseTree(this.lhs, resetChildren, null, {});
 
-  //utils.traverseTree(this.lhs, resetChildren, null, {});
-
-  //clearNodes(this.lhs);
+      //clearNodes(this.lhs);
 
 
-  this.render();
-  nav.render(this.nav_svg, this.pivot_lists .length, this.callback, this.pivot_level);
+      this.render();
+      nav.render(this.nav_svg, this.pivot_lists .length, this.callback, this.pivot_level);
 
-  break;
+    break;
 
-  case 111:
+  case tree.MSG_HIGHLIGHT_PATH:
     //traverse this data node, marking all descendants and links as being for highlighting
     var click_side_hierarchy = null;
     var click_side_svg = null;
@@ -172,22 +172,21 @@ lay3r.prototype.handle_message = function(data, msg_id, side) {
     var filtered_pivots = {};
 
     if (side == utils.consts.LHS) {
-      click_side_hierarchy = this.lhs;
+      click_side_hierarchy = this.lhs_hierarchies[this.lhs_hierarchies.length - 1];
       click_side_svg = this.lhs_svg;
-      other_side_hierarchy = this.rhs;
+      other_side_hierarchy = this.rhs_hierarchies[this.rhs_hierarchies.length - 1];
       other_side_svg = this.rhs_svg;
       sideStr = "lhs_";
       otherSideStr = "rhs_"
     }
     else {
-      click_side_hierarchy = this.rhs;
+      click_side_hierarchy = this.rhs_hierarchies[this.rhs_hierarchies.length - 1];
       click_side_svg = this.rhs_svg;
-      other_side_hierarchy = this.lhs;
+      other_side_hierarchy = this.lhs_hierarchies[this.lhs_hierarchies.length - 1];
       other_side_svg = this.lhs_svg;
       sideStr = "rhs_";
       otherSideStr = "lhs_"
     }
-
 
     let selected_id = sideStr + data.neo_id;
 
@@ -217,29 +216,27 @@ lay3r.prototype.handle_message = function(data, msg_id, side) {
         paths.pop().pop();
 
 
-var highlightMap = {}
+        var highlightMap = {}
 
-found_paths.forEach(function (path_list, iPathList) {
-  path_list.forEach(function (node, i) {
-    if (typeof(highlightMap[node.name]) == "undefined") {
-      highlightMap[node.name] = node;
-    }
-  });
-});
+        found_paths.forEach(function (path_list, iPathList) {
+          path_list.forEach(function (node, i) {
+            if (typeof(highlightMap[node.name]) == "undefined") {
+              highlightMap[node.name] = node;
+            }
+          });
+        });
 
+        var params = {pivots: filtered_pivots, side: otherSideStr, filtered_pivots: {}}
 
+        Object.keys(highlightMap).forEach(function(node_name, i) {
+          let n = highlightMap[node_name];
+          let elemID = otherSideStr + n.neo_id;
+          d3.select("#" + elemID).classed("schutz", true);
+        });
 
-var params = {pivots: filtered_pivots, side: otherSideStr, filtered_pivots: {}}
+        //flag any links stemming from this node
 
-Object.keys(highlightMap).forEach(function(node_name, i) {
-  let n = highlightMap[node_name];
-  let elemID = otherSideStr + n.neo_id;
-  d3.select("#" + elemID).classed("schutz", true);
-});
-
-//flag any links stemming from this node
-
-highlightOtherLinks(found_paths, filtered_pivots, otherSideStr);
+        highlightOtherLinks(found_paths, filtered_pivots, otherSideStr);
 
         this.lhs_svg.selectAll(".schutz>*").classed("schutz", true);
         this.lhs_svg.selectAll(":not(.schutz)").classed("veiled", true);
@@ -250,16 +247,48 @@ highlightOtherLinks(found_paths, filtered_pivots, otherSideStr);
       }
     }
   break;
+  case tree.MSG_MAKE_NEW_ROOT:
+console.log("MAKE NEW ROOT");
+    var isRoot = typeof(data.isRoot) == "undefined" ? false : data.isRoot;
+    if (typeof(data.parent) != "undefined") {
+      if (isRoot) {
+        delete data["isRoot"];
+        this.lhs_hierarchies.pop();
+        var x = this.lhs_hierarchies[this.lhs_hierarchies.length - 1];
+
+        if (side == utils.consts.LHS) {
+          tree.render(x, utils.consts.LHS, this.lhs_svg, this.margins, this.pivots, this.callback);  //perhaps get a return value if there is a more suitable container to use for links
+          links.render(x, this.pivots, this.lhs_svg, utils.consts.LHS);
+        }
+        else {
+          tree.render(x, utils.consts.RHS, this.rhs_svg, this.margins, this.pivots, this.callback);  //perhaps get a return value if there is a more suitable container to use for links
+          links.render(x, this.pivots, this.rhs_svg, utils.consts.RHS);
+        }
+      }
+      else {
+        data["isRoot"] = true;
+        this.lhs_hierarchies.push(data);
+
+        if (side == utils.consts.LHS) {
+          tree.render(data, utils.consts.LHS, this.lhs_svg, this.margins, this.pivots, this.callback);  //perhaps get a return value if there is a more suitable container to use for links
+          links.render(data, this.pivots, this.lhs_svg, utils.consts.LHS);
+        }
+        else {
+          tree.render(data, utils.consts.RHS, this.rhs_svg, this.margins, this.pivots, this.callback);  //perhaps get a return value if there is a more suitable container to use for links
+          links.render(data, this.pivots, this.rhs_svg, utils.consts.RHS);
+        }
+      }
+    }
+  break;
 
   default:
-  console.log("unexpected message source");
+  console.log(`Unexpected message: ${msg_id}`);
 
   }
 }
 
 
 lay3r.prototype.select_level = function() {
-  console.log(this.nav_svg)
   nav.select_level(this.nav_svg, this.pivot_level);
 }
 

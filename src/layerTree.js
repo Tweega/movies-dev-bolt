@@ -1,5 +1,10 @@
 var utils = require('./Utils');
 
+const MSG_HIGHLIGHT_PATH = 111;
+const MSG_MAKE_NEW_ROOT = 222;
+const MSG_REDRAW_LINKS = 333;
+const MSG_NONE = 0;
+
 function render(hierarchy, side, svg, margins, pivots, callback) {
   if (typeof(side) == "undefined") {
     side = utils.consts.LHS;
@@ -20,7 +25,8 @@ function render(hierarchy, side, svg, margins, pivots, callback) {
 
   var diagonal = d3.svg.diagonal()
       .projection(function(d) { return [d.y, d.x]; });
-
+console.log("do we come here again?");
+console.log(hierarchy);
     root = hierarchy;
     root.x0 = height / 2;
     root.y0 = (side === utils.consts.RHS ? width : 0);
@@ -32,15 +38,21 @@ function render(hierarchy, side, svg, margins, pivots, callback) {
         d.children = null;
       }
     }
-    if (typeof(root.xx) == "undefined") {
-      root["xx"] = 1;
-      root.children.forEach(collapse);
+
+    update(root); //this is a fudge to keep setting new root from breaking things.
+    if (typeof(root.isRoot) == "undefined") {
+      root["isRoot"] = true;
+      if(typeof(root.children) != "undefined") {
+        root.children.forEach(collapse);
+      }
     }
     update(root);
 
   //d3.select(self.frameElement).style("height", "800px");
 
   function update(source) {
+    console.log("root");
+    console.log(root);
 
     // Compute the new tree layout.
     var nodes = tree.nodes(root).reverse(),
@@ -91,7 +103,8 @@ function render(hierarchy, side, svg, margins, pivots, callback) {
         });
 
     nodeUpdate.select("text")
-        .style("fill-opacity", 1);
+        .style("fill-opacity", 1)
+        .on("click", click_text); //this needs to be set again as root may have changed and if not set, then click_text function will be bound to an earlier copy of it
 
     // Transition exiting nodes to the parent's new position.
     var nodeExit = node.exit()
@@ -161,24 +174,49 @@ function render(hierarchy, side, svg, margins, pivots, callback) {
 
   // Toggle children on click.
   function click_text(d) {
-    if (d.children) {
-      d._children = d.children;
-      d.children = null;
-    } else {
-      d.children = d._children;
-      d._children = null;
+    console.log("d");
+    console.log(root);
+    var msg = MSG_NONE;
+
+    if (d3.event.shiftKey) {
+        console.log("Mouse+Shift pressed");
+        msg = MSG_MAKE_NEW_ROOT;
+        // if (d._children) {
+        //   console.log("@jojo")
+        //   d.children = d._children;
+        //   d._children = null;
+        //   update(d);
+        // }
+
+        // if(typeof(d.isRoot) == "undefined" || d.droot == true) {console.log("setting root");root = d;
+        root = d;
+
     }
 
-    update(d);
+    else {
+      msg = MSG_REDRAW_LINKS;
+      if (d.children) {
+        d._children = d.children;
+        d.children = null;
+      } else {
+        d.children = d._children;
+        d._children = null;
+      }
 
-    callback(d, side, side);
+      update(d);
+    }
+
+    callback(d, msg, side);
   }
 
   function click_circle(d) {
-    callback(d, 111, side);
+    callback(d, MSG_HIGHLIGHT_PATH, side);
   }
 }
 
 
 
 exports.render = render;
+exports.MSG_HIGHLIGHT_PATH = MSG_HIGHLIGHT_PATH;
+exports.MSG_MAKE_NEW_ROOT = MSG_MAKE_NEW_ROOT;
+exports.MSG_REDRAW_LINKS = MSG_REDRAW_LINKS;
