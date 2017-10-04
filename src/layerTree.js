@@ -25,8 +25,7 @@ function render(hierarchy, side, svg, margins, pivots, callback) {
 
   var diagonal = d3.svg.diagonal()
       .projection(function(d) { return [d.y, d.x]; });
-console.log("do we come here again?");
-console.log(hierarchy);
+
     root = hierarchy;
     root.x0 = height / 2;
     root.y0 = (side === utils.consts.RHS ? width : 0);
@@ -51,8 +50,6 @@ console.log(hierarchy);
   //d3.select(self.frameElement).style("height", "800px");
 
   function update(source) {
-    console.log("root");
-    console.log(root);
 
     // Compute the new tree layout.
     var nodes = tree.nodes(root).reverse(),
@@ -174,23 +171,12 @@ console.log(hierarchy);
 
   // Toggle children on click.
   function click_text(d) {
-    console.log("d");
-    console.log(root);
+
     var msg = MSG_NONE;
 
     if (d3.event.shiftKey) {
-        console.log("Mouse+Shift pressed");
         msg = MSG_MAKE_NEW_ROOT;
-        // if (d._children) {
-        //   console.log("@jojo")
-        //   d.children = d._children;
-        //   d._children = null;
-        //   update(d);
-        // }
-
-        // if(typeof(d.isRoot) == "undefined" || d.droot == true) {console.log("setting root");root = d;
         root = d;
-
     }
 
     else {

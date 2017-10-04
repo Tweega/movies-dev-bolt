@@ -127,9 +127,6 @@ lay3r.prototype.handle_message = function(data, msg_id, side) {
   switch(msg_id)
   {
     case tree.MSG_REDRAW_LINKS :
-    console.log("click");
-    console.log(data);
-    console.log(this.lhs_hierarchies[this.lhs_hierarchies.length - 1]);
       switch (side) {
         case utils.consts.LHS :
           links.render(this.lhs_hierarchies[this.lhs_hierarchies.length - 1], this.pivots, this.lhs_svg, side);
@@ -248,7 +245,6 @@ lay3r.prototype.handle_message = function(data, msg_id, side) {
     }
   break;
   case tree.MSG_MAKE_NEW_ROOT:
-    console.log("MAKE NEW ROOT");
     let sideString = utils.getSideStr(side);
     let selected_iden = sideString + data.neo_id;
 
