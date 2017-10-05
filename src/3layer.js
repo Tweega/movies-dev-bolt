@@ -86,6 +86,7 @@ let xx_text = `${lhs_hierarchy.name} - ${pivotName} - ${rhs_hierarchy.name}`
   this.lhs_svg = lhs_svg;
   this.rhs_svg = rhs_svg;
   this.pivot_svg = pivot_svg;
+  this.pivot_filter = null;
 }
 
 lay3r.prototype.render = function() {
@@ -94,12 +95,14 @@ lay3r.prototype.render = function() {
   var svg = this.svg;
   var margins = this.margins;
   var pivotLists = this.pivot_lists;
-  var pivot_list = pivotLists[this.pivot_level];
+  var pivot_list = this.pivot_filter != null ?  this.pivot_filter : pivotLists[this.pivot_level];
+  console.log("pivot_list");
+  console.log(pivot_list.list);
   var lhs_svg = this.lhs_svg;
   var rhs_svg = this.rhs_svg;
   var pivot_svg = this.pivot_svg;
 
-  pivot.render(pivot_list, this.pivot_level, pivot_svg, margins);
+  pivot.render(pivot_list, this.pivot_level, pivot_svg, margins, this.callback);
   var pivots = {};
 
   pivot_list.list.forEach(function(plist, i){ //this looks like it could be done in the constructor.
@@ -139,7 +142,7 @@ lay3r.prototype.handle_message = function(data, msg_id, side) {
     break;
 
     case utils.consts.PIVOT : //get each component to manage their own messages
-
+      this.pivot_filter = null;
       //ok s0 what do we need to do?
       this.pivot_svg.selectAll("*").remove();
       // this.rhs_svg.selectAll("*").remove();
@@ -287,8 +290,25 @@ lay3r.prototype.handle_message = function(data, msg_id, side) {
     }
   break;
 
+  case pivot.MSG_FILTER_PIVOT :
+
+    this.pivot_filter = {is_filter: true, total_items: 1, list: [[data]]};
+
+    this.render();
+  break;
+
+  case pivot.MSG_FILTER_PIVOT_CLEAR :
+    this.pivot_svg.selectAll("*").remove(); //not sure why we have to do this.
+    this.pivot_filter = null;
+
+    this.render();
+  break;
+
   default:
   console.log(`Unexpected message: ${msg_id}`);
+  console.log("MSG_FILTER_PIVOT");
+  console.log(pivot.MSG_FILTER_PIVOT);
+
 
   }
 }

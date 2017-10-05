@@ -19,7 +19,7 @@ module.exports = {
   },
 
   output: {
-    filename: 'app.js',
+    filename: 'app3Layer.js',
     path: './build/',
     publicPatch: './build/'
   },
@@ -33,7 +33,7 @@ module.exports = {
   },
 
   plugins: [
-    new HtmlWebpackPlugin({template: 'src/assets/index.html'})
+    new HtmlWebpackPlugin({template: 'src/assets/lay3r.html'})
   ],
 
   resolve: {
@@ -58,4 +58,3 @@ module.exports = {
     ]
   }
 };
-
