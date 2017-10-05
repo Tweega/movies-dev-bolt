@@ -96,8 +96,6 @@ lay3r.prototype.render = function() {
   var margins = this.margins;
   var pivotLists = this.pivot_lists;
   var pivot_list = this.pivot_filter != null ?  this.pivot_filter : pivotLists[this.pivot_level];
-  console.log("pivot_list");
-  console.log(pivot_list.list);
   var lhs_svg = this.lhs_svg;
   var rhs_svg = this.rhs_svg;
   var pivot_svg = this.pivot_svg;
@@ -208,8 +206,6 @@ lay3r.prototype.handle_message = function(data, msg_id, side) {
       }
       else {
         this.schutz_id = selected_id;
-        console.log("this.pivots");
-        console.log(this.pivots);
         utils.traverseTree(data, highlight, null, {pivots: this.pivots, side: sideStr, filtered_pivots: filtered_pivots});
         //child elements of 'protected' elements should also be protoected
 
@@ -223,16 +219,10 @@ lay3r.prototype.handle_message = function(data, msg_id, side) {
         utils.traverseTree(other_side_hierarchy, highlight_other_side, rollup_other_side, {paths: paths, found_paths: found_paths, side: sideStr, filtered_pivots: filtered_pivots});
         paths.pop().pop();
 
-        console.log("found_paths");
-        console.log(found_paths);
-
-
         var highlightMap = {}
 
         found_paths.forEach(function (path_list, iPathList) {
-          console.log("jarjar");
           path_list.forEach(function (node, i) {
-            console.log(node.name);
             if (typeof(highlightMap[node.name]) == "undefined") {
               highlightMap[node.name] = node;
             }
@@ -315,20 +305,12 @@ lay3r.prototype.handle_message = function(data, msg_id, side) {
     var left_right = [{side: "lhs_", svg: this.lhs_svg, data: this.lhs_hierarchies[this.lhs_hierarchies.length - 1]}, {side: "rhs_", svg: this.rhs_svg, data: this.rhs_hierarchies[this.rhs_hierarchies.length - 1]}];
 
     left_right.forEach(function(side_info, i) {
-      console.log(side_info);
       filtered_pivots[data.name] = data;
       let paths = [[]];
       let found_paths = [];
 
-        console.log(side_info.data);
-
       utils.traverseTree(side_info.data , highlight_other_side, rollup_other_side, {paths: paths, found_paths: found_paths, side: side_info.side, filtered_pivots: filtered_pivots});
       paths.pop().pop();
-
-
-
-  console.log("found_paths");
-  console.log(found_paths);
 
       var highlightMap = {}
 
@@ -377,11 +359,7 @@ lay3r.prototype.handle_message = function(data, msg_id, side) {
   break;
 
   default:
-  console.log(`Unexpected message: ${msg_id}`);
-  console.log("MSG_FILTER_PIVOT");
-  console.log(pivot.MSG_FILTER_PIVOT);
-
-
+    console.log(`Unexpected message: ${msg_id}`);
   }
 }
 

@@ -5,10 +5,6 @@ function render_links(hierarchy, pivots, svg, dock_side, item_height) {
     //in the first instance we want to remove any existing links//we could do this with an exit join - we'll see
 
     dock_side = typeof(dock_side) != "undefined" ? dock_side : utils.consts.WEST;
-
-    // var lt = document.getElementById("layerTree");
-    // console.log(utils.getPixelsPerEmFromElement(lt));
-
       var leaf_nodes = [];
       var links = [];
       var total_out = hierarchy.total_out;

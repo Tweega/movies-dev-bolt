@@ -4,21 +4,13 @@ const MSG_FILTER_PIVOT = 444;
 const MSG_FILTER_PIVOT_CLEAR = 466;
 
 function render(currentPivotData, pivot_level, pivot_svg, margins, callback) {
-
-  console.log(`is_filter: ${currentPivotData.is_filter}`);
-
-
   if (currentPivotData.is_filter == true) {
-    console.log(currentPivotData);
+    //console.log(currentPivotData);
     //the idea here was to hide all other pivot fields, though it may be better to keep them on the screen to allow user to select them also
   }
   else {
-
     //currentPivotData is a list of groups [{total_items: n, list: [[item1, item2 ...]], [another group]}]
     //where total_items is the number of pivot items across all groups
-
-    //var currentPivotData = pivotLists[level - 1];
-    console.log(currentPivotData);
 
     var pivotMargins = {};
     var margin = margins.margin;
@@ -153,7 +145,6 @@ function render(currentPivotData, pivot_level, pivot_svg, margins, callback) {
 
                     d["dock_y"] = dock_y;
                     let ret_val = this.pivot_filter != null ? d.y : item_y;
-                    console.log("kelly")
                     return ret_val;
                   })
                   .attr("rx", 5)
@@ -180,7 +171,6 @@ function render(currentPivotData, pivot_level, pivot_svg, margins, callback) {
       }
 
       function filter_pivot(d){
-        //console.log(d);
         var msg = 0;
         if (d3.event.shiftKey) {
           msg = MSG_FILTER_PIVOT_CLEAR;
