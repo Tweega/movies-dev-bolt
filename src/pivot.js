@@ -152,6 +152,9 @@ function render(currentPivotData, pivot_level, pivot_svg, margins, callback) {
                   .attr("width", item_width - (2 * text_padding))
                   .attr("height", item_height)
                   .attr("fill", utils.deloitte_colour(0))
+                  .attr("id", function(d,i) {
+                    return "pivot_" + d.neo_id;
+                  })
                   .attr("class", "pivot_item");
                   //.on("click", filter_pivot);
 
@@ -164,6 +167,9 @@ function render(currentPivotData, pivot_level, pivot_svg, margins, callback) {
                   .attr('text-anchor', 'middle')
                   .attr("class", "pivot_text")
                   .attr("fill", utils.deloitte_colour(1))
+                  .attr("id", function(d,i) {
+                    return "pivot_txt_" + d.neo_id;
+                  })
                   .text(function(d, i) {return d.name;});
 
                   //var txt = pivotList[item_idx].name;

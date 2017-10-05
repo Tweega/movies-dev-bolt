@@ -141,25 +141,13 @@ lay3r.prototype.handle_message = function(data, msg_id, side) {
 
     case utils.consts.PIVOT : //get each component to manage their own messages
       this.pivot_filter = null;
-      //ok s0 what do we need to do?
       this.lhs_svg.selectAll(".hide2").classed("hide2", false);
       this.rhs_svg.selectAll(".hide2").classed("hide2", false);
-
       this.lhs_svg.selectAll(".link").remove();
-      //his.rhs_svg.selectAll(".link").classed("link", false);
-
       this.pivot_svg.selectAll("*").remove();
       // this.rhs_svg.selectAll("*").remove();
       // this.lhs_svg.selectAll("*").remove();
       this.pivot_level = data;
-
-      //we need to go through the lhs and rhs hierarchies and renaming _children to children.
-
-      //utils.traverseTree(this.lhs, resetChildren, null, {});
-
-      //clearNodes(this.lhs);
-
-
       this.render();
       nav.render(this.nav_svg, this.pivot_lists .length, this.callback, this.pivot_level);
 
@@ -300,6 +288,19 @@ lay3r.prototype.handle_message = function(data, msg_id, side) {
 
     this.pivot_filter = {is_filter: true, total_items: 1, list: [[data]]};
 
+    let eID = "pivot_" + data.neo_id;
+
+    if (typeof(this.prev_filter_id) != "undefined") {
+      this.pivot_svg.select("#pivot" + this.prev_filter_id).classed("filter_pivot", false);
+      this.pivot_svg.select("#pivot_txt" + this.prev_filter_id).classed("filter_pivot_txt", false);
+    }
+
+    this.prev_filter_id = "_" + data.neo_id;
+    this.pivot_svg.select("#" + eID).classed("filter_pivot", true);
+    eID = "pivot_txt_" + data.neo_id;
+
+    this.pivot_svg.select("#" + eID).classed("filter_pivot_txt", true);
+
     //---------------
     filtered_pivots = {};
     var left_right = [{side: "lhs_", svg: this.lhs_svg, data: this.lhs_hierarchies[this.lhs_hierarchies.length - 1]}, {side: "rhs_", svg: this.rhs_svg, data: this.rhs_hierarchies[this.rhs_hierarchies.length - 1]}];
@@ -354,7 +355,8 @@ lay3r.prototype.handle_message = function(data, msg_id, side) {
 
     this.lhs_svg.selectAll(".hide2").classed("hide2", false);
     this.rhs_svg.selectAll(".hide2").classed("hide2", false);
-
+    //let eid = "pivot_" + this.prev_filter_id;
+    delete this.prev_filter_id;
     this.render();
   break;
 
