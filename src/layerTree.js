@@ -126,6 +126,10 @@ function render(hierarchy, side, svg, margins, pivots, callback) {
             var target_rels = d.target.rels;
             var sum = 0;
             //for each key on target_rels
+            if(d.source.neo_id == 25) {
+              console.log("pivots");
+              console.log(pivots);
+            }
             Object.keys(target_rels).forEach(function (pivot_key) {
               if (pivot_key in pivots) {
                 var rel = target_rels[pivot_key];
@@ -137,12 +141,22 @@ function render(hierarchy, side, svg, margins, pivots, callback) {
               }
             });
 
+            // if (sum == 0) {
+            //   console.log("sum zero");
+            //   console.log(target_rels);
+            // }
+
             var temp_item_height = 20;
+
             let stroke_width = Math.max(Math.round((sum / total_out) * 10 * temp_item_height) / 10, 0.1);
 
             return stroke_width;
           })
           .attr("id", function(d) {
+            if(d.source.neo_id == 25) {
+              console.log("this is the thing you see");
+              console.log(d);
+            }
             return "link_" + d.source.neo_id + "_" + d.target.neo_id;
           })
         .attr("d", function(d) {

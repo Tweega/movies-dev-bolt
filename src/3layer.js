@@ -144,6 +144,12 @@ lay3r.prototype.handle_message = function(data, msg_id, side) {
     case utils.consts.PIVOT : //get each component to manage their own messages
       this.pivot_filter = null;
       //ok s0 what do we need to do?
+      this.lhs_svg.selectAll(".hide2").classed("hide2", false);
+      this.rhs_svg.selectAll(".hide2").classed("hide2", false);
+
+      this.lhs_svg.selectAll(".link").remove();
+      //his.rhs_svg.selectAll(".link").classed("link", false);
+
       this.pivot_svg.selectAll("*").remove();
       // this.rhs_svg.selectAll("*").remove();
       // this.lhs_svg.selectAll("*").remove();
@@ -193,15 +199,17 @@ lay3r.prototype.handle_message = function(data, msg_id, side) {
     if (data.neo_id != click_side_hierarchy.neo_id || typeof(data.parent) != "undefined") {
       if (selected_id == this.schutz_id) {
         this.lhs_svg.selectAll(".schutz").classed("schutz", false);
-        this.lhs_svg.selectAll(".veiled").classed("veiled", false);
+        this.lhs_svg.selectAll(".hide1").classed("hide1", false);
 
         this.rhs_svg.selectAll(".schutz").classed("schutz", false);
-        this.rhs_svg.selectAll(".veiled").classed("veiled", false);
+        this.rhs_svg.selectAll(".hide1").classed("hide1", false);
 
         this.schutz_id = -1;
       }
       else {
         this.schutz_id = selected_id;
+        console.log("this.pivots");
+        console.log(this.pivots);
         utils.traverseTree(data, highlight, null, {pivots: this.pivots, side: sideStr, filtered_pivots: filtered_pivots});
         //child elements of 'protected' elements should also be protoected
 
@@ -215,11 +223,16 @@ lay3r.prototype.handle_message = function(data, msg_id, side) {
         utils.traverseTree(other_side_hierarchy, highlight_other_side, rollup_other_side, {paths: paths, found_paths: found_paths, side: sideStr, filtered_pivots: filtered_pivots});
         paths.pop().pop();
 
+        console.log("found_paths");
+        console.log(found_paths);
+
 
         var highlightMap = {}
 
         found_paths.forEach(function (path_list, iPathList) {
+          console.log("jarjar");
           path_list.forEach(function (node, i) {
+            console.log(node.name);
             if (typeof(highlightMap[node.name]) == "undefined") {
               highlightMap[node.name] = node;
             }
@@ -239,10 +252,13 @@ lay3r.prototype.handle_message = function(data, msg_id, side) {
         highlightOtherLinks(found_paths, filtered_pivots, otherSideStr);
 
         this.lhs_svg.selectAll(".schutz>*").classed("schutz", true);
-        this.lhs_svg.selectAll(":not(.schutz)").classed("veiled", true);
+        this.lhs_svg.selectAll(":not(.schutz)").classed("hide1", true);
 
         this.rhs_svg.selectAll(".schutz>*").classed("schutz", true);
-        this.rhs_svg.selectAll(":not(.schutz)").classed("veiled", true);
+        this.rhs_svg.selectAll(":not(.schutz)").classed("hide1", true);
+
+        this.lhs_svg.selectAll(".schutz").classed("schutz", false);
+        this.rhs_svg.selectAll(".schutz").classed("schutz", false);
 
       }
     }
@@ -294,12 +310,68 @@ lay3r.prototype.handle_message = function(data, msg_id, side) {
 
     this.pivot_filter = {is_filter: true, total_items: 1, list: [[data]]};
 
+    //---------------
+    filtered_pivots = {};
+    var left_right = [{side: "lhs_", svg: this.lhs_svg, data: this.lhs_hierarchies[this.lhs_hierarchies.length - 1]}, {side: "rhs_", svg: this.rhs_svg, data: this.rhs_hierarchies[this.rhs_hierarchies.length - 1]}];
+
+    left_right.forEach(function(side_info, i) {
+      console.log(side_info);
+      filtered_pivots[data.name] = data;
+      let paths = [[]];
+      let found_paths = [];
+
+        console.log(side_info.data);
+
+      utils.traverseTree(side_info.data , highlight_other_side, rollup_other_side, {paths: paths, found_paths: found_paths, side: side_info.side, filtered_pivots: filtered_pivots});
+      paths.pop().pop();
+
+
+
+  console.log("found_paths");
+  console.log(found_paths);
+
+      var highlightMap = {}
+
+      found_paths.forEach(function (path_list, iPathList) {
+        path_list.forEach(function (node, i) {
+          if (typeof(highlightMap[node.name]) == "undefined") {
+            highlightMap[node.name] = node;
+          }
+        });
+      });
+
+      var params = {pivots: filtered_pivots, side: side_info.side, filtered_pivots: {}}
+
+      side_info.svg.selectAll(".hide2").classed("hide2", false);
+
+      Object.keys(highlightMap).forEach(function(node_name, i) {
+        let n = highlightMap[node_name];
+        let elemID = side_info.side + n.neo_id;
+        d3.select("#" + elemID).classed("schutz", true);
+      });
+
+      //flag any links stemming from this node
+
+      highlightOtherLinks(found_paths, filtered_pivots, "lhs_");
+
+      side_info.svg.selectAll(".schutz>*").classed("schutz", true);
+      side_info.svg.selectAll(":not(.schutz)").classed("hide2", true);
+    });
+    // this.rhs_svg.selectAll(".schutz>*").classed("schutz", true);
+    // this.rhs_svg.selectAll(":not(.schutz)").classed("hide1", true);
+    //-------------
+
     this.render();
+    this.lhs_svg.selectAll(".schutz").classed("schutz", false);
+    this.rhs_svg.selectAll(".schutz").classed("schutz", false);
   break;
 
   case pivot.MSG_FILTER_PIVOT_CLEAR :
     this.pivot_svg.selectAll("*").remove(); //not sure why we have to do this.
     this.pivot_filter = null;
+
+    this.lhs_svg.selectAll(".hide2").classed("hide2", false);
+    this.rhs_svg.selectAll(".hide2").classed("hide2", false);
 
     this.render();
   break;

@@ -133,7 +133,9 @@ function render(currentPivotData, pivot_level, pivot_svg, margins, callback) {
              .selectAll('.pivot_item')
              .data(function(d, i) { return d;})
              .enter()
-             .append("g");
+             .append("g")
+             .attr("class", "pivot_item_group")
+             .on("click", filter_pivot);
 
             pivot_items
               .append("rect")
@@ -159,8 +161,8 @@ function render(currentPivotData, pivot_level, pivot_svg, margins, callback) {
                   .attr("width", item_width - (2 * text_padding))
                   .attr("height", item_height)
                   .attr("fill", utils.deloitte_colour(0))
-                  .attr("class", "pivot_item")
-                  .on("click", filter_pivot);
+                  .attr("class", "pivot_item");
+                  //.on("click", filter_pivot);
 
 
             //add labels to the items
