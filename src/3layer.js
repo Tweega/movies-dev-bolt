@@ -208,6 +208,10 @@ lay3r.prototype.handle_message = function(data, msg_id, side) {
         paths.pop().pop();
 
         var highlightMap = {}
+        //initialise highlightMap with the current root node in case there are no links expanded.
+        highlightMap[other_side_hierarchy.name] = other_side_hierarchy;
+        //we want the name of the node on the other side i think
+console.log(other_side_hierarchy.name);
 
         found_paths.forEach(function (path_list, iPathList) {
           path_list.forEach(function (node, i) {
@@ -226,8 +230,12 @@ lay3r.prototype.handle_message = function(data, msg_id, side) {
         });
 
         //flag any links stemming from this node
-
-        highlightOtherLinks(found_paths, filtered_pivots, otherSideStr);
+        if (found_paths.length > 0) {
+          highlightOtherLinks(found_paths, filtered_pivots, otherSideStr);
+        }
+        else {
+            let discard = pop_and_check_rels([other_side_hierarchy], filtered_pivots);
+        }
 
         this.lhs_svg.selectAll(".schutz>*").classed("schutz", true);
         this.lhs_svg.selectAll(":not(.schutz)").classed("hide1", true);
@@ -313,7 +321,9 @@ lay3r.prototype.handle_message = function(data, msg_id, side) {
       utils.traverseTree(side_info.data , highlight_other_side, rollup_other_side, {paths: paths, found_paths: found_paths, side: side_info.side, filtered_pivots: filtered_pivots});
       paths.pop().pop();
 
-      var highlightMap = {}
+      var highlightMap = {};
+      //initialise highlightMap with the current root node in case there are no links expanded.
+      highlightMap[side_info.data.name] = side_info.data;
 
       found_paths.forEach(function (path_list, iPathList) {
         path_list.forEach(function (node, i) {
