@@ -362,6 +362,8 @@ reapplies = [];
 
     left_right.forEach(function(side_info, i) {
       side_info.svg.selectAll(".link").remove();
+      console.log("kjhgjd fgh dsfjgsd jh");
+      //return;
       filtered_pivots[data.name] = data;
       let paths = [[]];
       let found_paths = [];
