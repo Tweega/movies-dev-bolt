@@ -101,7 +101,7 @@ lay3r.prototype.render = function() {
   var lhs_svg = this.lhs_svg;
   var rhs_svg = this.rhs_svg;
   var pivot_svg = this.pivot_svg;
-console.log(pivot_list);
+
   pivot.render(pivot_list, this.pivot_level, pivot_svg, margins, this.callback);
   var pivots = {};
 
@@ -160,8 +160,8 @@ lay3r.prototype.handle_message = function(data, msg_id, side) {
 
       this.lhs_svg.selectAll(".hide2").classed("hide2", false);
       this.rhs_svg.selectAll(".hide2").classed("hide2", false);
-      // this.lhs_svg.selectAll(".hide1").classed("hide1", false);
-      // this.rhs_svg.selectAll(".hide1").classed("hide1", false);
+      this.lhs_svg.selectAll(".hide1").classed("hide1", false);
+      this.rhs_svg.selectAll(".hide1").classed("hide1", false);
       this.lhs_svg.selectAll(".link").remove();
       this.rhs_svg.selectAll(".link").remove();
       this.pivot_svg.selectAll("*").remove();
@@ -189,6 +189,7 @@ lay3r.prototype.handle_message = function(data, msg_id, side) {
     break;
 
   case tree.MSG_HIGHLIGHT_PATH:
+
     //traverse this data node, marking all descendants and links as being for highlighting
     var click_side_hierarchy = null;
     var click_side_svg = null;
@@ -228,6 +229,7 @@ lay3r.prototype.handle_message = function(data, msg_id, side) {
         click_side_svg.selectAll(".hide1").classed("hide1", false);
 
         this.schutz[sideStr] = {neo_id: -1};
+
       }
       else {
 
@@ -289,12 +291,7 @@ lay3r.prototype.handle_message = function(data, msg_id, side) {
     }
   break;
   case tree.MSG_MAKE_NEW_ROOT:
-    //let sideString = utils.getSideStr(side);
-    side_schutz = this.schutz[sideStr];
-    if (data.neo_id == side_schutz.neo_id) {
-      //remove filtering
-      this.handle_message(data, tree.MSG_HIGHLIGHT_PATH, side);
-    }
+
 
     var isRoot = typeof(data.isRoot) == "undefined" ? false : data.isRoot;
     var hierarchies = null;
@@ -328,6 +325,19 @@ lay3r.prototype.handle_message = function(data, msg_id, side) {
   break;
 
   case pivot.MSG_FILTER_PIVOT :
+  // this.schutz[utils.getSideStr(utils.consts.LHS)] = {neo_id: -1};
+  // this.schutz[utils.getSideStr(utils.consts.RHS)] = {neo_id: -1};
+
+  this.lhs_svg.selectAll(".hide2").classed("hide2", false);
+
+  ///////
+  this.lhs_svg.selectAll(".hide1").classed("hide1", false); //this only affects if there is a filter path
+
+  this.rhs_svg.selectAll(".hide2").classed("hide2", false);
+
+  ///////
+  this.rhs_svg.selectAll(".hide1").classed("hide1", false); //this only affects if there is a filter path
+
 this.lhs_svg.selectAll("*").remove();
 this.rhs_svg.selectAll("*").remove();
 
@@ -370,20 +380,21 @@ reapplies = [];
     //---------------
 
     var left_right = [
-                      {side: "lhs_", svg: this.lhs_svg, data: this.lhs_hierarchies[this.lhs_hierarchies.length - 1]},
-                      {side: "rhs_", svg: this.rhs_svg, data: this.rhs_hierarchies[this.rhs_hierarchies.length - 1]}
+
+                      {side: "rhs_", svg: this.rhs_svg, data: this.rhs_hierarchies[this.rhs_hierarchies.length - 1]},
+                      {side: "lhs_", svg: this.lhs_svg, data: this.lhs_hierarchies[this.lhs_hierarchies.length - 1]}
 
                      ];
 
     left_right.forEach(function(side_info, i) {
-      if (side_info.side != "none") {
-      side_info.svg.selectAll(".hide2").classed("hide2", false);
 
-      ///////
-      side_info.svg.selectAll(".hide1").classed("hide1", false); //this only affects if there is a filter path
+      // side_info.svg.selectAll(".hide2").classed("hide2", false);
+      //
+      // ///////
+      // side_info.svg.selectAll(".hide1").classed("hide1", false); //this only affects if there is a filter path
       filtered_pivots = {};
       //side_info.svg.selectAll(".link").remove();
-console.log("hello");
+
       filtered_pivots[data.name] = data;
       let paths = [[]];
       let found_paths = [];
@@ -396,7 +407,7 @@ console.log("hello");
       highlightMap[side_info.data.name] = side_info.data;
 
       found_paths.forEach(function (path_list, iPathList) {
-console.log(path_list);
+
         path_list.forEach(function (node, i) {
           if (typeof(highlightMap[node.name]) == "undefined") {
             highlightMap[node.name] = node;
@@ -424,7 +435,7 @@ console.log(path_list);
 
         d3.select("#" + elemID).classed("schutz", true);
       });
-console.log(found_paths.length);
+
       highlightOtherLinks(found_paths, filtered_pivots, sideStr);
 
       // if (side_info.side == "rhs_") {
@@ -434,11 +445,9 @@ console.log(found_paths.length);
 //zzz
       side_info.svg.selectAll(".schutz>*").classed("schutz", true);
       side_info.svg.selectAll(":not(.schutz)").classed("hide2", true);
-    }
+
 
     let si = side_info.side == "lhs_" ? utils.consts.LHS : utils.consts.RHS
-console.log("that.pivot_filter");
-console.log(that.pivot_filter);
 
 var pivots = {};
 
@@ -454,24 +463,25 @@ that.pivot_filter.list.forEach(function(plist, i){ //this looks like it could be
 
 
     });
-return
-    that.lhs_svg.selectAll(":not(.schutz)").classed("hide2", true);
-    that.rhs_svg.selectAll(":not(.schutz)").classed("hide2", true);
+
+    // that.lhs_svg.selectAll(":not(.schutz)").classed("hide2", true);
+    // that.rhs_svg.selectAll(":not(.schutz)").classed("hide2", true);
 
     // this.rhs_svg.selectAll(".schutz>*").classed("schutz", true);
     // this.rhs_svg.selectAll(":not(.schutz)").classed("hide1", true);
     //-------------
 
-    // this.lhs_svg.selectAll(".schutz").classed("schutz", false);
-    // this.rhs_svg.selectAll(".schutz").classed("schutz", false);
+    this.lhs_svg.selectAll(".schutz").classed("schutz", false);
+    this.rhs_svg.selectAll(".schutz").classed("schutz", false);
+
     reapplies.forEach(function(r, i){
 
 if (1 == 1) { //DEBUG
         //here we want to call handle_message with tree.MSG_HIGHLIGHT_PATH
         //and pass in data, msg_id, side
 
-        that.lhs_svg.selectAll(".hide1").classed("hide1", false);
-        that.lhs_svg.selectAll(".link").classed("link", false);
+        // that.lhs_svg.selectAll(".hide1").classed("hide1", false);
+        // that.lhs_svg.selectAll(".link").classed("link", false);
         let xxx = r.data;
 
         that.schutz[r.side] = {neo_id: -1};
@@ -479,6 +489,7 @@ if (1 == 1) { //DEBUG
         let s = r.side == "lhs_" ? utils.consts.LHS : utils.consts.RHS;
 
         that.handle_message(xxx, tree.MSG_HIGHLIGHT_PATH, s);
+
       }// end DEBUG
 
     });
@@ -564,7 +575,7 @@ function highlightOtherLinks(path_list, pivots, side) {
         var sourceID = source.neo_id;
         //link_sourceID_targetID
         let linkID = "link_" + sourceID + "_" + targetID;
-console.log(linkID);
+
         d3.select("#" + linkID).classed("schutz", true);
         targetID = sourceID;
         source = pop_and_check_rels(path, pivots);
@@ -595,8 +606,8 @@ function pop_and_check_rels(path, pivots) {
 function rollup_other_side(child, parent, params){
   var side = params.side;
   var pivots = params.filtered_pivots;
-
   var path = params.paths.pop();
+
   //to be found, the child needs to have no children and that collection needs to include one of the visible pivots
   var found = false;
   if (typeof(child.children) == "undefined"){
@@ -612,6 +623,7 @@ function rollup_other_side(child, parent, params){
     }
   }
   if (found == true) {
+
     params.found_paths.push(path);
   }
 
