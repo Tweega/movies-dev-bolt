@@ -146,11 +146,11 @@ lay3r.prototype.handle_message = function(data, msg_id, side) {
 
     case utils.consts.PIVOT : //get each component to manage their own messages
     reapplies = [];
-    console.log(this.schutz);
+
       Object.keys(this.schutz).reduce(function(accum, r) {
-        console.log(accum);
+
         if (that.schutz[r].neo_id > 0) {
-          console.log("hello");
+
           accum.push({side: r, data: that.schutz[r]});
         }
         return accum;
@@ -170,14 +170,12 @@ lay3r.prototype.handle_message = function(data, msg_id, side) {
       this.pivot_level = data;
       this.render();
       nav.render(this.nav_svg, this.pivot_lists .length, this.callback, this.pivot_level);
-      console.log("reapplies");
-      console.log(reapplies);
+
       reapplies.forEach(function(r, i){
-        console.log("trying to reapply");
 
           //here we want to call handle_message with tree.MSG_HIGHLIGHT_PATH
           //and pass in data, msg_id, side
-          console.log("re-applying filter");
+
           let xxx = r.data;
 
           that.schutz[r.side] = {neo_id: -1};
@@ -332,9 +330,9 @@ lay3r.prototype.handle_message = function(data, msg_id, side) {
   case pivot.MSG_FILTER_PIVOT :
 reapplies = [];
   Object.keys(this.schutz).reduce(function(accum, r) {
-    console.log(accum);
+
     if (that.schutz[r].neo_id > 0) {
-      console.log("hello");
+
       accum.push({side: r, data: that.schutz[r]});
     }
     return accum;
@@ -362,12 +360,12 @@ reapplies = [];
 
     left_right.forEach(function(side_info, i) {
       side_info.svg.selectAll(".link").remove();
-      console.log("kjhgjd fgh dsfjgsd jh");
-      //return;
+console.log("hello")
+
       filtered_pivots[data.name] = data;
       let paths = [[]];
       let found_paths = [];
-
+console.log(side_info.data);
       utils.traverseTree(side_info.data , highlight_other_side, rollup_other_side, {paths: paths, found_paths: found_paths, side: side_info.side, filtered_pivots: filtered_pivots});
       paths.pop().pop();
 
@@ -376,6 +374,8 @@ reapplies = [];
       highlightMap[side_info.data.name] = side_info.data;
 
       found_paths.forEach(function (path_list, iPathList) {
+        console.log("Presume we dont come here");
+        console.log(path_list);
         path_list.forEach(function (node, i) {
           if (typeof(highlightMap[node.name]) == "undefined") {
             highlightMap[node.name] = node;
@@ -384,21 +384,35 @@ reapplies = [];
       });
 
       var params = {pivots: filtered_pivots, side: side_info.side, filtered_pivots: {}}
-console.log("hide2");
+
       side_info.svg.selectAll(".hide2").classed("hide2", false);
 
       ///////
       side_info.svg.selectAll(".hide1").classed("hide1", false); //this only affects if there is a filter path
 
+
+//////return
+console.log(found_paths.length);
+      //flag any links stemming from this node
+      console.log(side_info.side);
+      if (side_info.side == "rhs_") {
+        that.render();
+        return;
+      }
+
       Object.keys(highlightMap).forEach(function(node_name, i) {
         let n = highlightMap[node_name];
         let elemID = side_info.side + n.neo_id;
+        console.log(`schutzing ${elemID}`);
         d3.select("#" + elemID).classed("schutz", true);
       });
 
-      //flag any links stemming from this node
-      that.render();  //so, we're rendering twice.
       highlightOtherLinks(found_paths, filtered_pivots, sideStr);
+
+      // if (side_info.side == "rhs_") {
+      //   that.render();
+      //   return;
+      // }
 //zzz
       side_info.svg.selectAll(".schutz>*").classed("schutz", true);
       side_info.svg.selectAll(":not(.schutz)").classed("hide2", true);
@@ -413,11 +427,11 @@ console.log("hide2");
     this.lhs_svg.selectAll(".schutz").classed("schutz", false);
     this.rhs_svg.selectAll(".schutz").classed("schutz", false);
     reapplies.forEach(function(r, i){
-      console.log("trying to reapply");
-if (1 == 1) { //DEBUG
+
+if (1 == 2) { //DEBUG
         //here we want to call handle_message with tree.MSG_HIGHLIGHT_PATH
         //and pass in data, msg_id, side
-        console.log("re-applying filter");
+
         that.lhs_svg.selectAll(".hide1").classed("hide1", false);
         that.lhs_svg.selectAll(".link").classed("link", false);
         let xxx = r.data;
@@ -573,6 +587,7 @@ function highlight_other_side(node, params){
   var extendedPath = inheritedPath.map(function(p, i){
     return p;
   });
+  console.log("hola");
 
   extendedPath.push(node);
   params.paths.push(extendedPath);
