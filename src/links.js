@@ -17,9 +17,13 @@ function render_links(hierarchy, pivots, svg, dock_side, item_height) {
 
       leaf_nodes.forEach(function(leaf, i) {
         //if we were to store the pivot fields in rels by level, then we would not need to do this
-
+console.log("leaf");
+console.log(leaf);
+console.log(pivots);
         Object.keys(leaf.rels).forEach(function(rel, idx) {
+          console.log(rel);
           if (rel in pivots) {
+            console.log("yabba dabba doo");
             let r = pivots[rel];
             let jj = leaf.rels[rel];
 
@@ -69,11 +73,13 @@ function get_leaf_nodes(node, params, depth) {
 
   if (typeof(node.children) == "undefined") {
     let nodeID = side + node.neo_id;
-
-    if (!(d3.select("#" + nodeID).classed("veiled"))) {
+console.log("nodeID");
+console.log(nodeID);
+    if (!(d3.select("#" + nodeID).classed("hide2"))) {
+      console.log("pushing");
       leaves.push(node);
     }
-    //once we have identifies a leaf node, there is no need to traverse children.
+    //once we have identified a leaf node, there is no need to traverse children.
     //consider returning a boolean indicating whether to abort or not.
 
   }

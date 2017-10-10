@@ -101,7 +101,7 @@ lay3r.prototype.render = function() {
   var lhs_svg = this.lhs_svg;
   var rhs_svg = this.rhs_svg;
   var pivot_svg = this.pivot_svg;
-
+console.log(pivot_list);
   pivot.render(pivot_list, this.pivot_level, pivot_svg, margins, this.callback);
   var pivots = {};
 
@@ -328,6 +328,19 @@ lay3r.prototype.handle_message = function(data, msg_id, side) {
   break;
 
   case pivot.MSG_FILTER_PIVOT :
+this.lhs_svg.selectAll("*").remove();
+this.rhs_svg.selectAll("*").remove();
+
+  let lhs_hierarchy = this.lhs_hierarchies[this.lhs_hierarchies.length - 1];
+  let rhs_hierarchy = this.rhs_hierarchies[this.rhs_hierarchies.length - 1];
+  tree.render(lhs_hierarchy, utils.consts.LHS, this.lhs_svg, this.margins, this.pivots, this.callback);  //perhaps get a return value if there is a more suitable container to use for links
+  tree.render(rhs_hierarchy, utils.consts.RHS, this.rhs_svg, this.margins, this.pivots, this.callback);
+
+
+
+
+    //this.render();
+
 reapplies = [];
   Object.keys(this.schutz).reduce(function(accum, r) {
 
@@ -355,17 +368,26 @@ reapplies = [];
     this.pivot_svg.select("#" + eID).classed("filter_pivot_txt", true);
 
     //---------------
-    filtered_pivots = {};
-    var left_right = [{side: "lhs_", svg: this.lhs_svg, data: this.lhs_hierarchies[this.lhs_hierarchies.length - 1]}, {side: "rhs_", svg: this.rhs_svg, data: this.rhs_hierarchies[this.rhs_hierarchies.length - 1]}];
+
+    var left_right = [
+                      {side: "lhs_", svg: this.lhs_svg, data: this.lhs_hierarchies[this.lhs_hierarchies.length - 1]},
+                      {side: "rhs_", svg: this.rhs_svg, data: this.rhs_hierarchies[this.rhs_hierarchies.length - 1]}
+
+                     ];
 
     left_right.forEach(function(side_info, i) {
-      side_info.svg.selectAll(".link").remove();
-console.log("hello")
+      if (side_info.side != "none") {
+      side_info.svg.selectAll(".hide2").classed("hide2", false);
 
+      ///////
+      side_info.svg.selectAll(".hide1").classed("hide1", false); //this only affects if there is a filter path
+      filtered_pivots = {};
+      //side_info.svg.selectAll(".link").remove();
+console.log("hello");
       filtered_pivots[data.name] = data;
       let paths = [[]];
       let found_paths = [];
-console.log(side_info.data);
+
       utils.traverseTree(side_info.data , highlight_other_side, rollup_other_side, {paths: paths, found_paths: found_paths, side: side_info.side, filtered_pivots: filtered_pivots});
       paths.pop().pop();
 
@@ -374,8 +396,7 @@ console.log(side_info.data);
       highlightMap[side_info.data.name] = side_info.data;
 
       found_paths.forEach(function (path_list, iPathList) {
-        console.log("Presume we dont come here");
-        console.log(path_list);
+console.log(path_list);
         path_list.forEach(function (node, i) {
           if (typeof(highlightMap[node.name]) == "undefined") {
             highlightMap[node.name] = node;
@@ -385,28 +406,25 @@ console.log(side_info.data);
 
       var params = {pivots: filtered_pivots, side: side_info.side, filtered_pivots: {}}
 
-      side_info.svg.selectAll(".hide2").classed("hide2", false);
 
-      ///////
-      side_info.svg.selectAll(".hide1").classed("hide1", false); //this only affects if there is a filter path
 
 
 //////return
-console.log(found_paths.length);
+
       //flag any links stemming from this node
-      console.log(side_info.side);
-      if (side_info.side == "rhs_") {
-        that.render();
-        return;
-      }
+
+      // if (side_info.side == "rhs_") {
+      //   that.render();
+      //   //return;
+      // }
 
       Object.keys(highlightMap).forEach(function(node_name, i) {
         let n = highlightMap[node_name];
         let elemID = side_info.side + n.neo_id;
-        console.log(`schutzing ${elemID}`);
+
         d3.select("#" + elemID).classed("schutz", true);
       });
-
+console.log(found_paths.length);
       highlightOtherLinks(found_paths, filtered_pivots, sideStr);
 
       // if (side_info.side == "rhs_") {
@@ -416,19 +434,39 @@ console.log(found_paths.length);
 //zzz
       side_info.svg.selectAll(".schutz>*").classed("schutz", true);
       side_info.svg.selectAll(":not(.schutz)").classed("hide2", true);
+    }
+
+    let si = side_info.side == "lhs_" ? utils.consts.LHS : utils.consts.RHS
+console.log("that.pivot_filter");
+console.log(that.pivot_filter);
+
+var pivots = {};
+
+that.pivot_filter.list.forEach(function(plist, i){ //this looks like it could be done in the constructor.
+    plist.forEach(function (p, x){ //use apply?
+        pivots[p.name] = p;
+        //what would be more useful would be x,y coords if we can get them already.
+    });
+});
+
+
+    links.render(side_info.data, pivots, side_info.svg, si);
 
 
     });
+return
+    that.lhs_svg.selectAll(":not(.schutz)").classed("hide2", true);
+    that.rhs_svg.selectAll(":not(.schutz)").classed("hide2", true);
+
     // this.rhs_svg.selectAll(".schutz>*").classed("schutz", true);
     // this.rhs_svg.selectAll(":not(.schutz)").classed("hide1", true);
     //-------------
 
-
-    this.lhs_svg.selectAll(".schutz").classed("schutz", false);
-    this.rhs_svg.selectAll(".schutz").classed("schutz", false);
+    // this.lhs_svg.selectAll(".schutz").classed("schutz", false);
+    // this.rhs_svg.selectAll(".schutz").classed("schutz", false);
     reapplies.forEach(function(r, i){
 
-if (1 == 2) { //DEBUG
+if (1 == 1) { //DEBUG
         //here we want to call handle_message with tree.MSG_HIGHLIGHT_PATH
         //and pass in data, msg_id, side
 
@@ -526,7 +564,7 @@ function highlightOtherLinks(path_list, pivots, side) {
         var sourceID = source.neo_id;
         //link_sourceID_targetID
         let linkID = "link_" + sourceID + "_" + targetID;
-
+console.log(linkID);
         d3.select("#" + linkID).classed("schutz", true);
         targetID = sourceID;
         source = pop_and_check_rels(path, pivots);
@@ -587,7 +625,6 @@ function highlight_other_side(node, params){
   var extendedPath = inheritedPath.map(function(p, i){
     return p;
   });
-  console.log("hola");
 
   extendedPath.push(node);
   params.paths.push(extendedPath);
