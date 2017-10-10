@@ -22,7 +22,9 @@ function lay3r(lhs_hierarchy, rhs_hierarchy, pivotLists, pivotName) {
   this.callback = lay3r.createCallback(this);
   this.margins = {};
   this.pivot_level = 0;
-  this.schutz_id = -1;  //i.e an id that neo4j presumably would not come up with.
+  this.schutz = {};
+  this.schutz[utils.getSideStr(utils.consts.LHS)] = {neo_id: -1};
+  this.schutz[utils.getSideStr(utils.consts.RHS)] = {neo_id: -1};
 
   var dendodiv = document.getElementById("layerTree");
   let font_size = utils.getFontSize(dendodiv);
@@ -124,6 +126,9 @@ lay3r.prototype.render = function() {
 }
 
 lay3r.prototype.handle_message = function(data, msg_id, side) {
+  var reapplies = [];
+  let that = this;
+  var sideStr = utils.getSideStr(side);
 
   switch(msg_id)
   {
@@ -140,16 +145,48 @@ lay3r.prototype.handle_message = function(data, msg_id, side) {
     break;
 
     case utils.consts.PIVOT : //get each component to manage their own messages
+    reapplies = [];
+    console.log(this.schutz);
+      Object.keys(this.schutz).reduce(function(accum, r) {
+        console.log(accum);
+        if (that.schutz[r].neo_id > 0) {
+          console.log("hello");
+          accum.push({side: r, data: that.schutz[r]});
+        }
+        return accum;
+      }, reapplies);
+
       this.pivot_filter = null;
+
       this.lhs_svg.selectAll(".hide2").classed("hide2", false);
       this.rhs_svg.selectAll(".hide2").classed("hide2", false);
+      // this.lhs_svg.selectAll(".hide1").classed("hide1", false);
+      // this.rhs_svg.selectAll(".hide1").classed("hide1", false);
       this.lhs_svg.selectAll(".link").remove();
+      this.rhs_svg.selectAll(".link").remove();
       this.pivot_svg.selectAll("*").remove();
       // this.rhs_svg.selectAll("*").remove();
       // this.lhs_svg.selectAll("*").remove();
       this.pivot_level = data;
       this.render();
       nav.render(this.nav_svg, this.pivot_lists .length, this.callback, this.pivot_level);
+      console.log("reapplies");
+      console.log(reapplies);
+      reapplies.forEach(function(r, i){
+        console.log("trying to reapply");
+
+          //here we want to call handle_message with tree.MSG_HIGHLIGHT_PATH
+          //and pass in data, msg_id, side
+          console.log("re-applying filter");
+          let xxx = r.data;
+
+          that.schutz[r.side] = {neo_id: -1};
+
+          let s = r.side == "lhs_" ? utils.consts.LHS : utils.consts.RHS;
+
+          that.handle_message(xxx, tree.MSG_HIGHLIGHT_PATH, s);
+
+      });
 
     break;
 
@@ -159,7 +196,7 @@ lay3r.prototype.handle_message = function(data, msg_id, side) {
     var click_side_svg = null;
     var other_side_hierarchy = null;
     var other_side_svg = null;
-    let sideStr = "";
+    //let sideStr = "";
     let otherSideStr = "";
     var filtered_pivots = {};
 
@@ -181,19 +218,23 @@ lay3r.prototype.handle_message = function(data, msg_id, side) {
     }
 
     let selected_id = sideStr + data.neo_id;
+    let side_schutz = this.schutz[sideStr];
 
     if (data.neo_id != click_side_hierarchy.neo_id || typeof(data.parent) != "undefined") {
-      if (selected_id == this.schutz_id) {
-        this.lhs_svg.selectAll(".schutz").classed("schutz", false);
-        this.lhs_svg.selectAll(".hide1").classed("hide1", false);
 
-        this.rhs_svg.selectAll(".schutz").classed("schutz", false);
-        this.rhs_svg.selectAll(".hide1").classed("hide1", false);
+      if (data.neo_id == side_schutz.neo_id) {
+        // this.lhs_svg.selectAll(".schutz").classed("schutz", false);
+        // this.lhs_svg.selectAll(".hide1").classed("hide1", false);
 
-        this.schutz_id = -1;
+        click_side_svg.selectAll(".schutz").classed("schutz", false);
+        click_side_svg.selectAll(".hide1").classed("hide1", false);
+
+        this.schutz[sideStr] = {neo_id: -1};
       }
       else {
-        this.schutz_id = selected_id;
+
+        this.schutz[sideStr] = data;
+
         utils.traverseTree(data, highlight, null, {pivots: this.pivots, side: sideStr, filtered_pivots: filtered_pivots});
         //child elements of 'protected' elements should also be protoected
 
@@ -211,7 +252,7 @@ lay3r.prototype.handle_message = function(data, msg_id, side) {
         //initialise highlightMap with the current root node in case there are no links expanded.
         highlightMap[other_side_hierarchy.name] = other_side_hierarchy;
         //we want the name of the node on the other side i think
-console.log(other_side_hierarchy.name);
+
 
         found_paths.forEach(function (path_list, iPathList) {
           path_list.forEach(function (node, i) {
@@ -250,16 +291,12 @@ console.log(other_side_hierarchy.name);
     }
   break;
   case tree.MSG_MAKE_NEW_ROOT:
-    let sideString = utils.getSideStr(side);
-    let selected_iden = sideString + data.neo_id;
-
-    if (selected_iden == this.schutz_id) {
+    //let sideString = utils.getSideStr(side);
+    side_schutz = this.schutz[sideStr];
+    if (data.neo_id == side_schutz.neo_id) {
       //remove filtering
       this.handle_message(data, tree.MSG_HIGHLIGHT_PATH, side);
     }
-
-
-
 
     var isRoot = typeof(data.isRoot) == "undefined" ? false : data.isRoot;
     var hierarchies = null;
@@ -293,6 +330,16 @@ console.log(other_side_hierarchy.name);
   break;
 
   case pivot.MSG_FILTER_PIVOT :
+reapplies = [];
+  Object.keys(this.schutz).reduce(function(accum, r) {
+    console.log(accum);
+    if (that.schutz[r].neo_id > 0) {
+      console.log("hello");
+      accum.push({side: r, data: that.schutz[r]});
+    }
+    return accum;
+  }, reapplies);
+
 
     this.pivot_filter = {is_filter: true, total_items: 1, list: [[data]]};
 
@@ -314,6 +361,7 @@ console.log(other_side_hierarchy.name);
     var left_right = [{side: "lhs_", svg: this.lhs_svg, data: this.lhs_hierarchies[this.lhs_hierarchies.length - 1]}, {side: "rhs_", svg: this.rhs_svg, data: this.rhs_hierarchies[this.rhs_hierarchies.length - 1]}];
 
     left_right.forEach(function(side_info, i) {
+      side_info.svg.selectAll(".link").remove();
       filtered_pivots[data.name] = data;
       let paths = [[]];
       let found_paths = [];
@@ -334,7 +382,7 @@ console.log(other_side_hierarchy.name);
       });
 
       var params = {pivots: filtered_pivots, side: side_info.side, filtered_pivots: {}}
-
+console.log("hide2");
       side_info.svg.selectAll(".hide2").classed("hide2", false);
 
       Object.keys(highlightMap).forEach(function(node_name, i) {
@@ -345,10 +393,12 @@ console.log(other_side_hierarchy.name);
 
       //flag any links stemming from this node
 
-      highlightOtherLinks(found_paths, filtered_pivots, "lhs_");
-
+      highlightOtherLinks(found_paths, filtered_pivots, sideStr);
+//zzz
       side_info.svg.selectAll(".schutz>*").classed("schutz", true);
       side_info.svg.selectAll(":not(.schutz)").classed("hide2", true);
+
+
     });
     // this.rhs_svg.selectAll(".schutz>*").classed("schutz", true);
     // this.rhs_svg.selectAll(":not(.schutz)").classed("hide1", true);
@@ -357,6 +407,21 @@ console.log(other_side_hierarchy.name);
     this.render();
     this.lhs_svg.selectAll(".schutz").classed("schutz", false);
     this.rhs_svg.selectAll(".schutz").classed("schutz", false);
+    reapplies.forEach(function(r, i){
+      console.log("trying to reapply");
+
+        //here we want to call handle_message with tree.MSG_HIGHLIGHT_PATH
+        //and pass in data, msg_id, side
+        console.log("re-applying filter");
+        let xxx = r.data;
+
+        that.schutz[r.side] = {neo_id: -1};
+
+        let s = r.side == "lhs_" ? utils.consts.LHS : utils.consts.RHS;
+
+        that.handle_message(xxx, tree.MSG_HIGHLIGHT_PATH, s);
+
+    });
   break;
 
   case pivot.MSG_FILTER_PIVOT_CLEAR :
@@ -365,6 +430,8 @@ console.log(other_side_hierarchy.name);
 
     this.lhs_svg.selectAll(".hide2").classed("hide2", false);
     this.rhs_svg.selectAll(".hide2").classed("hide2", false);
+    this.lhs_svg.selectAll(".link").remove();
+    this.rhs_svg.selectAll(".link").remove();
     //let eid = "pivot_" + this.prev_filter_id;
     delete this.prev_filter_id;
     this.render();
