@@ -387,6 +387,9 @@ reapplies = [];
 console.log("hide2");
       side_info.svg.selectAll(".hide2").classed("hide2", false);
 
+      ///////
+      side_info.svg.selectAll(".hide1").classed("hide1", false); //this only affects if there is a filter path
+
       Object.keys(highlightMap).forEach(function(node_name, i) {
         let n = highlightMap[node_name];
         let elemID = side_info.side + n.neo_id;
@@ -394,7 +397,7 @@ console.log("hide2");
       });
 
       //flag any links stemming from this node
-
+      that.render();  //so, we're rendering twice.
       highlightOtherLinks(found_paths, filtered_pivots, sideStr);
 //zzz
       side_info.svg.selectAll(".schutz>*").classed("schutz", true);
@@ -406,15 +409,17 @@ console.log("hide2");
     // this.rhs_svg.selectAll(":not(.schutz)").classed("hide1", true);
     //-------------
 
-    this.render();
+
     this.lhs_svg.selectAll(".schutz").classed("schutz", false);
     this.rhs_svg.selectAll(".schutz").classed("schutz", false);
     reapplies.forEach(function(r, i){
       console.log("trying to reapply");
-
+if (1 == 1) { //DEBUG
         //here we want to call handle_message with tree.MSG_HIGHLIGHT_PATH
         //and pass in data, msg_id, side
         console.log("re-applying filter");
+        that.lhs_svg.selectAll(".hide1").classed("hide1", false);
+        that.lhs_svg.selectAll(".link").classed("link", false);
         let xxx = r.data;
 
         that.schutz[r.side] = {neo_id: -1};
@@ -422,6 +427,7 @@ console.log("hide2");
         let s = r.side == "lhs_" ? utils.consts.LHS : utils.consts.RHS;
 
         that.handle_message(xxx, tree.MSG_HIGHLIGHT_PATH, s);
+      }// end DEBUG
 
     });
   break;
@@ -430,6 +436,8 @@ console.log("hide2");
     this.pivot_svg.selectAll("*").remove(); //not sure why we have to do this.
     this.pivot_filter = null;
 
+    this.lhs_svg.selectAll(".hide1").classed("hide1", false);
+    this.rhs_svg.selectAll(".hide1").classed("hide1", false);
     this.lhs_svg.selectAll(".hide2").classed("hide2", false);
     this.rhs_svg.selectAll(".hide2").classed("hide2", false);
     this.lhs_svg.selectAll(".link").remove();
@@ -437,6 +445,7 @@ console.log("hide2");
     //let eid = "pivot_" + this.prev_filter_id;
     delete this.prev_filter_id;
     this.render();
+    //reapply hide1 here
   break;
 
   default:
