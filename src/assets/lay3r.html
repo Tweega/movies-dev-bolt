@@ -2,6 +2,8 @@
 <html>
 <head>
 <meta charset="utf-8">
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 </head>
 <body>
 
@@ -176,16 +178,116 @@ font-size: .7em;
     cursor: pointer;
 }
 
+.ui-selecting td {
+    background: gold;
+}
+.ui-selected td {
+    background: gold;
+}
+
+#dialog{
+  display: none;
+}
+
+.dialogWithDropShadow
+     {
+         -webkit-box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+         -moz-box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+     }
+
+     .ui-dialog-titlebar-close {
+         visibility: hidden;
+     }
+
+
+.dparent { clear: both; }
 </style>
 
 <script src="http://d3js.org/d3.v3.min.js" type="text/javascript"></script>
-<script type="text/javascript" src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+<script>
+var theDialog = null;
+
+function pivot_change(e) {
+
+  var conceptName = $('#pivotSelect').find(":selected").text();
+  var my_data = $("#dialog").data('pivotDict')
+console.log(my_data);
+ var t = document.getElementById("relations_table");
+ var c = document.getElementById("relations_table_container");
+//console.log(c.id);
+
+$(t).remove();
+
+var new_t = document.createElement("table");
+var new_tr = document.createElement("tr");
+new_t.append(new_tr)
+var new_td = document.createElement("td");
+var txt = document.createTextNode("hello");
+new_td.append(txt);
+new_tr.append(new_td);
+new_td = document.createElement("td");
+txt = document.createTextNode("hello");
+new_td.append(txt);
+new_tr.append(new_td);
+
+new_td = document.createElement("td");
+txt = document.createTextNode("hello");
+new_td.append(txt);
+new_tr.append(new_td);
+
+c.append(new_t);
+//$("#relations_table_container").remove("#relations_table");
+// $(c).remove(t);
+
+
+
+}
+</script>
 <script type="text/javascript" src="neo4j-web.min.js"></script></body>
 <div id="container">
   <div id="layerTree"></div>
   <div id="info"><img src="/src/assets/deloitte_log.png" id="logo"></div>
   <div id="version">v: 0.0.1</div>
 </div>
+
+
+
+<!--dialog box-->
+<div class="ui-helper-clearfix dparent">
+  <div id="dialog" title="Basic dialog" class="dialogWithDropShadow" >
+    <div class="dialog_container">
+      <div class="pivot_layers_label">Pivot layers:</div>
+      <div class="pivot_layers">
+        <select id="pivotSelect" onchange="pivot_change()">
+          <option id="1">Organisation</option>
+          <option id="2">S</option>
+          <option id="3">Sd</option>
+          <option id="4">process</option>
+        </select>
+      </div>
+      <div id='relations_table_container'>
+        <table id="relations_table">
+          <thead>
+          <tr>
+            <th>lhs</th><th>field</th><th>direction</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Org</td><td>field</td><td>west</td>
+          </tr>
+          <tr>
+            <td>Proc</td><td>field</td><td>east</td>
+          </tr>
+        </tbody>
+        </table>
+      </div>
+
+      <button class ="formSaver">Save me!</button>
+    </div>
+  </div>
+</div>
+
 </body
 
 

@@ -283,8 +283,10 @@ function getPivotLists(pivotNode, pivotLists){
   }
 }
 
-function fetch3Ways() {
-  api.get3Ways();
+function fetch3Ways(cb) {
+  var pv = {};
+  var x = api.get3Ways(pv);
+  cb(pv);
 }
 
 

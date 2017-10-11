@@ -91,9 +91,22 @@ lay3r.create_data_form_load = function(layer) {
   return function(d) {
     //this is the click handler bit.  we now load a form, get data and on success call the following function
     //data.fetch3LayerData({}, layer.handle_new_data.bind(layer))
-    data.get3Ways();
+    data.get3Ways(layer.Handle3Ways);
   }
 }
+
+lay3r.prototype.Handle3Ways = function(data) {
+  console.log("data");
+  console.log(data);
+console.log("data");
+
+//now open up the form
+theDialog.data('pivotDict', data)
+theDialog.dialog("open");
+
+}
+
+
 
 lay3r.prototype.renderLay3r = function(lhs_hierarchy, rhs_hierarchy, pivotLists, pivotName) {
   //if we already have data etc. clear everything out first

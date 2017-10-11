@@ -156,7 +156,7 @@ function assignRelationships(node, props) {
   }
 }
 
-function get3Ways(){
+function get3Ways(pivotDictionary){
   // var query = `MATCH (l:${lhs})-[rel:${rel_name}]-(r:${rhs}) \
   // RETURN id(l) as l_id, id(r) as r_id, l.title as l_title, r.title as r_title, case when rel.${field} is null then 1 else rel.${field} end as field `
 
@@ -177,6 +177,10 @@ function get3Ways(){
   with r, labels(rhs)[0] as rhs_label, labels(lhs)[0] as lhs_label, rel_name, field, is_rhs_start \
   where labels(rhs)[0] in pivots \
   return distinct lhs_label, rhs_label, rel_name, field, is_rhs_start `
+  //var pivotDictionary = {};
+  var lhsDictionary = null;
+
+  var relations = null;
 
   //console.log(query)
     var session = driver.session();
@@ -191,10 +195,7 @@ function get3Ways(){
 
           //var keys = records[0].keys;
           var indices = records[0]._fieldLookup;
-          var pivotDictionary = {};
-          var lhsDictionary = null;
 
-          var relations = null;
 
           records.forEach(function (rec, i) {
             //keys ["lhs_label", "rhs_label", "rel_name", "field", "is_rhs_start"]
@@ -228,15 +229,15 @@ function get3Ways(){
 
             relations.push({rel_name: rel_name, field: field, is_rhs_start: is_rhs_start})
           });
-          console.log(pivotDictionary);
+          //console.log(pivotDictionary);
         //
         //   utils.traverseTree (hierarchy, assignRelationships, null, {rel_dict: sourceDictionary});
         //
-        //   return hierarchy;
+        return true;
       }
       else {
         console.log("no 3 ways")
-        return 101;
+        return false;
       }
       })
       .catch(error => {
