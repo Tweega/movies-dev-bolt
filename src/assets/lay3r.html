@@ -160,9 +160,22 @@ body {
   float:right;
 }
 
-.logo {
+#logo {
   height: 50px;
 }
+
+#version {
+float:right;
+clear:right;
+font-size: .7em;
+}
+
+.new_data_button {
+    fill: #FFFFFF;
+    opacity: 0.0;
+    cursor: pointer;
+}
+
 </style>
 
 <script src="http://d3js.org/d3.v3.min.js" type="text/javascript"></script>
@@ -170,7 +183,8 @@ body {
 <script type="text/javascript" src="neo4j-web.min.js"></script></body>
 <div id="container">
   <div id="layerTree"></div>
-  <div id="info"><img src="/src/assets/deloitte_log.png" class="logo"></div>
+  <div id="info"><img src="/src/assets/deloitte_log.png" id="logo"></div>
+  <div id="version">v: 0.0.1</div>
 </div>
 </body
 

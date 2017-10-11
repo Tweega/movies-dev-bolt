@@ -78,6 +78,23 @@ let xx_text = `${lhs_hierarchy.name} - ${pivotName} - ${rhs_hierarchy.name}`
   this.nav_svg = nav_svg;
    nav.render(nav_svg, pivotLists.length, this.callback, this.pivot_level);
   // this.select_level();
+  let eLogo = document.getElementById("logo");
+
+  let data_select_svg = svg.append("g")
+    //  .attr("transform", "translate(22, 11)");
+    .attr("transform", "translate(" + parseInt(screenDimensions.width - margin.right - eLogo.clientWidth - 13 - 5).toString() + "," + parseInt(0 - margin.top) + ")");
+
+
+
+  data_select_svg.append("rect")
+  .attr("x", 0)  //13 is fudge factor introduced above, 5 is margin of body element.
+  .attr("y", 0)
+  //.style("fill-opacity", 1e-6)
+  .attr("width", eLogo.clientWidth)
+  .attr("height", eLogo.clientHeight)
+  .attr("class", "new_data_button")
+  .on("click", this.new_data );
+
 
 
 
@@ -123,6 +140,10 @@ lay3r.prototype.render = function() {
   links.render(lhs_hierarchy, pivots, lhs_svg, utils.consts.LHS);
   links.render(rhs_hierarchy, pivots, rhs_svg, utils.consts.RHS);
 
+}
+
+lay3r.prototype.new_data = function(d) {
+  console.log("new data clickedf");
 }
 
 lay3r.prototype.handle_message = function(data, msg_id, side) {
