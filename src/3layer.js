@@ -3,21 +3,21 @@ var pivot = require('./pivot');
 var utils = require('./Utils');
 var links = require('./links');
 var nav = require('./pivot_nav');
+var data = require('./lay3r_data');
 
-
-
-function create3Layer(lhs_hierarchy, rhs_hierarchy, pivotLists, pivotName) {
+function create3Layer() {
+  //lhs_hierarchy, rhs_hierarchy, pivotLists, pivotName
   //if we already have data, we will propbably have to do something here to clear it out.
-  return new lay3r(lhs_hierarchy, rhs_hierarchy, pivotLists, pivotName);
+  return new lay3r();
 }
 
-function lay3r(lhs_hierarchy, rhs_hierarchy, pivotLists, pivotName) {
-  this.lhs_hierarchies = [lhs_hierarchy];
-  this.rhs_hierarchies = [rhs_hierarchy];
+function lay3r() {
+  this.lhs_hierarchies = null;
+  this.rhs_hierarchies = null;
   this.lhs_svg = null;
   this.rhs_svg = null;
   this.pivot_svg = null;
-  this.pivot_lists = pivotLists;
+  this.pivot_lists = null;
   this.pivot_list = null;
   this.callback = lay3r.createCallback(this);
   this.margins = {};
@@ -47,36 +47,16 @@ var margin = {top: 20, right: 100, bottom: 20, left: 100},
     this.svg = svg;
 
 let info_svg = svg.append("g");
-
-let xx_text = `${lhs_hierarchy.name} - ${pivotName} - ${rhs_hierarchy.name}`
-    info_svg.append("text")
-    .attr("x", 0 - margin.left) //don't understand why 0 is not the right number here.  May be to do with the LHS tree pushing the containing g t the left
-    .attr("y", 0)
-    .attr("dy", ".35em")
-    .attr("text-anchor", "start")
-    .attr("class", "header")
-    .text(xx_text);
-
-
-        let yy_text = info_svg.append("text")
-        .attr("x", 0 - margin.left) //don't understand why 0 is not the right number here.  May be to do with the LHS tree pushing the containing g t the left
-        .attr("y", 30)
-        .attr("dy", ".35em")
-        .attr("text-anchor", "start")
-        .attr("class", "pivot_level")
-        .text(`${pivotName} level: `);
-
-
-        var yybox = yy_text.node().getBBox();
+this.info_svg = info_svg;
 
   let nav_svg = info_svg.append("g")
     //  .attr("transform", "translate(22, 11)")  ;
 
-    .attr("transform", "translate(" + parseInt(yybox.width - margin.left + 10).toString() + "," + parseInt(23) + ")");
+    //.attr("transform", "translate(" + parseInt(yybox.width - margin.left + 10).toString() + "," + parseInt(23) + ")");
 
 
   this.nav_svg = nav_svg;
-   nav.render(nav_svg, pivotLists.length, this.callback, this.pivot_level);
+
   // this.select_level();
   let eLogo = document.getElementById("logo");
 
@@ -84,7 +64,9 @@ let xx_text = `${lhs_hierarchy.name} - ${pivotName} - ${rhs_hierarchy.name}`
     //  .attr("transform", "translate(22, 11)");
     .attr("transform", "translate(" + parseInt(screenDimensions.width - margin.right - eLogo.clientWidth - 13 - 5).toString() + "," + parseInt(0 - margin.top) + ")");
 
+    this.data_select_svg = data_select_svg;  //in we want to reposition this when the window resizes
 
+var new_data_click_handler = lay3r.create_data_form_load(this);
 
   data_select_svg.append("rect")
   .attr("x", 0)  //13 is fudge factor introduced above, 5 is margin of body element.
@@ -93,10 +75,7 @@ let xx_text = `${lhs_hierarchy.name} - ${pivotName} - ${rhs_hierarchy.name}`
   .attr("width", eLogo.clientWidth)
   .attr("height", eLogo.clientHeight)
   .attr("class", "new_data_button")
-  .on("click", this.new_data );
-
-
-
+  .on("click", new_data_click_handler );
 
   let pivot_svg = svg.append("g");
   let lhs_svg = svg.append("g");
@@ -106,6 +85,61 @@ let xx_text = `${lhs_hierarchy.name} - ${pivotName} - ${rhs_hierarchy.name}`
   this.rhs_svg = rhs_svg;
   this.pivot_svg = pivot_svg;
   this.pivot_filter = null;
+}
+
+lay3r.create_data_form_load = function(layer) {
+  return function(d) {
+    //this is the click handler bit.  we now load a form, get data and on success call the following function
+    data.fetch3LayerData({}, layer.handle_new_data.bind(layer))
+  }
+}
+
+lay3r.prototype.renderLay3r = function(lhs_hierarchy, rhs_hierarchy, pivotLists, pivotName) {
+  //if we already have data etc. clear everything out first
+
+
+  this.lhs_hierarchies = [lhs_hierarchy];
+  this.rhs_hierarchies = [rhs_hierarchy];
+  this.pivot_lists = pivotLists;
+var margin = this.margins.margin;
+  //nav.render(nav_svg, pivotLists.length, this.callback, this.pivot_level);
+  let info_svg = this.info_svg;
+
+  let xx_text = `${lhs_hierarchy.name} - ${pivotName} - ${rhs_hierarchy.name}`
+      info_svg.append("text")
+      .attr("x", 0 - margin.left) //don't understand why 0 is not the right number here.  May be to do with the LHS tree pushing the containing g t the left
+      .attr("y", 0)
+      .attr("dy", ".35em")
+      .attr("text-anchor", "start")
+      .attr("class", "header")
+      .text(xx_text);
+
+
+          let yy_text = info_svg.append("text")
+          .attr("x", 0 - margin.left) //don't understand why 0 is not the right number here.  May be to do with the LHS tree pushing the containing g t the left
+          .attr("y", 30)
+          .attr("dy", ".35em")
+          .attr("text-anchor", "start")
+          .attr("class", "pivot_level")
+          .text(`${pivotName} level: `);
+
+
+  var yybox = yy_text.node().getBBox();
+
+          let nav_svg = info_svg.append("g")
+            //  .attr("transform", "translate(22, 11)")  ;
+
+            .attr("transform", "translate(" + parseInt(yybox.width - margin.left + 10).toString() + "," + parseInt(23) + ")");
+
+
+              this.nav_svg = nav_svg;
+              console.log(nav_svg);
+               nav.render(nav_svg, pivotLists.length, this.callback, this.pivot_level);
+
+
+
+
+  this.render();
 }
 
 lay3r.prototype.render = function() {
@@ -144,6 +178,22 @@ lay3r.prototype.render = function() {
 
 lay3r.prototype.new_data = function(d) {
   console.log("new data clickedf");
+  //get data
+  console.log(this);
+  console.log(this.handle_new_data);
+  data.fetch3LayerData({}, this.handle_new_data)
+}
+
+lay3r.create_data_handler = function(layer) {
+    return function (lhs_hierarchy, rhs_hierarchy, pivotLists, pivotName) {
+      layer.handle_new_data(lhs_hierarchy, rhs_hierarchy, pivotLists, pivotName)
+    }
+}
+
+lay3r.prototype.handle_new_data = function(lhs_hierarchy, rhs_hierarchy, pivotLists, pivotName) {
+  console.log("got new data");
+  console.log(lhs_hierarchy);
+  this.renderLay3r(lhs_hierarchy, rhs_hierarchy, pivotLists, pivotName);
 }
 
 lay3r.prototype.handle_message = function(data, msg_id, side) {
