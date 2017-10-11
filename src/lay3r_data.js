@@ -283,5 +283,10 @@ function getPivotLists(pivotNode, pivotLists){
   }
 }
 
+function fetch3Ways() {
+  api.get3Ways();
+}
+
 
 exports.fetch3LayerData = fetch3LayerData;
+exports.get3Ways = fetch3Ways;
