@@ -90,7 +90,8 @@ var new_data_click_handler = lay3r.create_data_form_load(this);
 lay3r.create_data_form_load = function(layer) {
   return function(d) {
     //this is the click handler bit.  we now load a form, get data and on success call the following function
-    data.fetch3LayerData({}, layer.handle_new_data.bind(layer))
+    //data.fetch3LayerData({}, layer.handle_new_data.bind(layer))
+    data.get3Ways();
   }
 }
 
