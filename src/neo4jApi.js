@@ -156,6 +156,94 @@ function assignRelationships(node, props) {
   }
 }
 
+function get3Ways(){
+  // var query = `MATCH (l:${lhs})-[rel:${rel_name}]-(r:${rhs}) \
+  // RETURN id(l) as l_id, id(r) as r_id, l.title as l_title, r.title as r_title, case when rel.${field} is null then 1 else rel.${field} end as field `
+
+  var query = `MATCH (rhs)-[r]-(lhs) \
+  WITH lhs, type(r) as rel_name, rhs, labels(lhs) AS lhs_labels, labels(rhs) as rhs_labels \
+  WITH lhs, rel_name, rhs, reduce(dup = FALSE, label IN lhs_labels | (dup OR label IN rhs_labels)) AS has_dup \
+  WHERE  NOT has_dup AND (exists(lhs.title) AND exists(rhs.title)) AND rel_name <> "is_part_of" \
+  with distinct labels(lhs)[0] as lhs_label, rel_name, labels(rhs)[0] as rhs_label \
+  with collect({r: rhs_label, l: lhs_label}) as r_lhs_rhs, lhs_label,  rhs_label \
+  unwind r_lhs_rhs AS r_lhs_rhs_rows \
+  with r_lhs_rhs_rows.r as pivots, count(r_lhs_rhs_rows.r) as count_rel \
+  where count_rel > 1 \
+  with pivots \
+  MATCH (rhs)-[r]-(lhs) \
+  WITH lhs, r, type(r) as rel_name, keys(r)[0] as field, rhs, labels(lhs) AS lhs_labels, labels(rhs) as rhs_labels, pivots, startNode(r) = rhs as is_rhs_start \
+  WITH lhs, r, rel_name, rhs, reduce(dup = FALSE, label IN lhs_labels | (dup OR label IN rhs_labels)) AS has_dup, pivots, field, is_rhs_start \
+  WHERE  NOT has_dup AND (exists(lhs.title) AND exists(rhs.title)) AND rel_name <> "is_part_of" \
+  with r, labels(rhs)[0] as rhs_label, labels(lhs)[0] as lhs_label, rel_name, field, is_rhs_start \
+  where labels(rhs)[0] in pivots \
+  return distinct lhs_label, rhs_label, rel_name, field, is_rhs_start `
+
+  //console.log(query)
+    var session = driver.session();
+    return session
+    .run(query, {})
+      .then(result => {
+        session.close();
+        console.log(result);
+
+        if (result.records.length > 0) {
+          let records = result.records;
+
+          //var keys = records[0].keys;
+          var indices = records[0]._fieldLookup;
+          var pivotDictionary = {};
+          var lhsDictionary = null;
+
+          var relations = null;
+
+          records.forEach(function (rec, i) {
+            //keys ["lhs_label", "rhs_label", "rel_name", "field", "is_rhs_start"]
+
+
+            let lhs_label = rec._fields[indices["lhs_label"]];
+            let rhs_label = rec._fields[indices["rhs_label"]];
+
+            let rel_name = rec._fields[indices["rel_name"]];
+
+
+            let field = rec._fields[indices["field"]];
+            if (field == null) {field = "_none"}  //assuming this is not ever an actual field name.
+            let is_rhs_start = rec._fields[indices["is_rhs_start"]];
+
+            lhsDictionary = {};
+            if (typeof(pivotDictionary[rhs_label]) != "undefined") {
+              lhsDictionary = pivotDictionary[rhs_label];
+            }
+            else {
+              pivotDictionary[rhs_label] = lhsDictionary;
+            }
+
+            relations = [];
+            if (typeof(lhsDictionary[lhs_label]) != "undefined") {
+              relations = lhsDictionary[lhs_label];
+            }
+            else {
+              lhsDictionary[lhs_label] = relations;
+            }
+
+            relations.push({rel_name: rel_name, field: field, is_rhs_start: is_rhs_start})
+          });
+          console.log(pivotDictionary);
+        //
+        //   utils.traverseTree (hierarchy, assignRelationships, null, {rel_dict: sourceDictionary});
+        //
+        //   return hierarchy;
+      }
+      else {
+        console.log("no 3 ways")
+        return 101;
+      }
+      })
+      .catch(error => {
+        session.close();
+        throw error;
+      });
+}
 
 function jobLot(){
   this.jobDict = {};
@@ -199,6 +287,8 @@ jobLot.createJobLot = function() {
   return new jobLot();
 }
 
+
 exports.getHierarchy = getHierarchy;
 exports.setRelationships = setRelationships;
 exports.createJobLot = jobLot.createJobLot;
+exports.get3Ways = get3Ways;
