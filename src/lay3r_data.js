@@ -289,9 +289,6 @@ function fetch3Ways(cb) {
   .then(pv => {
 
       if (pv) {
-          //do follow-on stuff with hierarchy
-          console.log("pv");
-          console.log(pv);
           cb(pv);
       }
     });

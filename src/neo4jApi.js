@@ -188,7 +188,6 @@ function get3Ways(){
     .run(query, {})
       .then(result => {
         session.close();
-        console.log(result);
 
         if (result.records.length > 0) {
           let records = result.records;
@@ -229,8 +228,7 @@ function get3Ways(){
 
             relations.push({rel_name: rel_name, field: field, is_rhs_start: is_rhs_start})
           });
-          console.log("pivotDictionary");
-          console.log(pivotDictionary);
+
         //
         //   utils.traverseTree (hierarchy, assignRelationships, null, {rel_dict: sourceDictionary});
         //

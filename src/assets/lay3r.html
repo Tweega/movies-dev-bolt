@@ -306,19 +306,20 @@ function pivot_change(e) {
   var pivotName = $('#pivotSelect').find(":selected").text();
   var my_data = $("#dialog").data('pivotDict');
   var myFunc = $("#dialog").data('pivotChange');
+
   var htmlArray = [];
 
  var t = document.getElementById("relations_table");
  var c = document.getElementById("relations_table_container");
-// //console.log(c.id);
-//
+
 $(t).remove();
 
-htmlArray.push("<table id='relations_table'>");
-
+  htmlArray.push("<div id='table_header'>Layers that relate to pivot</div>");
+  htmlArray.push("<table id='relations_table'>");
   htmlArray.push("<tr class='header_row'>");
-    htmlArray.push("<td>LHS layer</td><td>LHS field</td><td>RHS layer</td><td>RHS field</td>");
+  htmlArray.push("<td>LHS layer</td><td>LHS field</td><td>RHS layer</td><td>RHS field</td>");
   htmlArray.push("</tr>");
+
 myFunc(htmlArray, my_data, pivotName);
 
     htmlArray.push("</table>");
@@ -334,9 +335,19 @@ $( "#relations_table" ).selectable({
       }
       ,filter: 'tr:not(:first)'
       ,selected: function(e, ui){
-        console.log(ui);
+        var tableSelectFunc = $("#dialog").data('relationChange');
+
+
+        tableSelectFunc(ui.selected);
+
       }
 });
+
+//finally set the footer
+var ff = $( "#relations_table" )[0].rows[1];
+var rc = theDialog.data('relationChange')
+rc(ff);
+
 //
 // var new_t = document.createElement("table");
 // var new_tr = document.createElement("tr");

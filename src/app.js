@@ -25,26 +25,6 @@ theDialog = $("#dialog").dialog(opt);
 theDialog.data('pivotChange', layer.getRelatedLayers);
 theDialog.data('relationChange', layer.handleRelationChange);
 
-// console.log($('#dialog').attr("id"));
-//  $('#dialog').dialog({
-//                 resizable: false,
-//                 autoOpen: false,
-//                 width: 300,
-//                 height: 140,
-//                 modal: true,
-//                 buttons: {
-//                     "Ok": function() {
-//                         $(this).dialog("close");
-//                         ok();
-//                     },
-//                     "Cancel": function() {
-//                         $(this).dialog("close");
-//                         close();
-//                     }
-//                 }
-//             });
-//
-//
            var lay3r = layer.create3Layer();
 
 
@@ -52,6 +32,8 @@ theDialog.data('relationChange', layer.handleRelationChange);
 
 function ok(){
   console.log("ok");
+  var loader = theDialog.data('loadData');
+  loader({});
 }
 
 function close() {

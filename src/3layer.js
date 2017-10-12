@@ -85,6 +85,16 @@ var new_data_click_handler = lay3r.create_data_form_load(this);
   this.rhs_svg = rhs_svg;
   this.pivot_svg = pivot_svg;
   this.pivot_filter = null;
+var load3Way = lay3r.create_3way_loader(this);
+  theDialog.data('loadData', load3Way);
+
+}
+
+lay3r.create_3way_loader = function(layer) {
+  return function(lay3rOpts) {
+    //the user has chosen a 3 way relationship - now load the data.
+    data.fetch3LayerData(lay3rOpts, layer.handle_new_data.bind(layer))
+  }
 }
 
 lay3r.create_data_form_load = function(layer) {
@@ -96,19 +106,6 @@ lay3r.create_data_form_load = function(layer) {
 }
 
 lay3r.prototype.Handle3Ways = function(data) {
-  console.log("data");
-  console.log(data);
-console.log("data");
-
-//now open up the form
-// $( "#relations_table" ).selectable({
-//     filter: 'tr:not(:first)'
-// });
-
-
-
-
-
 
 
 
@@ -120,8 +117,7 @@ zz.push("<div id='dialog_container'>");
     zz.push("<div id='pivot_layers'>");
       zz.push("<select id='pivotSelect' onchange='pivot_change()'>");
       let first_pivot = getPivots(zz, data);
-      console.log("first_pivot");
-      console.log(first_pivot);
+
 
       zz.push("</select>");
     zz.push("</div>");
@@ -150,7 +146,7 @@ zz.push("</div>");
 
 var zzStr = zz.join('');
 theDialog.html(zzStr);
-theDialog.data('pivotDict', data)
+theDialog.data('pivotDict', data);
 
 $( "#relations_table" ).selectable({
       selecting: function(event, ui){
@@ -160,9 +156,17 @@ $( "#relations_table" ).selectable({
       }
       ,filter: 'tr:not(:first)'
       ,selected: function(e, ui){
-        console.log(ui);
+        var tableSelectFunc = $("#dialog").data('relationChange');
+
+        tableSelectFunc(ui.selected);
       }
 });
+
+
+//finally set the initial footer
+var ff = $( "#relations_table" )[0].rows[1];
+handleRelationChange(ff);
+console.log(ff);
 
 theDialog.dialog("open");
 
@@ -211,7 +215,7 @@ var margin = this.margins.margin;
 
 
               this.nav_svg = nav_svg;
-              console.log(nav_svg);
+
                nav.render(nav_svg, pivotLists.length, this.callback, this.pivot_level);
 
 
@@ -255,10 +259,6 @@ lay3r.prototype.render = function() {
 }
 
 lay3r.prototype.new_data = function(d) {
-  console.log("new data clickedf");
-  //get data
-  console.log(this);
-  console.log(this.handle_new_data);
   data.fetch3LayerData({}, this.handle_new_data)
 }
 
@@ -269,8 +269,6 @@ lay3r.create_data_handler = function(layer) {
 }
 
 lay3r.prototype.handle_new_data = function(lhs_hierarchy, rhs_hierarchy, pivotLists, pivotName) {
-  console.log("got new data");
-  console.log(lhs_hierarchy);
   this.renderLay3r(lhs_hierarchy, rhs_hierarchy, pivotLists, pivotName);
 }
 
@@ -870,7 +868,7 @@ function getRelatedLayers(htmlArray, data, pivot) {
         aa.push({pivot: pivot, layer: kk, rel: w.rel_name, rel_field: w.field})
       });
     });
-    console.log(aa);
+
     var qq = getPairings(aa);
 
     for (var i = 0; i < qq.length; i++) {
@@ -881,7 +879,7 @@ function getRelatedLayers(htmlArray, data, pivot) {
           htmlArray.push("<tr>");
       }
       let d = qq[i];
-      console.log(d);
+
       let lhs = d["lhs"];
       let rhs = d["rhs"];
       let str = `<td>${lhs.layer}</td><td>${lhs.rel}</td><td>${rhs.layer}</td><td>${rhs.rel}</td>`
@@ -911,13 +909,22 @@ function getPairings(a){
       }
     }
 
-    console.log(accum);
     return accum;
 }
 
-function handleRelationChange() {
-  console.log("handleRelationChange");
+function handleRelationChange(selectedRow) {
+
+  var pivotName = $('#pivotSelect').find(":selected").text();
+
+  var lhs = selectedRow.cells[0].innerText;
+  var lhs_field = selectedRow.cells[1].innerText;
+  var rhs = selectedRow.cells[2].innerText;
+  var rhs_field = selectedRow.cells[3].innerText;
+  theDialog.data('selectedInfo', {lhs: lhs, lhs_field: lhs_field, rhs: rhs, rhs_field: rhs_field})
+  var str = `${lhs} - ${pivotName} - ${rhs}`
+  $("#footer").text(str);
 }
+
 
 exports.create3Layer = create3Layer;
 exports.getRelatedLayers = getRelatedLayers;
