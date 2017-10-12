@@ -156,7 +156,7 @@ function assignRelationships(node, props) {
   }
 }
 
-function get3Ways(pivotDictionary){
+function get3Ways(){
   // var query = `MATCH (l:${lhs})-[rel:${rel_name}]-(r:${rhs}) \
   // RETURN id(l) as l_id, id(r) as r_id, l.title as l_title, r.title as r_title, case when rel.${field} is null then 1 else rel.${field} end as field `
 
@@ -177,7 +177,7 @@ function get3Ways(pivotDictionary){
   with r, labels(rhs)[0] as rhs_label, labels(lhs)[0] as lhs_label, rel_name, field, is_rhs_start \
   where labels(rhs)[0] in pivots \
   return distinct lhs_label, rhs_label, rel_name, field, is_rhs_start `
-  //var pivotDictionary = {};
+  var pivotDictionary = {};
   var lhsDictionary = null;
 
   var relations = null;
@@ -229,15 +229,16 @@ function get3Ways(pivotDictionary){
 
             relations.push({rel_name: rel_name, field: field, is_rhs_start: is_rhs_start})
           });
-          //console.log(pivotDictionary);
+          console.log("pivotDictionary");
+          console.log(pivotDictionary);
         //
         //   utils.traverseTree (hierarchy, assignRelationships, null, {rel_dict: sourceDictionary});
         //
-        return true;
+        return pivotDictionary;
       }
       else {
         console.log("no 3 ways")
-        return false;
+        return {name: "No 3 way relationships found"};
       }
       })
       .catch(error => {
@@ -246,50 +247,8 @@ function get3Ways(pivotDictionary){
       });
 }
 
-function jobLot(){
-  this.jobDict = {};
-}
-
-jobLot.prototype.addJob = function(jobFunc, params, callback){
-  let id = Object.keys(this.jobDict).length;
-
-
-  var jobStruct = {job: jobFunc, callback: callback, params: params};
-  this.jobDict[id] = jobStruct;
-}
-
-jobLot.prototype.doJobs = function(callback) {
-  this.jobComplete = callback;
-  var that = this;
-  Object.keys(this.jobDict).forEach(function(key) {
-    let cb = jobLot.createCallback(key, that);
-    let job = that.jobDict[key];
-    job.job(job.params, cb);
-  });
-}
-
-jobLot.prototype.jobDone = function(id, result){
-  let jobInfo = this.jobDict[id];
-  delete this.jobDict[id];
-  jobInfo.callback(result);   //need more complex structure if the callback itself needs async processing before the overall job lot can be considered complete.
-  if (Object.keys(this.jobDict).length == 0) {
-    //all jobs done.
-    this.jobComplete();
-  }
-}
-
-jobLot.createCallback = function(id, jobController) {
-  return function (result) {
-    jobController.jobDone(id, result);
-  }
-}
-
-jobLot.createJobLot = function() {
-  return new jobLot();
-}
 
 
 exports.getHierarchy = getHierarchy;
 exports.setRelationships = setRelationships;
-exports.createJobLot = jobLot.createJobLot;
 exports.get3Ways = get3Ways;

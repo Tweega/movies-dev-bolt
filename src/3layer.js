@@ -105,6 +105,53 @@ console.log("data");
 //     filter: 'tr:not(:first)'
 // });
 
+
+
+
+
+
+
+
+var zz = [];
+
+zz.push("<div id='dialog_container'>");
+  zz.push("<div id='inner_container'>");
+    zz.push("<div id='pivot_layers_label'>Pivot layers:</div>");
+    zz.push("<div id='pivot_layers'>");
+      zz.push("<select id='pivotSelect' onchange='pivot_change()'>");
+      let first_pivot = getPivots(zz, data);
+      console.log("first_pivot");
+      console.log(first_pivot);
+
+      zz.push("</select>");
+    zz.push("</div>");
+
+    zz.push("<div id='relations_table_container'>");
+      zz.push("<div id='table_header'>Layers that relate to pivot</div>");
+      zz.push("<table id='relations_table'>");
+
+        zz.push("<tr class='header_row'>");
+          zz.push("<td>LHS layer</td><td>LHS field</td><td>RHS layer</td><td>RHS field</td>");
+        zz.push("</tr>");
+
+        getRelatedLayers(zz, data, first_pivot);
+
+      zz.push("</table>");
+    zz.push("</div>");
+
+  zz.push("<div>");
+zz.push("</div>");
+zz.push("<div id='footer_gap'>");
+zz.push("<div id='footer'>footer here</div>");
+zz.push("</div>");
+
+zz.push("</div>");
+zz.push("</div>");
+
+var zzStr = zz.join('');
+theDialog.html(zzStr);
+theDialog.data('pivotDict', data)
+
 $( "#relations_table" ).selectable({
       selecting: function(event, ui){
             if( $(".ui-selected, .ui-selecting").length > 1){
@@ -117,9 +164,6 @@ $( "#relations_table" ).selectable({
       }
 });
 
-
-
-theDialog.data('pivotDict', data)
 theDialog.dialog("open");
 
 
@@ -789,6 +833,87 @@ function resetNode(node) {
 
 }
 
+
+
+function getPivots(htmlArray, data) {
+
+    var a = Object.keys(data).map(function (k, i) {
+      return k;
+    });
+  a.reduce(function(accum, pivot) {
+
+    let s = `<option>${pivot}</option>`
+
+      accum.push(s);
+
+    return accum;
+  }, htmlArray);
+
+  let retVal = a.length > 0 ? a[0] : "";
+  return retVal;
+
+
+  //
+  // htmlArray.push("<option id='1'>Organisation</option>");
+  // htmlArray.push("<option id='2'>S</option>");
+  // htmlArray.push("<option id='3'>Sd</option>");
+  // htmlArray.push("<option id='4'>process</option>");
+}
+
+function getRelatedLayers(htmlArray, data, pivot) {
+  var xx = data[pivot];
+  var aa = [];
+  if (typeof(xx) != "undefined") {
+    Object.keys(xx).forEach(function(kk, i){
+      let rels = xx[kk];
+      rels.forEach(function (w, j){
+        aa.push({pivot: pivot, layer: kk, rel: w.rel_name, rel_field: w.field})
+      });
+    });
+    console.log(aa);
+    var qq = getPairings(aa);
+
+    for (var i = 0; i < qq.length; i++) {
+      if (i == 0) {
+        htmlArray.push("<tr class='ui-selected'>");
+      }
+      else {
+          htmlArray.push("<tr>");
+      }
+      let d = qq[i];
+      console.log(d);
+      let lhs = d["lhs"];
+      let rhs = d["rhs"];
+      let str = `<td>${lhs.layer}</td><td>${lhs.rel}</td><td>${rhs.layer}</td><td>${rhs.rel}</td>`
+      htmlArray.push(str);
+    }
+
+
+  }
+}
+
+
+function getPairings(a){
+    var x = [];
+    var y = a;
+    var lhs = null;
+    var rhs = null;
+    var rest = [];
+    var head = null;
+    var accum = [];
+
+    for (var i = 0; i < a.length; i++) {
+      head = a[i];
+      rest = a.slice(i + 1);
+
+      for (var ii = 0; ii < rest.length; ii++) {
+        accum.push({lhs: head, rhs: rest[ii]});
+      }
+    }
+
+    console.log(accum);
+    return accum;
+}
 
 
 exports.create3Layer = create3Layer;

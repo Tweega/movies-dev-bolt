@@ -187,12 +187,13 @@ font-size: .7em;
 
 td {
 
-    background: yellowgreen;
+    background: #FFFFF0;
 
 }
 
 tr:first-child td {
     vertical-align: top;
+    background-color: #9ACD66;
 }
 
 .ui-selectable-helper {
@@ -282,8 +283,7 @@ margin:0px;
   bottom:0;
 
 
-
-
+margin-left:100px;
   width:100%;
 }
 #footer{
@@ -291,7 +291,7 @@ margin:0px;
   float:right;
 
   margin-bottom:30px;
-  margin-right:40px;
+  margin-right:140px;
 
 }
 
@@ -349,49 +349,9 @@ c.append(new_t);
 <!--dialog box-->
 <div class="ui-helper-clearfix dparent">
   <div id="dialog" class="dialogWithDropShadow" >
-    <div id="dialog_container">
-      <div id="inner_container">
-        <div id="pivot_layers_label">Pivot layers:</div>
-        <div id="pivot_layers">
-          <select id="pivotSelect" onchange="pivot_change()">
-            <option id="1">Organisation</option>
-            <option id="2">S</option>
-            <option id="3">Sd</option>
-            <option id="4">process</option>
-          </select>
-        </div>
-
-        <div id="relations_table_container">
-          <div id="table_header">Layers that relate to pivot</div>
-          <table id="relations_table">
-
-            <tr class="header_row">
-              <td>LHS layer</td><td>LHS field</td><td>RHS layer</td><td>RHS field</td>
-            </tr>
-
-            <tr class="ui-selected">
-              <td>Org</td><td>field</td><td>west</td><td>west</td>
-            </tr>
-            <tr>
-              <td>Proc</td><td>field</td><td>east</td><td>west</td>
-            </tr>
-            <tr>
-              <td>Proc</td><td>field</td><td>east</td><td>west</td>
-            </tr>
-
-          </table>
-        </div>
-
-      <div>
-    </div>
-    <div id="footer_gap">
-    <div id="footer">footer here</div>
-  </div>
-
-  </div>
 
 </div>
-
+</div>
 </body
 
 

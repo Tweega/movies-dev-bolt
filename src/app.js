@@ -1,7 +1,7 @@
 var layer = require('./3layer');
 var utils = require('./Utils');
 $(function () {
-  
+
   var opt = {
           autoOpen: false,
           modal: true,
@@ -23,10 +23,6 @@ $(function () {
 
 theDialog = $("#dialog").dialog(opt);
 
-$('.formSaver').on('click', function () {
-    //$('.myTarget').text($('.myInput').val());
-    theDialog.dialog("close");
-});
 
 
 // console.log($('#dialog').attr("id"));

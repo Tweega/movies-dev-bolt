@@ -284,9 +284,17 @@ function getPivotLists(pivotNode, pivotLists){
 }
 
 function fetch3Ways(cb) {
-  var pv = {};
-  var x = api.get3Ways(pv);
-  cb(pv);
+
+  api.get3Ways()
+  .then(pv => {
+
+      if (pv) {
+          //do follow-on stuff with hierarchy
+          console.log("pv");
+          console.log(pv);
+          cb(pv);
+      }
+    });
 }
 
 
