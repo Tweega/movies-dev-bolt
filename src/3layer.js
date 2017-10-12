@@ -915,5 +915,10 @@ function getPairings(a){
     return accum;
 }
 
+function handleRelationChange() {
+  console.log("handleRelationChange");
+}
 
 exports.create3Layer = create3Layer;
+exports.getRelatedLayers = getRelatedLayers;
+exports.handleRelationChange = handleRelationChange;

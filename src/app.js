@@ -22,8 +22,8 @@ $(function () {
 
 
 theDialog = $("#dialog").dialog(opt);
-
-
+theDialog.data('pivotChange', layer.getRelatedLayers);
+theDialog.data('relationChange', layer.handleRelationChange);
 
 // console.log($('#dialog').attr("id"));
 //  $('#dialog').dialog({
@@ -56,4 +56,8 @@ function ok(){
 
 function close() {
   console.log("cancel");
+}
+
+function pivot_change(d){
+  console.log("jelly");
 }

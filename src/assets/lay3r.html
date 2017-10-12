@@ -302,36 +302,62 @@ margin-left:100px;
 var theDialog = null;
 
 function pivot_change(e) {
+  //theDialog
+  var pivotName = $('#pivotSelect').find(":selected").text();
+  var my_data = $("#dialog").data('pivotDict');
+  var myFunc = $("#dialog").data('pivotChange');
+  var htmlArray = [];
 
-  var conceptName = $('#pivotSelect').find(":selected").text();
-  var my_data = $("#dialog").data('pivotDict')
-console.log(my_data);
  var t = document.getElementById("relations_table");
  var c = document.getElementById("relations_table_container");
-//console.log(c.id);
-
+// //console.log(c.id);
+//
 $(t).remove();
 
-var new_t = document.createElement("table");
-var new_tr = document.createElement("tr");
-new_t.append(new_tr)
-var new_td = document.createElement("td");
-var txt = document.createTextNode("hello");
-new_td.append(txt);
-new_tr.append(new_td);
-new_td = document.createElement("td");
-txt = document.createTextNode("hello");
-new_td.append(txt);
-new_tr.append(new_td);
+htmlArray.push("<table id='relations_table'>");
 
-new_td = document.createElement("td");
-txt = document.createTextNode("hello");
-new_td.append(txt);
-new_tr.append(new_td);
+  htmlArray.push("<tr class='header_row'>");
+    htmlArray.push("<td>LHS layer</td><td>LHS field</td><td>RHS layer</td><td>RHS field</td>");
+  htmlArray.push("</tr>");
+myFunc(htmlArray, my_data, pivotName);
 
-c.append(new_t);
-//$("#relations_table_container").remove("#relations_table");
-// $(c).remove(t);
+    htmlArray.push("</table>");
+
+
+
+c.innerHTML = htmlArray.join('');
+$( "#relations_table" ).selectable({
+      selecting: function(event, ui){
+            if( $(".ui-selected, .ui-selecting").length > 1){
+                  $(ui.selecting).removeClass("ui-selecting");
+            }
+      }
+      ,filter: 'tr:not(:first)'
+      ,selected: function(e, ui){
+        console.log(ui);
+      }
+});
+//
+// var new_t = document.createElement("table");
+// var new_tr = document.createElement("tr");
+// new_t.append(new_tr)
+// var new_td = document.createElement("td");
+// var txt = document.createTextNode("hello");
+// new_td.append(txt);
+// new_tr.append(new_td);
+// new_td = document.createElement("td");
+// txt = document.createTextNode("hello");
+// new_td.append(txt);
+// new_tr.append(new_td);
+//
+// new_td = document.createElement("td");
+// txt = document.createTextNode("hello");
+// new_td.append(txt);
+// new_tr.append(new_td);
+//
+// c.append(new_t);
+// //$("#relations_table_container").remove("#relations_table");
+// // $(c).remove(t);
 
 
 
