@@ -101,8 +101,28 @@ lay3r.prototype.Handle3Ways = function(data) {
 console.log("data");
 
 //now open up the form
+// $( "#relations_table" ).selectable({
+//     filter: 'tr:not(:first)'
+// });
+
+$( "#relations_table" ).selectable({
+      selecting: function(event, ui){
+            if( $(".ui-selected, .ui-selecting").length > 1){
+                  $(ui.selecting).removeClass("ui-selecting");
+            }
+      }
+      ,filter: 'tr:not(:first)'
+      ,selected: function(e, ui){
+        console.log(ui);
+      }
+});
+
+
+
 theDialog.data('pivotDict', data)
 theDialog.dialog("open");
+
+
 
 }
 

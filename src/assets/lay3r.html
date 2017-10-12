@@ -185,9 +185,29 @@ font-size: .7em;
     background: gold;
 }
 
+td {
+
+    background: yellowgreen;
+
+}
+
+tr:first-child td {
+    vertical-align: top;
+}
+
+.ui-selectable-helper {
+    position: absolute;
+    z-index: 100;
+    border: 1px solid #CCC;
+    background: rgba(200, 200, 200, .5);
+}
+
 #dialog{
   display: none;
+  height:100%;
 }
+
+
 
 .dialogWithDropShadow
      {
@@ -201,6 +221,80 @@ font-size: .7em;
 
 
 .dparent { clear: both; }
+
+#dialog_container{
+  margin: 20px;
+background-color: blue;
+
+
+}
+
+#inner_container{
+
+    float: left;
+    width:100%;
+    height:100%;
+    overflow: hidden;
+
+}
+
+
+#pivot_layers_label{
+    float: left;
+    margin-right: 10px;
+
+}
+
+#pivot_layers{
+    float: left;
+    margin-bottom:30px;
+}
+
+#relations_table_container{
+clear:left;
+  float: left;
+
+  width:100%;
+  height:100%;
+
+
+}
+
+#relations_table{
+  width:100%;
+  height:100%;
+
+margin:0px;
+  border: 1px solid black;
+}
+
+#table_header{
+  margin-bottom: 5px;
+
+}
+
+.header_row{
+  font-weight: bold;
+}
+
+#footer_gap{
+  position:absolute;
+  bottom:0;
+
+
+
+
+  width:100%;
+}
+#footer{
+
+  float:right;
+
+  margin-bottom:30px;
+  margin-right:40px;
+
+}
+
 </style>
 
 <script src="http://d3js.org/d3.v3.min.js" type="text/javascript"></script>
@@ -254,38 +348,48 @@ c.append(new_t);
 
 <!--dialog box-->
 <div class="ui-helper-clearfix dparent">
-  <div id="dialog" title="Basic dialog" class="dialogWithDropShadow" >
-    <div class="dialog_container">
-      <div class="pivot_layers_label">Pivot layers:</div>
-      <div class="pivot_layers">
-        <select id="pivotSelect" onchange="pivot_change()">
-          <option id="1">Organisation</option>
-          <option id="2">S</option>
-          <option id="3">Sd</option>
-          <option id="4">process</option>
-        </select>
-      </div>
-      <div id='relations_table_container'>
-        <table id="relations_table">
-          <thead>
-          <tr>
-            <th>lhs</th><th>field</th><th>direction</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Org</td><td>field</td><td>west</td>
-          </tr>
-          <tr>
-            <td>Proc</td><td>field</td><td>east</td>
-          </tr>
-        </tbody>
-        </table>
-      </div>
+  <div id="dialog" class="dialogWithDropShadow" >
+    <div id="dialog_container">
+      <div id="inner_container">
+        <div id="pivot_layers_label">Pivot layers:</div>
+        <div id="pivot_layers">
+          <select id="pivotSelect" onchange="pivot_change()">
+            <option id="1">Organisation</option>
+            <option id="2">S</option>
+            <option id="3">Sd</option>
+            <option id="4">process</option>
+          </select>
+        </div>
 
-      <button class ="formSaver">Save me!</button>
+        <div id="relations_table_container">
+          <div id="table_header">Layers that relate to pivot</div>
+          <table id="relations_table">
+
+            <tr class="header_row">
+              <td>LHS layer</td><td>LHS field</td><td>RHS layer</td><td>RHS field</td>
+            </tr>
+
+            <tr class="ui-selected">
+              <td>Org</td><td>field</td><td>west</td><td>west</td>
+            </tr>
+            <tr>
+              <td>Proc</td><td>field</td><td>east</td><td>west</td>
+            </tr>
+            <tr>
+              <td>Proc</td><td>field</td><td>east</td><td>west</td>
+            </tr>
+
+          </table>
+        </div>
+
+      <div>
     </div>
+    <div id="footer_gap">
+    <div id="footer">footer here</div>
   </div>
+
+  </div>
+
 </div>
 
 </body
