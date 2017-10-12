@@ -33,7 +33,10 @@ theDialog.data('relationChange', layer.handleRelationChange);
 function ok(){
   console.log("ok");
   var loader = theDialog.data('loadData');
-  loader({});
+  console.log("theDialog.data.selectedInfo");
+  console.log(theDialog.data('selectedInfo'));
+  var opts = theDialog.data('selectedInfo');
+  loader(opts);
 }
 
 function close() {

@@ -3,7 +3,7 @@ var layer = require('./3layer');
 var utils = require('./Utils');
 
 function fetch3LayerData(params, callback) {
- var params = {};
+ // var params = {};
 
 // not sure if promises below are meant to be so nested as below,  experimented with a job scheduler approach, but not enought time to go down that road
 // as we need to be able to have job schedulers as scheduled items.
@@ -15,14 +15,14 @@ function fetch3LayerData(params, callback) {
   // params["lhs_rel_field"] = "ftes";
   // params["rhs_rel"] = "supports";
   // params["rhs_rel_field"] = "supports";
-
-  params["lhs"] = "Governance";
-  params["rhs"] = "Process";
-  params["pivot"] = "Organisation";
-  params["lhs_rel"] = "gov_att";
-  params["lhs_rel_field"] = "gov_att";
-  params["rhs_rel"] = "job_role_to_process";
-  params["rhs_rel_field"] = "job_role_to_process";
+  //
+  // params["lhs"] = "Governance";
+  // params["rhs"] = "Process";
+  // params["pivot"] = "Organisation";
+  // params["lhs_rel"] = "gov_att";
+  // params["lhs_rel_field"] = "gov_att";
+  // params["rhs_rel"] = "job_role_to_process";
+  // params["rhs_rel_field"] = "job_role_to_process";
 
   var depth = {lhs: 0, rhs: 0};
 

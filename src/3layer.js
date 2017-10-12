@@ -8,6 +8,7 @@ var data = require('./lay3r_data');
 function create3Layer() {
   //lhs_hierarchy, rhs_hierarchy, pivotLists, pivotName
   //if we already have data, we will propbably have to do something here to clear it out.
+  console.log("ok so we get a new object completely");
   return new lay3r();
 }
 
@@ -93,6 +94,7 @@ var load3Way = lay3r.create_3way_loader(this);
 lay3r.create_3way_loader = function(layer) {
   return function(lay3rOpts) {
     //the user has chosen a 3 way relationship - now load the data.
+    console.log(lay3rOpts);
     data.fetch3LayerData(lay3rOpts, layer.handle_new_data.bind(layer))
   }
 }
@@ -178,7 +180,41 @@ theDialog.dialog("open");
 
 lay3r.prototype.renderLay3r = function(lhs_hierarchy, rhs_hierarchy, pivotLists, pivotName) {
   //if we already have data etc. clear everything out first
+//console.log(this.lhs_hierarchies);
+console.log("que?");
+  if (this.lhs_hierarchies != null) {
+    console.log("pasa?");
+    this.lhs_hierarchies = null;
+    this.rhs_hierarchies = null;
+    this.pivot_lists = null;
+    this.pivot_list = null;
+    this.pivot_level = 0;
+    this.schutz = {};
+    this.schutz[utils.getSideStr(utils.consts.LHS)] = {neo_id: -1};
+    this.schutz[utils.getSideStr(utils.consts.RHS)] = {neo_id: -1};
 
+    if (typeof(this.prev_filter_id) == "undefined") {
+      delete this.prev_filter_id;
+    }
+
+    this.lhs_svg.selectAll("*").remove();
+    this.rhs_svg.selectAll("*").remove();
+    this.pivot_svg.selectAll("*").remove();
+    this.nav_svg.selectAll("*").remove();
+    this.info_svg.selectAll("*").remove();
+
+    // this.svg.selectAll("*").remove();
+
+    // this.lhs_svg = null;
+    // this.rhs_svg = null;
+    // this.pivot_svg = null;
+    // this.nav_svg = null;
+    // this.svg = null;
+    console.log("hello there");
+
+
+
+  }
 
   this.lhs_hierarchies = [lhs_hierarchy];
   this.rhs_hierarchies = [rhs_hierarchy];
@@ -269,6 +305,7 @@ lay3r.create_data_handler = function(layer) {
 }
 
 lay3r.prototype.handle_new_data = function(lhs_hierarchy, rhs_hierarchy, pivotLists, pivotName) {
+  console.log("do we come here?");
   this.renderLay3r(lhs_hierarchy, rhs_hierarchy, pivotLists, pivotName);
 }
 
@@ -920,7 +957,10 @@ function handleRelationChange(selectedRow) {
   var lhs_field = selectedRow.cells[1].innerText;
   var rhs = selectedRow.cells[2].innerText;
   var rhs_field = selectedRow.cells[3].innerText;
-  theDialog.data('selectedInfo', {lhs: lhs, lhs_field: lhs_field, rhs: rhs, rhs_field: rhs_field})
+  console.log("we need to have access to the relationship name and the field thast carries the relationship?");
+
+
+  theDialog.data('selectedInfo', {pivot: pivotName, lhs: lhs, lhs_rel: lhs_field, lhs_rel_field: lhs_field, rhs: rhs, rhs_rel: rhs_field, rhs_rel_field: rhs_field});
   var str = `${lhs} - ${pivotName} - ${rhs}`
   $("#footer").text(str);
 }
