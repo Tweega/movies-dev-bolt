@@ -221,7 +221,8 @@ function initialiseRels(leafNode, processDescendantsMap, processKey) {
     //var filterRequired = typeof(child.relationships) != "undefined" ? !processInfo.isRoot : false;
     var filterRequired = true;
 
-    var cxRels = {};
+
+    var cxRels = typeof(cx[processKey]) != "undefined" ? cx[processKey] : {};
 
 
     var filteredRelationships = leafNode.relationships;
