@@ -1,0 +1,2 @@
+0.0.1   There is no release with this version explicitly attached to it.  This represents the version released for the initial user forum.
+0.0.2   This has a version number in top right of screen, and clicking on the Deloitte icon allows the user to select Layer data to display.
