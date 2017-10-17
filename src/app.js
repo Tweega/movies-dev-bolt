@@ -25,10 +25,14 @@ theDialog = $("#dialog").dialog(opt);
 theDialog.data('pivotChange', layer.getRelatedLayers);
 theDialog.data('relationChange', layer.handleRelationChange);
 
-           var lay3r = layer.create3Layer();
+
 
 
 }) //$function
+
+$( window ).load(function() {
+  var lay3r = layer.create3Layer();
+});
 
 function ok(){
   console.log("ok");

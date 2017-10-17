@@ -144,7 +144,7 @@ function render(hierarchy, side, svg, margins, pivots, callback) {
             return stroke_width;
           })
           .attr("id", function(d) {
-            return "link_" + d.source.neo_id + "_" + d.target.neo_id;
+            return "link_" + sideStr + d.source.neo_id + "_" + d.target.neo_id;
           })
         .attr("d", function(d) {
           var o = {x: source.x0, y: source.y0};
