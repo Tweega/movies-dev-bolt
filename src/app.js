@@ -35,18 +35,11 @@ $( window ).load(function() {
 });
 
 function ok(){
-  console.log("ok");
   var loader = theDialog.data('loadData');
-  console.log("theDialog.data.selectedInfo");
-  console.log(theDialog.data('selectedInfo'));
   var opts = theDialog.data('selectedInfo');
   loader(opts);
 }
 
 function close() {
-  console.log("cancel");
-}
-
-function pivot_change(d){
-  console.log("jelly");
+  //console.log("cancel");
 }

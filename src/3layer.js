@@ -193,7 +193,6 @@ lay3r.prototype.renderLay3r = function(lhs_hierarchy, rhs_hierarchy, pivotLists,
     if (typeof(this.prev_filter_id) != "undefined") {
       delete this.prev_filter_id;
     }
-console.log(pivotLists);
 
 this.pivot_svg.selectAll("*").remove(); //not sure why we have to do this.
 this.pivot_filter = null;
@@ -962,7 +961,7 @@ function handleRelationChange(selectedRow) {
   var lhs_field = selectedRow.cells[1].innerText;
   var rhs = selectedRow.cells[2].innerText;
   var rhs_field = selectedRow.cells[3].innerText;
-  console.log("we need to have access to the relationship name and the field that carries the relationship?");
+  //console.log("we need to have access to the relationship name and the field that carries the relationship?");
 
 
   theDialog.data('selectedInfo', {pivot: pivotName, lhs: lhs, lhs_rel: lhs_field, lhs_rel_field: lhs_field, rhs: rhs, rhs_rel: rhs_field, rhs_rel_field: rhs_field});
