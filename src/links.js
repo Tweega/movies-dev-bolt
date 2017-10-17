@@ -34,8 +34,9 @@ function render_links(hierarchy, pivots, svg, dock_side, item_height) {
             var temp_item_height = 20;
             let stroke_width = Math.max(Math.round((sum / total_out) * 10 * temp_item_height) / 10, 0.1);
             let xFudge = 4 * (dock_side == utils.consts.LHS ? 1 : -1);
+            let source_id = sideStr + leaf.neo_id.toString();
 
-            links.push({source_id: leaf.neo_id, target_id: r.neo_id, source: leaf.name, target: rel, source_x: leaf.x, source_y: leaf.y + xFudge, target_x: dock_x, target_y: r.dock_y, sw: stroke_width});
+            links.push({source_id: source_id, target_id: r.neo_id, source: leaf.name, target: rel, source_x: leaf.x, source_y: leaf.y + xFudge, target_x: dock_x, target_y: r.dock_y, sw: stroke_width});
           }
         });
       });
