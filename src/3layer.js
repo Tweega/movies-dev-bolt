@@ -190,9 +190,23 @@ lay3r.prototype.renderLay3r = function(lhs_hierarchy, rhs_hierarchy, pivotLists,
     this.schutz[utils.getSideStr(utils.consts.LHS)] = {neo_id: -1};
     this.schutz[utils.getSideStr(utils.consts.RHS)] = {neo_id: -1};
 
-    if (typeof(this.prev_filter_id) == "undefined") {
+    if (typeof(this.prev_filter_id) != "undefined") {
       delete this.prev_filter_id;
     }
+console.log(pivotLists);
+
+this.pivot_svg.selectAll("*").remove(); //not sure why we have to do this.
+this.pivot_filter = null;
+
+// this.lhs_svg.selectAll(".hide1").classed("hide1", false);
+// this.rhs_svg.selectAll(".hide1").classed("hide1", false);
+// this.lhs_svg.selectAll(".hide2").classed("hide2", false);
+// this.rhs_svg.selectAll(".hide2").classed("hide2", false);
+// this.lhs_svg.selectAll(".link").remove();
+// this.rhs_svg.selectAll(".link").remove();
+//let eid = "pivot_" + this.prev_filter_id;
+//delete this.prev_filter_id;
+
 
     this.lhs_svg.selectAll("*").remove();
     this.rhs_svg.selectAll("*").remove();
@@ -538,7 +552,7 @@ reapplies = [];
   }, reapplies);
 
 
-    this.pivot_filter = {is_filter: true, total_items: 1, list: [[data]]};
+    this.pivot_filter = {is_filter_ignore: true, total_items: 1, list: [[data]]};
 
     let eID = "pivot_" + data.neo_id;
 
