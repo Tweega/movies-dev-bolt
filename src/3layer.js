@@ -455,15 +455,12 @@ lay3r.prototype.handle_message = function(data, msg_id, side) {
         other_side_svg_links.selectAll(".schutz").classed("schutz", false);
         other_side_svg_links.selectAll(".hide1").classed("hide1", false);
 
-        console.log(this.schutz[otherSideStr].neo_id);
         var otherSchutz = this.schutz[otherSideStr];
         var other_neo_id = otherSchutz.neo_id;
         if (other_neo_id > 0) {
-          //re-apply
+          //re-apply filter on the other side
           this.schutz[otherSideStr] = {neo_id: -1};
-          //this.handle_message = function(data, msg_id, side) {
-          console.log(data);
-          let otherSide = utils.getOtherSide();
+          let otherSide = utils.getOtherSide(side);
           this.handle_message(otherSchutz, tree.MSG_HIGHLIGHT_PATH, otherSide);
         }
 
