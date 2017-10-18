@@ -5,8 +5,8 @@ $(function () {
   var opt = {
           autoOpen: false,
           modal: true,
-          width: 550,
-          height:650,
+          width: 700,
+          height:690,
           title: '3 Way relationships - layer selection',
           buttons: {
                               "Ok": function() {
