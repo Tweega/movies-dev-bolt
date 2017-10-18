@@ -408,6 +408,12 @@ lay3r.prototype.handle_message = function(data, msg_id, side) {
       click_side_svg_nodes = this.lhs_svg_nodes;
       other_side_hierarchy = this.rhs_hierarchies[this.rhs_hierarchies.length - 1];
       other_side_svg_nodes = this.rhs_svg_nodes;
+
+
+      click_side_svg_links = this.lhs_svg_links;
+      other_side_svg_links = this.rhs_svg_links;
+
+
       sideStr = "lhs_";
       otherSideStr = "rhs_"
     }
@@ -416,6 +422,10 @@ lay3r.prototype.handle_message = function(data, msg_id, side) {
       click_side_svg_nodes = this.rhs_svg_nodes;
       other_side_hierarchy = this.lhs_hierarchies[this.lhs_hierarchies.length - 1];
       other_side_svg_nodes = this.lhs_svg_nodes;
+
+      click_side_svg_links = this.rhs_svg_links;
+      other_side_svg_links = this.lhs_svg_links;
+
       sideStr = "rhs_";
       otherSideStr = "lhs_"
     }
@@ -429,10 +439,33 @@ lay3r.prototype.handle_message = function(data, msg_id, side) {
         // this.lhs_svg_nodes.selectAll(".schutz").classed("schutz", false);
         // this.lhs_svg_nodes.selectAll(".hide1").classed("hide1", false);
 
-        click_side_svg.selectAll(".schutz").classed("schutz", false);
-        click_side_svg.selectAll(".hide1").classed("hide1", false);
+        //if we remove a filter, then
+          //remove filter from other side
+          //then replace other side filter if there is one.
+
+        click_side_svg_nodes.selectAll(".schutz").classed("schutz", false);
+        click_side_svg_nodes.selectAll(".hide1").classed("hide1", false);
+        click_side_svg_links.selectAll(".schutz").classed("schutz", false);
+        click_side_svg_links.selectAll(".hide1").classed("hide1", false);
 
         this.schutz[sideStr] = {neo_id: -1};
+
+        other_side_svg_nodes.selectAll(".schutz").classed("schutz", false);
+        other_side_svg_nodes.selectAll(".hide1").classed("hide1", false);
+        other_side_svg_links.selectAll(".schutz").classed("schutz", false);
+        other_side_svg_links.selectAll(".hide1").classed("hide1", false);
+
+        console.log(this.schutz[otherSideStr].neo_id);
+        var otherSchutz = this.schutz[otherSideStr];
+        var other_neo_id = otherSchutz.neo_id;
+        if (other_neo_id > 0) {
+          //re-apply
+          this.schutz[otherSideStr] = {neo_id: -1};
+          //this.handle_message = function(data, msg_id, side) {
+          console.log(data);
+          let otherSide = utils.getOtherSide();
+          this.handle_message(otherSchutz, tree.MSG_HIGHLIGHT_PATH, otherSide);
+        }
 
       }
       else {
@@ -490,6 +523,15 @@ lay3r.prototype.handle_message = function(data, msg_id, side) {
 
         this.lhs_svg_nodes.selectAll(".schutz").classed("schutz", false);
         this.rhs_svg_nodes.selectAll(".schutz").classed("schutz", false);
+
+        this.lhs_svg_links.selectAll(".schutz>*").classed("schutz", true);
+        this.lhs_svg_links.selectAll(":not(.schutz)").classed("hide1", true);
+
+        this.rhs_svg_links.selectAll(".schutz>*").classed("schutz", true);
+        this.rhs_svg_links.selectAll(":not(.schutz)").classed("hide1", true);
+
+        this.lhs_svg_links.selectAll(".schutz").classed("schutz", false);
+        this.rhs_svg_links.selectAll(".schutz").classed("schutz", false);
 
       }
     }

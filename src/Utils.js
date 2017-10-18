@@ -85,6 +85,10 @@ function getSideStr(side) {
     return side == consts.LHS ? "lhs_" : "rhs_";
 }
 
+function getOtherSide(side) {
+    return side == consts.LHS ? consts.RHS : consts.LHS;
+}
+
 const DELOITTE_GREEN = "#3A9238";
 const AZUL_EL_HIERRO = "#00A1DE";
 const DELOITTE_GREEN_DOT = "#9ACD66";
@@ -105,3 +109,4 @@ exports.traverseTree = traverseTree;
 exports.consts = consts;
 exports.getSideStr = getSideStr;
 exports.deloitte_colour = deloitte_colour;
+exports.getOtherSide = getOtherSide;
