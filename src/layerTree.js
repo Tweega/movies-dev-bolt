@@ -5,7 +5,7 @@ const MSG_MAKE_NEW_ROOT = 222;
 const MSG_REDRAW_LINKS = 333;
 const MSG_NONE = 0;
 
-function render(hierarchy, side, svg, margins, pivots, callback) {
+function render(hierarchy, side, svg_nodes, svg_links, margins, pivots, callback) {
   if (typeof(side) == "undefined") {
     side = utils.consts.LHS;
   }
@@ -64,7 +64,7 @@ function render(hierarchy, side, svg, margins, pivots, callback) {
     }
 
     // Update the nodes…
-    var node = svg.selectAll("g.node")
+    var node = svg_nodes.selectAll("g.node")
         .data(nodes, function(d) { return d.id || (d.id = ++i); });
 
     // Enter any new nodes at the parent's previous position.
@@ -114,7 +114,7 @@ function render(hierarchy, side, svg, margins, pivots, callback) {
         .style("fill-opacity", 1e-6);
 
     // Update the links…
-    var link = svg.selectAll("path.link")
+    var link = svg_links.selectAll("path.link")
         .data(links, function(d) { return d.target.id; });
 
     // Enter any new links at the parent's previous position.

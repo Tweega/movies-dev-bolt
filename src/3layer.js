@@ -15,8 +15,8 @@ function create3Layer() {
 function lay3r() {
   this.lhs_hierarchies = null;
   this.rhs_hierarchies = null;
-  this.lhs_svg = null;
-  this.rhs_svg = null;
+  this.lhs_svg_nodes = null;
+  this.rhs_svg_nodes = null;
   this.pivot_svg = null;
   this.pivot_lists = null;
   this.pivot_list = null;
@@ -78,12 +78,20 @@ var new_data_click_handler = lay3r.create_data_form_load(this);
   .attr("class", "new_data_button")
   .on("click", new_data_click_handler );
 
-  let pivot_svg = svg.append("g");
-  let lhs_svg = svg.append("g");
-  let rhs_svg = svg.append("g");
 
-  this.lhs_svg = lhs_svg;
-  this.rhs_svg = rhs_svg;
+  let pivot_svg = svg.append("g");
+
+  let lhs_svg_links = svg.append("g");
+  let rhs_svg_links = svg.append("g");
+
+  let lhs_svg_nodes = svg.append("g");
+  let rhs_svg_nodes = svg.append("g");
+
+
+  this.lhs_svg_nodes = lhs_svg_nodes;
+  this.rhs_svg_nodes = rhs_svg_nodes;
+  this.lhs_svg_links = lhs_svg_links;
+  this.rhs_svg_links = rhs_svg_links;
   this.pivot_svg = pivot_svg;
   this.pivot_filter = null;
 var load3Way = lay3r.create_3way_loader(this);
@@ -197,26 +205,28 @@ lay3r.prototype.renderLay3r = function(lhs_hierarchy, rhs_hierarchy, pivotLists,
 this.pivot_svg.selectAll("*").remove(); //not sure why we have to do this.
 this.pivot_filter = null;
 
-// this.lhs_svg.selectAll(".hide1").classed("hide1", false);
-// this.rhs_svg.selectAll(".hide1").classed("hide1", false);
-// this.lhs_svg.selectAll(".hide2").classed("hide2", false);
-// this.rhs_svg.selectAll(".hide2").classed("hide2", false);
-// this.lhs_svg.selectAll(".link").remove();
-// this.rhs_svg.selectAll(".link").remove();
+// this.lhs_svg_nodes.selectAll(".hide1").classed("hide1", false);
+// this.rhs_svg_nodes.selectAll(".hide1").classed("hide1", false);
+// this.lhs_svg_nodes.selectAll(".hide2").classed("hide2", false);
+// this.rhs_svg_nodes.selectAll(".hide2").classed("hide2", false);
+// this.lhs_svg_nodes.selectAll(".link").remove();
+// this.rhs_svg_nodes.selectAll(".link").remove();
 //let eid = "pivot_" + this.prev_filter_id;
 //delete this.prev_filter_id;
 
 
-    this.lhs_svg.selectAll("*").remove();
-    this.rhs_svg.selectAll("*").remove();
+    this.lhs_svg_nodes.selectAll("*").remove();
+    this.rhs_svg_nodes.selectAll("*").remove();
+    this.lhs_svg_links.selectAll("*").remove();
+    this.rhs_svg_links.selectAll("*").remove();
     this.pivot_svg.selectAll("*").remove();
     this.nav_svg.selectAll("*").remove();
     this.info_svg.selectAll("*").remove();
 
     // this.svg.selectAll("*").remove();
 
-    // this.lhs_svg = null;
-    // this.rhs_svg = null;
+    // this.lhs_svg_nodes = null;
+    // this.rhs_svg_nodes = null;
     // this.pivot_svg = null;
     // this.nav_svg = null;
     // this.svg = null;
@@ -273,8 +283,11 @@ lay3r.prototype.render = function() {
   var margins = this.margins;
   var pivotLists = this.pivot_lists;
   var pivot_list = this.pivot_filter != null ?  this.pivot_filter : pivotLists[this.pivot_level];
-  var lhs_svg = this.lhs_svg;
-  var rhs_svg = this.rhs_svg;
+  var lhs_svg_nodes = this.lhs_svg_nodes;
+  var rhs_svg_nodes = this.rhs_svg_nodes;
+  var lhs_svg_links = this.lhs_svg_links;
+  var rhs_svg_links = this.rhs_svg_links;
+
   var pivot_svg = this.pivot_svg;
 
   pivot.render(pivot_list, this.pivot_level, pivot_svg, margins, this.callback);
@@ -290,13 +303,13 @@ lay3r.prototype.render = function() {
   this.pivots = pivots;
   let lhs_hierarchy = this.lhs_hierarchies[this.lhs_hierarchies.length - 1];
   let rhs_hierarchy = this.rhs_hierarchies[this.rhs_hierarchies.length - 1];
-  tree.render(lhs_hierarchy, utils.consts.LHS, lhs_svg, margins, pivots, this.callback);  //perhaps get a return value if there is a more suitable container to use for links
-  tree.render(rhs_hierarchy, utils.consts.RHS, rhs_svg, margins, pivots, this.callback);
+  tree.render(lhs_hierarchy, utils.consts.LHS, lhs_svg_nodes, lhs_svg_links, margins, pivots, this.callback);  //perhaps get a return value if there is a more suitable container to use for links
+  tree.render(rhs_hierarchy, utils.consts.RHS, rhs_svg_nodes, rhs_svg_links, margins, pivots, this.callback);
 
   //get a list of the lhs links that we need to draw
   //first get a collection of nodes that have no _children.
-  links.render(lhs_hierarchy, pivots, lhs_svg, utils.consts.LHS);
-  links.render(rhs_hierarchy, pivots, rhs_svg, utils.consts.RHS);
+  links.render(lhs_hierarchy, pivots, lhs_svg_links, utils.consts.LHS);
+  links.render(rhs_hierarchy, pivots, rhs_svg_links, utils.consts.RHS);
 
 }
 
@@ -324,11 +337,11 @@ lay3r.prototype.handle_message = function(data, msg_id, side) {
     case tree.MSG_REDRAW_LINKS :
       switch (side) {
         case utils.consts.LHS :
-          links.render(this.lhs_hierarchies[this.lhs_hierarchies.length - 1], this.pivots, this.lhs_svg, side);
+          links.render(this.lhs_hierarchies[this.lhs_hierarchies.length - 1], this.pivots, this.lhs_svg_links, side);
         break;
 
       case utils.consts.RHS :
-        links.render(this.rhs_hierarchies[this.rhs_hierarchies.length - 1], this.pivots, this.rhs_svg, side);
+        links.render(this.rhs_hierarchies[this.rhs_hierarchies.length - 1], this.pivots, this.rhs_svg_links, side);
       break;
       }
     break;
@@ -347,15 +360,15 @@ lay3r.prototype.handle_message = function(data, msg_id, side) {
 
       this.pivot_filter = null;
 
-      this.lhs_svg.selectAll(".hide2").classed("hide2", false);
-      this.rhs_svg.selectAll(".hide2").classed("hide2", false);
-      this.lhs_svg.selectAll(".hide1").classed("hide1", false);
-      this.rhs_svg.selectAll(".hide1").classed("hide1", false);
-      this.lhs_svg.selectAll(".link").remove();
-      this.rhs_svg.selectAll(".link").remove();
+      this.lhs_svg_nodes.selectAll(".hide2").classed("hide2", false);
+      this.rhs_svg_nodes.selectAll(".hide2").classed("hide2", false);
+      this.lhs_svg_nodes.selectAll(".hide1").classed("hide1", false);
+      this.rhs_svg_nodes.selectAll(".hide1").classed("hide1", false);
+      this.lhs_svg_links.selectAll(".link").remove();
+      this.rhs_svg_links.selectAll(".link").remove();
       this.pivot_svg.selectAll("*").remove();
-      // this.rhs_svg.selectAll("*").remove();
-      // this.lhs_svg.selectAll("*").remove();
+      // this.rhs_svg_nodes.selectAll("*").remove();
+      // this.lhs_svg_nodes.selectAll("*").remove();
       this.pivot_level = data;
       this.render();
       nav.render(this.nav_svg, this.pivot_lists .length, this.callback, this.pivot_level);
@@ -381,26 +394,28 @@ lay3r.prototype.handle_message = function(data, msg_id, side) {
 
     //traverse this data node, marking all descendants and links as being for highlighting
     var click_side_hierarchy = null;
-    var click_side_svg = null;
+    var click_side_svg_nodes = null;
+    var click_side_svg_links = null;
     var other_side_hierarchy = null;
-    var other_side_svg = null;
+    var other_side_svg_nodes = null;
+    var other_side_svg_links = null;
     //let sideStr = "";
     let otherSideStr = "";
     var filtered_pivots = {};
 
     if (side == utils.consts.LHS) {
       click_side_hierarchy = this.lhs_hierarchies[this.lhs_hierarchies.length - 1];
-      click_side_svg = this.lhs_svg;
+      click_side_svg_nodes = this.lhs_svg_nodes;
       other_side_hierarchy = this.rhs_hierarchies[this.rhs_hierarchies.length - 1];
-      other_side_svg = this.rhs_svg;
+      other_side_svg_nodes = this.rhs_svg_nodes;
       sideStr = "lhs_";
       otherSideStr = "rhs_"
     }
     else {
       click_side_hierarchy = this.rhs_hierarchies[this.rhs_hierarchies.length - 1];
-      click_side_svg = this.rhs_svg;
+      click_side_svg_nodes = this.rhs_svg_nodes;
       other_side_hierarchy = this.lhs_hierarchies[this.lhs_hierarchies.length - 1];
-      other_side_svg = this.lhs_svg;
+      other_side_svg_nodes = this.lhs_svg_nodes;
       sideStr = "rhs_";
       otherSideStr = "lhs_"
     }
@@ -411,8 +426,8 @@ lay3r.prototype.handle_message = function(data, msg_id, side) {
     if (data.neo_id != click_side_hierarchy.neo_id || typeof(data.parent) != "undefined") {
 
       if (data.neo_id == side_schutz.neo_id) {
-        // this.lhs_svg.selectAll(".schutz").classed("schutz", false);
-        // this.lhs_svg.selectAll(".hide1").classed("hide1", false);
+        // this.lhs_svg_nodes.selectAll(".schutz").classed("schutz", false);
+        // this.lhs_svg_nodes.selectAll(".hide1").classed("hide1", false);
 
         click_side_svg.selectAll(".schutz").classed("schutz", false);
         click_side_svg.selectAll(".hide1").classed("hide1", false);
@@ -467,14 +482,14 @@ lay3r.prototype.handle_message = function(data, msg_id, side) {
             let discard = pop_and_check_rels([other_side_hierarchy], filtered_pivots, sideStr);
         }
 
-        this.lhs_svg.selectAll(".schutz>*").classed("schutz", true);
-        this.lhs_svg.selectAll(":not(.schutz)").classed("hide1", true);
+        this.lhs_svg_nodes.selectAll(".schutz>*").classed("schutz", true);
+        this.lhs_svg_nodes.selectAll(":not(.schutz)").classed("hide1", true);
 
-        this.rhs_svg.selectAll(".schutz>*").classed("schutz", true);
-        this.rhs_svg.selectAll(":not(.schutz)").classed("hide1", true);
+        this.rhs_svg_nodes.selectAll(".schutz>*").classed("schutz", true);
+        this.rhs_svg_nodes.selectAll(":not(.schutz)").classed("hide1", true);
 
-        this.lhs_svg.selectAll(".schutz").classed("schutz", false);
-        this.rhs_svg.selectAll(".schutz").classed("schutz", false);
+        this.lhs_svg_nodes.selectAll(".schutz").classed("schutz", false);
+        this.rhs_svg_nodes.selectAll(".schutz").classed("schutz", false);
 
       }
     }
@@ -484,14 +499,19 @@ lay3r.prototype.handle_message = function(data, msg_id, side) {
 
     var isRoot = typeof(data.isRoot) == "undefined" ? false : data.isRoot;
     var hierarchies = null;
-    var svg = null;
+    var svg_nodes = null;
+    var svg_links = null;
+
     if (side == utils.consts.LHS) {
       hierarchies = this.lhs_hierarchies;
-      svg = this.lhs_svg;
+      svg_nodes = this.lhs_svg_nodes;
+      svg_links = this.lhs_svg_links;
+
     }
     else {
       hierarchies = this.rhs_hierarchies;
-      svg = this.rhs_svg;
+      svg_nodes = this.rhs_svg_nodes;
+      svg_links = this.rhs_svg_links;
     }
 
     if (typeof(data.parent) != "undefined") {
@@ -499,15 +519,15 @@ lay3r.prototype.handle_message = function(data, msg_id, side) {
         delete data["isRoot"];
         hierarchies.pop();
         var x = hierarchies[hierarchies.length - 1];
-        tree.render(x, side, svg, this.margins, this.pivots, this.callback);  //perhaps get a return value if there is a more suitable container to use for links
-        links.render(x, this.pivots, svg, side);
+        tree.render(x, side, svg_nodes, svg_links, this.margins, this.pivots, this.callback);  //perhaps get a return value if there is a more suitable container to use for links
+        links.render(x, this.pivots, svg_links, side);
       }
       else {
         data["isRoot"] = true;
         hierarchies.push(data);
 
-        tree.render(data, side, svg, this.margins, this.pivots, this.callback);  //perhaps get a return value if there is a more suitable container to use for links
-        links.render(data, this.pivots, svg, side);
+        tree.render(data, side, svg_nodes, svg_links, this.margins, this.pivots, this.callback);  //perhaps get a return value if there is a more suitable container to use for links
+        links.render(data, this.pivots, svg_links, side);
 
       }
     }
@@ -517,23 +537,25 @@ lay3r.prototype.handle_message = function(data, msg_id, side) {
   // this.schutz[utils.getSideStr(utils.consts.LHS)] = {neo_id: -1};
   // this.schutz[utils.getSideStr(utils.consts.RHS)] = {neo_id: -1};
 
-  this.lhs_svg.selectAll(".hide2").classed("hide2", false);
+  this.lhs_svg_nodes.selectAll(".hide2").classed("hide2", false);
 
   ///////
-  this.lhs_svg.selectAll(".hide1").classed("hide1", false); //this only affects if there is a filter path
+  this.lhs_svg_nodes.selectAll(".hide1").classed("hide1", false); //this only affects if there is a filter path
 
-  this.rhs_svg.selectAll(".hide2").classed("hide2", false);
+  this.rhs_svg_nodes.selectAll(".hide2").classed("hide2", false);
 
   ///////
-  this.rhs_svg.selectAll(".hide1").classed("hide1", false); //this only affects if there is a filter path
+  this.rhs_svg_nodes.selectAll(".hide1").classed("hide1", false); //this only affects if there is a filter path
 
-this.lhs_svg.selectAll("*").remove();
-this.rhs_svg.selectAll("*").remove();
+this.lhs_svg_nodes.selectAll("*").remove();
+this.rhs_svg_nodes.selectAll("*").remove();
+this.lhs_svg_links.selectAll("*").remove();
+this.rhs_svg_links.selectAll("*").remove();
 
   let lhs_hierarchy = this.lhs_hierarchies[this.lhs_hierarchies.length - 1];
   let rhs_hierarchy = this.rhs_hierarchies[this.rhs_hierarchies.length - 1];
-  tree.render(lhs_hierarchy, utils.consts.LHS, this.lhs_svg, this.margins, this.pivots, this.callback);  //perhaps get a return value if there is a more suitable container to use for links
-  tree.render(rhs_hierarchy, utils.consts.RHS, this.rhs_svg, this.margins, this.pivots, this.callback);
+  tree.render(lhs_hierarchy, utils.consts.LHS, this.lhs_svg_nodes, this.lhs_svg_links, this.margins, this.pivots, this.callback);  //perhaps get a return value if there is a more suitable container to use for links
+  tree.render(rhs_hierarchy, utils.consts.RHS, this.rhs_svg_nodes, this.rhs_svg_links, this.margins, this.pivots, this.callback);
 
 
 
@@ -570,8 +592,8 @@ reapplies = [];
 
     var left_right = [
 
-                      {side: "rhs_", svg: this.rhs_svg, data: this.rhs_hierarchies[this.rhs_hierarchies.length - 1]},
-                      {side: "lhs_", svg: this.lhs_svg, data: this.lhs_hierarchies[this.lhs_hierarchies.length - 1]}
+                      {side: "rhs_", svg_nodes: this.rhs_svg_nodes, svg_links: this.rhs_svg_links, data: this.rhs_hierarchies[this.rhs_hierarchies.length - 1]},
+                      {side: "lhs_", svg_nodes: this.lhs_svg_nodes, svg_links: this.lhs_svg_links, data: this.lhs_hierarchies[this.lhs_hierarchies.length - 1]}
 
                      ];
 
@@ -632,8 +654,10 @@ reapplies = [];
       //   return;
       // }
 //zzz
-      side_info.svg.selectAll(".schutz>*").classed("schutz", true);
-      side_info.svg.selectAll(":not(.schutz)").classed("hide2", true);
+      side_info.svg_nodes.selectAll(".schutz>*").classed("schutz", true);
+      side_info.svg_nodes.selectAll(":not(.schutz)").classed("hide2", true);
+      side_info.svg_links.selectAll(".schutz>*").classed("schutz", true);
+      side_info.svg_links.selectAll(":not(.schutz)").classed("hide2", true);
 
 
     let si = side_info.side == "lhs_" ? utils.consts.LHS : utils.consts.RHS
@@ -648,20 +672,22 @@ that.pivot_filter.list.forEach(function(plist, i){ //this looks like it could be
 });
 
 
-    links.render(side_info.data, pivots, side_info.svg, si);
+    links.render(side_info.data, pivots, side_info.svg_links, si);
 
 
     });
 
-    // that.lhs_svg.selectAll(":not(.schutz)").classed("hide2", true);
-    // that.rhs_svg.selectAll(":not(.schutz)").classed("hide2", true);
+    // that.lhs_svg_nodes.selectAll(":not(.schutz)").classed("hide2", true);
+    // that.rhs_svg_nodes.selectAll(":not(.schutz)").classed("hide2", true);
 
-    // this.rhs_svg.selectAll(".schutz>*").classed("schutz", true);
-    // this.rhs_svg.selectAll(":not(.schutz)").classed("hide1", true);
+    // this.rhs_svg_nodes.selectAll(".schutz>*").classed("schutz", true);
+    // this.rhs_svg_nodes.selectAll(":not(.schutz)").classed("hide1", true);
     //-------------
 
-    this.lhs_svg.selectAll(".schutz").classed("schutz", false);
-    this.rhs_svg.selectAll(".schutz").classed("schutz", false);
+    this.lhs_svg_nodes.selectAll(".schutz").classed("schutz", false);
+    this.rhs_svg_nodes.selectAll(".schutz").classed("schutz", false);
+    this.lhs_svg_links.selectAll(".schutz").classed("schutz", false);
+    this.rhs_svg_links.selectAll(".schutz").classed("schutz", false);
 
     reapplies.forEach(function(r, i){
 
@@ -669,8 +695,8 @@ if (1 == 1) { //DEBUG
         //here we want to call handle_message with tree.MSG_HIGHLIGHT_PATH
         //and pass in data, msg_id, side
 
-        // that.lhs_svg.selectAll(".hide1").classed("hide1", false);
-        // that.lhs_svg.selectAll(".link").classed("link", false);
+        // that.lhs_svg_nodes.selectAll(".hide1").classed("hide1", false);
+        // that.lhs_svg_nodes.selectAll(".link").classed("link", false);
         let xxx = r.data;
 
         that.schutz[r.side] = {neo_id: -1};
@@ -688,12 +714,18 @@ if (1 == 1) { //DEBUG
     this.pivot_svg.selectAll("*").remove(); //not sure why we have to do this.
     this.pivot_filter = null;
 
-    this.lhs_svg.selectAll(".hide1").classed("hide1", false);
-    this.rhs_svg.selectAll(".hide1").classed("hide1", false);
-    this.lhs_svg.selectAll(".hide2").classed("hide2", false);
-    this.rhs_svg.selectAll(".hide2").classed("hide2", false);
-    this.lhs_svg.selectAll(".link").remove();
-    this.rhs_svg.selectAll(".link").remove();
+    this.lhs_svg_nodes.selectAll(".hide1").classed("hide1", false);
+    this.rhs_svg_nodes.selectAll(".hide1").classed("hide1", false);
+    this.lhs_svg_nodes.selectAll(".hide2").classed("hide2", false);
+    this.rhs_svg_nodes.selectAll(".hide2").classed("hide2", false);
+
+    this.lhs_svg_links.selectAll(".hide1").classed("hide1", false);
+    this.rhs_svg_links.selectAll(".hide1").classed("hide1", false);
+    this.lhs_svg_links.selectAll(".hide2").classed("hide2", false);
+    this.rhs_svg_links.selectAll(".hide2").classed("hide2", false);
+
+    this.lhs_svg_links.selectAll(".link").remove();
+    this.rhs_svg_links.selectAll(".link").remove();
     //let eid = "pivot_" + this.prev_filter_id;
     delete this.prev_filter_id;
     this.render();
