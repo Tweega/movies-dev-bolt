@@ -1,9 +1,9 @@
 require('file?name=[name].[ext]!../node_modules/neo4j-driver/lib/browser/neo4j-web.min.js');
 var utils = require('./Utils');
 var neo4j = window.neo4j.v1;
-// var driver = neo4j.driver("bolt://localhost", neo4j.auth.basic("neo4j", "Milwan1"));
+var driver = neo4j.driver("bolt://localhost", neo4j.auth.basic("neo4j", "Milwan1"));
 //
-var driver = neo4j.driver("bolt://wmw.uk.deloitte.com", neo4j.auth.basic("neo4j", "graph"));
+// var driver = neo4j.driver("bolt://wmw.uk.deloitte.com", neo4j.auth.basic("neo4j", "graph"));
 
 function getHierarchy(rootClass) {
   var session = driver.session();

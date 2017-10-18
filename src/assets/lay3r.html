@@ -279,6 +279,11 @@ margin:0px;
   font-weight: bold;
 }
 
+.header_row td {
+  text-align: center;
+
+}
+
 #footer_gap{
   position:absolute;
   bottom:0;
@@ -318,7 +323,7 @@ $(t).remove();
   htmlArray.push("<div id='table_header'>Layers that relate to pivot</div>");
   htmlArray.push("<table id='relations_table'>");
   htmlArray.push("<tr class='header_row'>");
-  htmlArray.push("<td>LHS layer</td><td>LHS field</td><td>RHS layer</td><td>RHS field</td>");
+  htmlArray.push("<td valign='center'>LHS layer</td><td valign='center'>LHS relationship</td><td valign='center'>LHS strength</td><td>RHS layer</td><td valign='center'>RHS relationship</td><td valign='center'>RHS strength</td>");
   htmlArray.push("</tr>");
 
 myFunc(htmlArray, my_data, pivotName);
@@ -379,7 +384,7 @@ rc(ff);
 <div id="container">
   <div id="layerTree"></div>
   <div id="info"><img src="/src/assets/deloitte_log.png" id="logo"></div>
-  <div id="version">v: 0.0.2</div>
+  <div id="version">v: 3way 0.0.3</div>
 </div>
 
 

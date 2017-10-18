@@ -129,7 +129,7 @@ zz.push("<div id='dialog_container'>");
       zz.push("<table id='relations_table'>");
 
         zz.push("<tr class='header_row'>");
-          zz.push("<td>LHS layer</td><td>LHS field</td><td>RHS layer</td><td>RHS field</td>");
+          zz.push("<td valign='center'>LHS layer</td><td valign='center'>LHS relationship</td><td valign='center'>LHS strength</td><td>RHS layer</td><td valign='center'>RHS relationship</td><td valign='center'>RHS strength</td>");
         zz.push("</tr>");
 
         getRelatedLayers(zz, data, first_pivot);
@@ -923,7 +923,7 @@ function getRelatedLayers(htmlArray, data, pivot) {
 
       let lhs = d["lhs"];
       let rhs = d["rhs"];
-      let str = `<td>${lhs.layer}</td><td>${lhs.rel}</td><td>${rhs.layer}</td><td>${rhs.rel}</td>`
+      let str = `<td>${lhs.layer}</td><td>${lhs.rel}</td><td>${lhs.rel_field}</td><td>${rhs.layer}</td><td>${rhs.rel}</td><td>${rhs.rel_field}</td>`
       htmlArray.push(str);
     }
 
@@ -959,12 +959,12 @@ function handleRelationChange(selectedRow) {
 
   var lhs = selectedRow.cells[0].innerText;
   var lhs_field = selectedRow.cells[1].innerText;
-  var rhs = selectedRow.cells[2].innerText;
-  var rhs_field = selectedRow.cells[3].innerText;
-  //console.log("we need to have access to the relationship name and the field that carries the relationship?");
+  var lhs_strength = selectedRow.cells[2].innerText;
+  var rhs = selectedRow.cells[3].innerText;
+  var rhs_field = selectedRow.cells[4].innerText;
+  var rhs_strength = selectedRow.cells[5].innerText;
 
-
-  theDialog.data('selectedInfo', {pivot: pivotName, lhs: lhs, lhs_rel: lhs_field, lhs_rel_field: lhs_field, rhs: rhs, rhs_rel: rhs_field, rhs_rel_field: rhs_field});
+  theDialog.data('selectedInfo', {pivot: pivotName, lhs: lhs, lhs_rel: lhs_field, lhs_rel_field: lhs_strength, rhs: rhs, rhs_rel: rhs_field, rhs_rel_field: rhs_strength});
   var str = `${lhs} - ${pivotName} - ${rhs}`
   $("#footer").text(str);
 }
